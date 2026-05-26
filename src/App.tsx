@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User } from 'lucide-react';
+import { StatsSection } from './components/StatsSection';
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -200,6 +201,9 @@ export default function App() {
         </div>
       </section>
 
+      {/* Stats Counters Section */}
+      <StatsSection />
+
       {/* About Section */}
       <section id="about" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -215,18 +219,9 @@ export default function App() {
                 Уг арга хэмжээ нь өнгөрсөн зууны ололт амжилтыг дүгнээд зогсохгүй уур амьсгалын өөрчлөлт, хотжилттой зэрэгцэн ирж буй ирээдүйн 100 жилийн хөгжлийн концепц, шинэ зууны стратегийг тодорхойлох түүхэн мөч болж байна.
               </p>
               
-              <div className="grid grid-cols-2 gap-6 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <div>
-                  <div className="text-5xl font-black font-heading text-blue-900 mb-2">100<span className="text-red-600">+</span></div>
-                  <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">Олон улсын компаниуд</div>
-                  <div className="text-xs text-gray-400 mt-2">ОХУ, БНХАУ, БНСУ, Япон, Герман</div>
-                </div>
-                <div>
-                  <div className="text-5xl font-black font-heading text-blue-900 mb-2">400<span className="text-red-600">+</span></div>
-                  <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">Үндэсний ААН</div>
-                  <div className="text-xs text-gray-400 mt-2">Барилгын салбарын шилдгүүд</div>
-                </div>
-              </div>
+              <p className="text-gray-500 leading-relaxed font-light">
+                “BARILGA EXPO” олон улсын үзэсгэлэн нь салбарын шинэ дэвшилтэт брэндүүдтэй танилцах, салбарын хөгжилд үнэтэй хувь нэмэр оруулах гол талбар билээ.
+              </p>
             </div>
             
             <div className="relative">
