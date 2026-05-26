@@ -1,0 +1,8 @@
+{
+  "name": "Barilga Expo 2026",
+  "description": "BARILGA EXPO 2026 - Олон улсын барилгын үзэсгэлэн яармаг",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
