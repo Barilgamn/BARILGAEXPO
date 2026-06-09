@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "SiteConfig": {
+      "title": "Site Configuration",
+      "description": "Complete dynamic content of Barilga Expo 2026",
+      "type": "object",
+      "properties": {
+        "logoUrl": {
+          "type": "string",
+          "description": "Main website logo URL"
+        },
+        "contact": {
+          "type": "object",
+          "description": "Contact phone numbers, email, physical address, and social links"
+        },
+        "menus": {
+          "type": "array",
+          "description": "Header navigation menus"
+        },
+        "organizers": {
+          "type": "array",
+          "description": "List of organizers"
+        },
+        "sponsors": {
+          "type": "array",
+          "description": "List of event sponsors categorized by tier"
+        },
+        "gallery": {
+          "type": "array",
+          "description": "List of exhibition photo URLs"
+        },
+        "program": {
+          "type": "array",
+          "description": "Exhibition agenda schedule split by days"
+        },
+        "news": {
+          "type": "array",
+          "description": "List of articles and press releases"
+        }
+      },
+      "required": ["logoUrl", "contact", "menus", "organizers", "sponsors", "gallery", "program", "news"]
+    },
+    "Registration": {
+      "title": "Registration Submission",
+      "description": "Visitor or exhibitor space registration details",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique registration ID"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of registration: visitor or exhibitor"
+        },
+        "name": {
+          "type": "string",
+          "description": "Attendee name or contact person"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number"
+        },
+        "email": {
+          "type": "string",
+          "description": "Visitor email address, optional"
+        },
+        "org": {
+          "type": "string",
+          "description": "Exhibitor organization name, optional"
+        },
+        "area": {
+          "type": "string",
+          "description": "Exhibitor requested space area in sqm, optional"
+        },
+        "req": {
+          "type": "string",
+          "description": "Exhibitor other requests, optional"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Server timestamp of creation"
+        }
+      },
+      "required": ["id", "type", "name", "phone", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/site_data/{configId}": {
+      "schema": "SiteConfig",
+      "description": "Dynamic Content document of the website"
+    },
+    "/registrations/{registrationId}": {
+      "schema": "Registration",
+      "description": "Collection of registration submissions from users and companies"
+    }
+  }
+}

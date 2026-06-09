@@ -3,16 +3,93 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
-import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User } from 'lucide-react';
+import { useState, useEffect, lazy, Suspense } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User, Mail, ArrowUp, ChevronDown } from 'lucide-react';
+import { useTranslation, Language } from './i18n';
+import { useAdmin } from './context/AdminContext';
+import { supabase } from './supabase';
+
+// Optimize bundle size & performance via dynamic code-splitting
+const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
+const NewsSection = lazy(() => import('./components/NewsSection').then(m => ({ default: m.NewsSection })));
+const ProgramSection = lazy(() => import('./components/ProgramSection').then(m => ({ default: m.ProgramSection })));
+const GallerySection = lazy(() => import('./components/GallerySection').then(m => ({ default: m.GallerySection })));
+const GuidePage = lazy(() => import('./components/GuidePage').then(m => ({ default: m.GuidePage })));
+const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({ default: m.AuthCallback })));
+
+// Loading placeholder component for clean layout transition
+function LoadingPlaceHolder() {
+  return (
+    <div className="py-12 flex flex-col items-center justify-center space-y-4 animate-pulse bg-gray-50/50">
+      <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+      <div className="h-3 w-36 bg-gray-200 rounded"></div>
+    </div>
+  );
+}
 
 export default function App() {
+  const { data } = useAdmin();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/auth');
+  const { lang, setLang, t } = useTranslation();
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isScrolled, setIsScrolled] = useState(false);
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
   const [regType, setRegType] = useState<'visitor' | 'exhibitor' | null>(null);
   const [isRegSuccess, setIsRegSuccess] = useState(false);
+
+  // Registration form states
+  const [formName, setFormName] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formOrg, setFormOrg] = useState('');
+  const [formArea, setFormArea] = useState('');
+  const [formReq, setFormReq] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    const registrationId = 'reg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+
+    try {
+      const payload: any = {
+        id: registrationId,
+        type: regType,
+        name: formName,
+        phone: formPhone,
+      };
+
+      if (regType === 'visitor') {
+        payload.email = formEmail || null;
+      } else if (regType === 'exhibitor') {
+        payload.org = formOrg || null;
+        payload.area = formArea || null;
+        payload.req = formReq || null;
+      }
+
+      const { error } = await supabase.from('registrations').insert(payload);
+      if (error) throw new Error(error.message);
+
+      setIsRegSuccess(true);
+      setFormName('');
+      setFormPhone('');
+      setFormEmail('');
+      setFormOrg('');
+      setFormArea('');
+      setFormReq('');
+    } catch (error) {
+      alert("Бүртгэл хадгалахад алдаа гарлаа: " + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +98,76 @@ export default function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleMenuClick = (path: string, e: React.MouseEvent) => {
+    const isHashPath = path.includes('#');
+    if (isHashPath) {
+      const [pathname, hash] = path.split('#');
+      const isCurrentPage = pathname === '' || pathname === '/'
+        ? (location.pathname === '/' || location.pathname === '')
+        : location.pathname === pathname;
+        
+      if (isCurrentPage && hash) {
+        e.preventDefault();
+        const element = document.getElementById(hash);
+        if (element) {
+          const navbarOffset = 85;
+          const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = elementPosition - navbarOffset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          
+          window.history.pushState(null, '', path);
+        }
+      }
+    } else {
+      if (location.pathname === path) {
+        e.preventDefault();
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (location.hash) {
+      const hashId = location.hash.replace('#', '');
+      let attempts = 0;
+      
+      const tryScroll = () => {
+        const element = document.getElementById(hashId);
+        if (element) {
+          const navbarOffset = 85;
+          const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = elementPosition - navbarOffset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          return true;
+        }
+        return false;
+      };
+
+      if (!tryScroll()) {
+        const interval = setInterval(() => {
+          attempts++;
+          if (tryScroll() || attempts >= 20) {
+            clearInterval(interval);
+          }
+        }, 100);
+        return () => clearInterval(interval);
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
 
   useEffect(() => {
     const targetDate = new Date('2026-09-11T00:00:00').getTime();
@@ -47,152 +194,229 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800">
       {/* Navbar segment */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-blue-900/95 backdrop-blur-md shadow-lg border-b border-white/10 py-2' : 'bg-transparent py-4'}`}>
+      {!isAdminRoute && (
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2' : 'bg-transparent py-4'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <a href="#" className="flex items-center gap-3">
+              <Link to="/" className="flex items-center gap-3">
                 <img
-                  src="https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2024/06/EXPO-LOGO.png?resize=768%2C348&ssl=1"
+                  src={data.logoUrl}
                   alt="Barilga Expo Logo"
-                  className="h-14 md:h-16 object-contain brightness-0 invert transition-all"
+                  referrerPolicy="no-referrer"
+                  className="h-10 md:h-16 object-contain brightness-0 invert transition-all"
                 />
-                <div className="w-px h-10 bg-white/30 hidden sm:block"></div>
+                <div className="w-px h-8 md:h-10 bg-white/30"></div>
                 <img
                   src="https://mcud.gov.mn/resource/mcud/image/2026/03/02/2eepuf1io6kp37z3/100%20logo_01.png"
                   alt="Их Барилга 100"
-                  className="h-10 md:h-12 object-contain brightness-0 invert transition-all hidden sm:block pb-1"
+                  referrerPolicy="no-referrer"
+                  className="h-8 md:h-12 object-contain brightness-0 invert transition-all pb-1"
                 />
-              </a>
+              </Link>
             </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#home" className="text-sm font-medium text-white/90 hover:text-white transition-colors">Нүүр</a>
-              <a href="#about" className="text-sm font-medium text-white/90 hover:text-white transition-colors">Бидний тухай</a>
-              <a href="#categories" className="text-sm font-medium text-white/90 hover:text-white transition-colors">Үндсэн чиглэл</a>
-              <a href="#program" className="text-sm font-medium text-white/90 hover:text-white transition-colors">Хөтөлбөр</a>
-              <a href="#contact" className="text-sm font-medium text-white/90 hover:text-white transition-colors">Холбоо барих</a>
-              <button onClick={() => setIsRegModalOpen(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95">
-                Бүртгүүлэх
-              </button>
-            </div>
+            <div className="flex flex-1 items-center justify-end">
+              {/* Desktop Menu */}
+              <div className="hidden lg:flex items-center space-x-6 mr-6">
+                {data.menus.map(menu => (
+                  menu.path.startsWith('/') ? (
+                    <Link key={menu.id} to={menu.path} onClick={(e) => handleMenuClick(menu.path, e)} className="text-sm font-medium text-white/90 hover:text-white transition-colors uppercase">
+                      {lang === 'mn' ? menu.labelMn : menu.labelEn}
+                    </Link>
+                  ) : (
+                    <a key={menu.id} href={menu.path} onClick={(e) => handleMenuClick(menu.path, e)} className="text-sm font-medium text-white/90 hover:text-white transition-colors uppercase">
+                      {lang === 'mn' ? menu.labelMn : menu.labelEn}
+                    </a>
+                  )
+                ))}
+                <button onClick={() => setIsRegModalOpen(true)} className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all hover:shadow-lg hover:shadow-red-500/20 active:scale-95">
+                  {t('nav_register')}
+                </button>
+              </div>
 
-            {/* Mobile menu button */}
-            <div className="md:hidden flex items-center">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-white hover:text-red-500 p-2"
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
+              <div className="flex items-center gap-2 relative">
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
+                    className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-2 py-1.5 rounded-lg backdrop-blur-sm transition-all"
+                  >
+                    <span className="text-xl leading-none">
+                      {lang === 'mn' ? '🇲🇳' : lang === 'en' ? '🇬🇧' : lang === 'zh' ? '🇨🇳' : lang === 'ru' ? '🇷🇺' : '🇰🇷'}
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isLangMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {isLangMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-36 bg-white rounded-xl shadow-xl overflow-hidden py-1 z-50 border border-gray-100">
+                      {[
+                        { code: 'mn', flag: '🇲🇳', name: 'Монгол' },
+                        { code: 'en', flag: '🇬🇧', name: 'English' },
+                        { code: 'zh', flag: '🇨🇳', name: '中文' },
+                        { code: 'ru', flag: '🇷🇺', name: 'Русский' },
+                        { code: 'ko', flag: '🇰🇷', name: '한국어' },
+                      ].map((l) => (
+                        <button
+                          key={l.code}
+                          onClick={() => { setLang(l.code as any); setIsLangMenuOpen(false); }}
+                          className={`w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors ${lang === l.code ? 'bg-red-50 text-red-700 font-semibold' : 'text-gray-700'}`}
+                        >
+                          <span className="text-xl">{l.flag}</span>
+                          <span className="text-sm">{l.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Mobile menu button */}
+                <div className="lg:hidden flex items-center">
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="text-white hover:text-red-400 p-2"
+                  >
+                    {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-4 pt-2 pb-6 space-y-1 shadow-xl">
-            <a href="#home" className="block px-3 py-3 text-base font-medium text-gray-800 hover:bg-gray-50 rounded-md">Нүүр</a>
-            <a href="#about" className="block px-3 py-3 text-base font-medium text-gray-800 hover:bg-gray-50 rounded-md">Бидний тухай</a>
-            <a href="#categories" className="block px-3 py-3 text-base font-medium text-gray-800 hover:bg-gray-50 rounded-md">Үндсэн чиглэл</a>
-            <a href="#program" className="block px-3 py-3 text-base font-medium text-gray-800 hover:bg-gray-50 rounded-md">Хөтөлбөр</a>
-            <a href="#contact" className="block px-3 py-3 text-base font-medium text-gray-800 hover:bg-gray-50 rounded-md">Холбоо барих</a>
-            <button onClick={() => {setIsRegModalOpen(true); setIsMenuOpen(false);}} className="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg text-base font-semibold transition-colors">
-              Бүртгүүлэх
+          <div className="md:hidden bg-blue-900/80 backdrop-blur-md border-t border-white/10 px-4 pt-2 pb-6 space-y-1 shadow-xl">
+            {data.menus.map(menu => (
+              menu.path.startsWith('/') ? (
+                <Link key={menu.id} to={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
+                  {lang === 'mn' ? menu.labelMn : menu.labelEn}
+                </Link>
+              ) : (
+                <a key={menu.id} href={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
+                  {lang === 'mn' ? menu.labelMn : menu.labelEn}
+                </a>
+              )
+            ))}
+            <button onClick={() => {setIsRegModalOpen(true); setIsMenuOpen(false);}} className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-base font-semibold transition-colors">
+              {t('nav_register')}
             </button>
           </div>
         )}
       </nav>
+      )}
 
-      {/* Hero Section */}
-      <section id="home" className="relative pt-20 h-[85vh] min-h-[700px] flex items-center overflow-hidden">
-        <div className="absolute inset-0 w-full h-full">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 via-blue-900/80 to-blue-900/40 mix-blend-multiply z-10" />
+      <Routes>
+        <Route path="/admin" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <AdminPanel />
+          </Suspense>
+        } />
+        <Route path="/auth/callback" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <AuthCallback />
+          </Suspense>
+        } />
+        <Route path="/" element={
+          <>
+            {/* Hero Section */}
+            <section id="home" className="relative pt-28 pb-12 md:pb-0 md:pt-20 min-h-[100svh] md:min-h-[85vh] flex items-center overflow-hidden">
+        <div className="absolute inset-0 w-full h-full bg-blue-950">
+          <div className="absolute inset-0 bg-blueprint z-10 opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/90 via-blue-900/80 to-blue-900/40 mix-blend-multiply z-10" />
           <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-blue-950 to-transparent z-10" />
           <img
             src="https://greatergo.org/uploads/article/63ab00ab-f707-4b23-b389-96b04b22552a.jpg"
             alt="Ulaanbaatar city background"
-            className="w-full h-full object-cover blur-[3px]"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover blur-[5px] scale-105 opacity-50"
           />
         </div>
         
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-7 xl:col-span-8">
-              <h1 className="font-heading text-5xl md:text-7xl font-black text-white leading-tight mb-4 drop-shadow-lg">
-                BARILGA EXPO
+            <div className="lg:col-span-7 xl:col-span-8 relative">
+              {/* Construction Accent Line */}
+              <div className="absolute -left-6 md:-left-10 top-2 bottom-4 w-1 bg-gradient-to-b from-red-500 rounded-full via-red-400 to-transparent hidden md:block"></div>
+              
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 font-medium text-xs uppercase tracking-widest mb-6">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                The 40th International Exhibition
+              </div>
+
+              <h1 className="font-heading text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.1] mb-4 drop-shadow-2xl">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">{t('hero_title')}</span>
               </h1>
               
-              <h2 className="text-2xl md:text-3xl text-gray-200 font-medium tracking-wide mb-6">
-                Олон улсын барилгын үзэсгэлэн яармаг
+              <h2 className="text-xl sm:text-2xl md:text-3xl text-red-400 font-bold tracking-wide mb-6 flex items-center gap-3">
+                {t('hero_subtitle')}
               </h2>
               
-              <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-10 max-w-2xl font-light text-justify">
-                Барилга, дэд бүтэц, үл хөдлөх хөрөнгийн зах зээл идэвхжиж, орон сууцны эрэлт хэрэгцээ нэмэгддэг намрын улиралд зохион байгуулагддаг “BARILGA EXPO” олон улсын барилгын үзэсгэлэн яармаг 2026 оны 9 дүгээр сарын 11-13-ны өдрүүдэд “Буянт-Ухаа” ордонд 40 дэх удаагаа зохион байгуулагдана
+              <p className="text-base sm:text-lg md:text-xl text-blue-100/80 leading-relaxed mb-8 md:mb-10 max-w-2xl font-light">
+                {t('hero_desc')}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-6 mb-12">
-                <div className="flex items-center gap-3 text-white">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
-                    <Calendar className="h-6 w-6 text-emerald-400" />
+                <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-red-500/20 border border-red-500/30">
+                    <Calendar className="h-6 w-6 text-red-400" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-400">Хэзээ</div>
-                    <div className="font-semibold text-lg">2026 оны 9-р сарын 11-13</div>
+                    <div className="text-xs text-blue-200/60 uppercase tracking-widest font-semibold">{t('when')}</div>
+                    <div className="font-bold text-white text-lg">{t('when_date')}</div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 text-white">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
-                    <MapPin className="h-6 w-6 text-emerald-400" />
+                <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-red-500/20 border border-red-500/30">
+                    <MapPin className="h-6 w-6 text-red-400" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-400">Хаана</div>
-                    <div className="font-semibold text-lg">“Буянт-Ухаа” ордон</div>
+                    <div className="text-xs text-blue-200/60 uppercase tracking-widest font-semibold">{t('where')}</div>
+                    <div className="font-bold text-white text-lg">{t('where_loc')}</div>
                   </div>
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => setIsRegModalOpen(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95 flex items-center justify-center gap-2 group">
-                  Бүртгүүлэх
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
             </div>
 
-            <div className="lg:col-span-5 xl:col-span-4 mt-8 lg:mt-0">
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-                <h3 className="text-emerald-400 font-semibold mb-6 flex items-center gap-2">
+            <div className="lg:col-span-5 xl:col-span-4 mt-8 lg:mt-0 relative z-30">
+
+
+              <div className="bg-blue-900/40 backdrop-blur-xl border border-blue-400/20 rounded-2xl p-6 sm:p-8 shadow-[0_0_40px_rgba(0,0,0,0.3)] relative overflow-hidden group">
+                <div className="absolute inset-0 bg-blueprint z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-1000"></div>
+                
+                <h3 className="text-red-400 font-bold mb-6 flex items-center gap-2 relative z-10 text-sm tracking-widest uppercase">
                   <Timer className="h-5 w-5" />
-                  Үзэсгэлэн эхлэхэд:
+                  {t('starts_in')}
                 </h3>
                 
-                <div className="grid grid-cols-4 gap-3 text-center">
-                  <div className="bg-white/10 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                    <div className="text-3xl font-black text-white font-heading mb-1">{timeLeft.days}</div>
-                    <div className="text-xs text-gray-300 uppercase tracking-wider">Өдөр</div>
+                <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center relative z-10">
+                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.days}</div>
+                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('days')}</div>
                   </div>
-                  <div className="bg-white/10 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                    <div className="text-3xl font-black text-white font-heading mb-1">{timeLeft.hours.toString().padStart(2, '0')}</div>
-                    <div className="text-xs text-gray-300 uppercase tracking-wider">Цаг</div>
+                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.hours.toString().padStart(2, '0')}</div>
+                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('hours')}</div>
                   </div>
-                  <div className="bg-white/10 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                    <div className="text-3xl font-black text-white font-heading mb-1">{timeLeft.minutes.toString().padStart(2, '0')}</div>
-                    <div className="text-xs text-gray-300 uppercase tracking-wider">Минут</div>
+                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.minutes.toString().padStart(2, '0')}</div>
+                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('minutes')}</div>
                   </div>
-                  <div className="bg-white/10 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                    <div className="text-3xl font-black text-white font-heading mb-1">{timeLeft.seconds.toString().padStart(2, '0')}</div>
-                    <div className="text-xs text-gray-300 uppercase tracking-wider">Секунд</div>
+                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.seconds.toString().padStart(2, '0')}</div>
+                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('seconds')}</div>
                   </div>
                 </div>
                 
-                <div className="mt-6 pt-6 border-t border-white/10 text-center">
-                  <p className="text-sm text-gray-300">
-                    Бүртгэл дуусахад цөөхөн талбай үлдлээ
+                <div className="mt-6 pt-6 border-t border-blue-400/20 text-center relative z-10">
+                  <p className="text-sm text-blue-200/80 font-medium mb-4">
+                    {t('space_open')}
                   </p>
+                  <button onClick={() => setIsRegModalOpen(true)} className="bg-red-500 hover:bg-red-600 text-white px-8 py-3.5 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:shadow-red-500/25 active:scale-95 flex items-center justify-center gap-2 group border-b-4 border-red-700 active:border-b-0 active:translate-y-[4px] w-full">
+                    {t('nav_register')}
+                    <CheckCircle2 className="h-5 w-5 opacity-80" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -200,51 +424,35 @@ export default function App() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-24 bg-gray-50">
+      {/* Stats Counters Section */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <StatsSection />
+      </Suspense>
+
+      {/* Organizers Section */}
+      <section className="bg-white pt-16 pb-8 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h3 className="text-emerald-600 font-bold uppercase tracking-wider text-sm mb-3">Бидний тухай</h3>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-blue-900 leading-tight mb-6">
-                Шинэ зууны стратегийг тодорхойлох түүхэн мөч
-              </h2>
-              <div className="w-20 h-1.5 bg-red-600 mb-8 rounded-full"></div>
-              
-              <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                Уг арга хэмжээ нь өнгөрсөн зууны ололт амжилтыг дүгнээд зогсохгүй уур амьсгалын өөрчлөлт, хотжилттой зэрэгцэн ирж буй ирээдүйн 100 жилийн хөгжлийн концепц, шинэ зууны стратегийг тодорхойлох түүхэн мөч болж байна.
-              </p>
-              
-              <div className="grid grid-cols-2 gap-6 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <div>
-                  <div className="text-5xl font-black font-heading text-blue-900 mb-2">100<span className="text-red-600">+</span></div>
-                  <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">Олон улсын компаниуд</div>
-                  <div className="text-xs text-gray-400 mt-2">ОХУ, БНХАУ, БНСУ, Япон, Герман</div>
-                </div>
-                <div>
-                  <div className="text-5xl font-black font-heading text-blue-900 mb-2">400<span className="text-red-600">+</span></div>
-                  <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">Үндэсний ААН</div>
-                  <div className="text-xs text-gray-400 mt-2">Барилгын салбарын шилдгүүд</div>
-                </div>
-              </div>
+          <div className="bg-gray-50 rounded-2xl p-8 lg:p-12 border border-gray-100 lg:flex lg:justify-between lg:items-center gap-8 shadow-sm">
+            <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center lg:items-start text-center lg:text-left">
+              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6">{t('org_main')}</div>
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
+                <img src="https://barilgaexpo.mn/wp-content/uploads/2024/06/Barilga.mn-shuud-ashiglah-logo-Copy-Copy-2-1.png" alt="BARILGA.MN" loading="lazy" referrerPolicy="no-referrer" className="h-10 md:h-12 object-contain" />
+              </a>
             </div>
             
-            <div className="relative">
-              <div className="absolute inset-0 bg-blue-900 rounded-[2rem] transform translate-x-4 translate-y-4"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80" 
-                alt="Architecture concept" 
-                className="relative z-10 w-full h-[500px] object-cover rounded-[2rem] shadow-xl"
-              />
-              
-              <div className="absolute bottom-10 -left-10 z-20 bg-white p-6 rounded-2xl shadow-xl flex items-center gap-4 animate-bounce hover:animate-none transition-all">
-                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-                </div>
-                <div>
-                  <div className="font-heading font-bold text-gray-900">Батлагдсан чанар</div>
-                  <div className="text-sm text-gray-500">40 дэх удаагийн сонголт</div>
-                </div>
+            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-200 my-8 lg:my-0"></div>
+            
+            <div className="lg:w-2/3 flex flex-col items-center lg:items-start">
+              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center lg:text-left">{t('org_co')}</div>
+              <div className="flex flex-wrap justify-center lg:justify-start gap-10 items-start">
+                {data.organizers.map(org => (
+                  <a key={org.id} href="#" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group" title={org.name}>
+                    <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
+                      <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                    </div>
+                    <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">{org.name}</span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -252,85 +460,132 @@ export default function App() {
       </section>
 
       {/* Categories */}
-      <section id="categories" className="py-24 bg-white relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h3 className="text-emerald-600 font-bold uppercase tracking-wider text-sm mb-3">Үндсэн чиглэл</h3>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-blue-900 mb-6">
-              Үзэсгэлэнгийн салбарууд
+      <section id="categories" className="py-16 md:py-24 bg-gray-50 relative overflow-hidden">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 bg-blueprint-dark opacity-40 z-0"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-red-400 to-red-500 z-10 opacity-70"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16 px-4">
+            <h3 className="text-red-500 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 mb-3">
+              <span className="w-8 h-px bg-red-500"></span>
+              {t('cat_pre')}
+              <span className="w-8 h-px bg-red-500"></span>
+            </h3>
+            <h2 className="font-heading text-3xl md:text-5xl font-black text-blue-950 mb-6 tracking-tight">
+              {t('cat_title')}
             </h2>
-            <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full"></div>
+            <div className="w-16 h-1.5 bg-blue-900 mx-auto rounded-none group">
+              <div className="w-8 h-full bg-red-500 rounded-none group-hover:w-full transition-all duration-300"></div>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
             {/* Card 1 */}
-            <div className="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:border-emerald-100">
-              <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+            <div className="group bg-white p-8 rounded-none shadow-[4px_4px_0px_rgba(59,130,246,0.1)] border-2 border-transparent hover:border-blue-900 transition-all duration-300 relative">
+              <div className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center">
+                <div className="w-3 h-3 border-t-2 border-r-2 border-gray-250 group-hover:border-red-500 absolute top-0 right-0 transition-colors duration-300"></div>
+              </div>
+              <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-none flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
                 <Building2 className="h-8 w-8" />
               </div>
-              <h3 className="font-heading text-xl font-bold text-gray-900 mb-4 h-14 group-hover:text-blue-900 transition-colors">
-                Шинэ орон сууц, үл хөдлөх хөрөнгө
+              <h3 className="font-heading text-xl font-black text-gray-900 mb-6 h-14 tracking-tight group-hover:text-red-500 transition-colors">
+                {t('cat1_title')}
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Тансаг болон стандарт орон сууц</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat1_1')}</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Хаус дизайн</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat1_2')}</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Үл хөдлөх хөрөнгийн зуучлал</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat1_3')}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat1_4')}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat1_5')}</span>
                 </li>
               </ul>
             </div>
 
             {/* Card 2 */}
-            <div className="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:border-emerald-100">
-              <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+            <div className="group bg-white p-8 rounded-none shadow-[4px_4px_0px_rgba(59,130,246,0.1)] border-2 border-transparent hover:border-blue-900 transition-all duration-300 relative">
+              <div className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center">
+                <div className="w-3 h-3 border-t-2 border-r-2 border-gray-250 group-hover:border-red-500 absolute top-0 right-0 transition-colors duration-300"></div>
+              </div>
+              <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-none flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
                 <Wrench className="h-8 w-8" />
               </div>
-              <h3 className="font-heading text-xl font-bold text-gray-900 mb-4 h-14 group-hover:text-blue-900 transition-colors">
-                Барилгын материал, дэвшилтэт технологи
+              <h3 className="font-heading text-xl font-black text-gray-900 mb-6 h-14 tracking-tight group-hover:text-red-500 transition-colors">
+                {t('cat2_title')}
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Барилгын материал</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat2_1')}</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Засал чимэглэл</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat2_2')}</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Цахилгаан, сантехник, Интерьер</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat2_3')}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat2_4')}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat2_5')}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat2_6')}</span>
                 </li>
               </ul>
             </div>
 
             {/* Card 3 */}
-            <div className="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:border-emerald-100">
-              <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+            <div className="group bg-white p-8 rounded-none shadow-[4px_4px_0px_rgba(59,130,246,0.1)] border-2 border-transparent hover:border-blue-900 transition-all duration-300 relative">
+              <div className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center">
+                <div className="w-3 h-3 border-t-2 border-r-2 border-gray-250 group-hover:border-red-500 absolute top-0 right-0 transition-colors duration-300"></div>
+              </div>
+              <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-none flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
                 <Truck className="h-8 w-8" />
               </div>
-              <h3 className="font-heading text-xl font-bold text-gray-900 mb-4 h-14 group-hover:text-blue-900 transition-colors">
-                Гадаа талбай
+              <h3 className="font-heading text-xl font-black text-gray-900 mb-6 h-14 tracking-tight group-hover:text-red-500 transition-colors">
+                {t('cat3_title')}
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Хүнд машин механизм</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat3_1')}</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Багаж төхөөрөмж</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat3_2')}</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600">Зөөврийн сууц, Амины орон сууцны загварууд</span>
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat3_3')}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat3_4')}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
+                  <span className="text-gray-600 font-medium">{t('cat3_5')}</span>
                 </li>
               </ul>
             </div>
@@ -338,75 +593,130 @@ export default function App() {
         </div>
       </section>
 
-      {/* Organizers Section */}
-      <section className="bg-white py-16 border-t border-gray-100">
+      {/* News Section */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <NewsSection />
+      </Suspense>
+
+      {/* Gallery Section */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <GallerySection />
+      </Suspense>
+
+      {/* Program Section */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <ProgramSection />
+      </Suspense>
+          </>
+        } />
+        <Route path="/guide" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <GuidePage />
+          </Suspense>
+        } />
+      </Routes>
+
+      {/* Footer & Contact */}
+      {!isAdminRoute && (
+        <footer id="contact" className="bg-blue-900 text-white pt-16 pb-10 border-t-4 border-red-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gray-50 rounded-2xl p-8 lg:p-12 border border-gray-100 lg:flex lg:justify-between lg:items-center gap-8 shadow-sm">
-            <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center lg:items-start text-center lg:text-left">
-              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6">Ерөнхий зохион байгуулагч</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="https://barilgaexpo.mn/wp-content/uploads/2024/06/Barilga.mn-shuud-ashiglah-logo-Copy-Copy-2-1.png" alt="BARILGA.MN" className="h-10 md:h-12 object-contain" />
-              </a>
-            </div>
-            
-            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-200 my-8 lg:my-0"></div>
-            
-            <div className="lg:w-2/3 flex flex-col items-center lg:items-start">
-              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center lg:text-left">Хамтран зохион байгуулагч</div>
-              <div className="flex flex-wrap justify-center lg:justify-start gap-10 items-start">
-                <a href="https://mcud.gov.mn" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group" title="Хот Байгуулалт, Барилга, Орон Сууцжуулалтын Яам">
-                  <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
-                    <img src="https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2025/10/unnamed-3.webp?w=913&ssl=1" alt="Хот Байгуулалт, Барилга, Орон Сууцжуулалтын Яам" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12">
+            {/* Contact Info */}
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <img
+                    src={data.logoUrl}
+                    alt="Barilga Expo Logo"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    className="h-10 object-contain brightness-0 invert"
+                  />
+                  <div className="w-px h-8 bg-white/30"></div>
+                  <img
+                    src="https://mcud.gov.mn/resource/mcud/image/2026/03/02/2eepuf1io6kp37z3/100%20logo_01.png"
+                    alt="Их Барилга 100"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    className="h-8 object-contain brightness-0 invert pb-1"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-red-400 mt-1 shrink-0" />
+                  <p className="text-blue-100 text-sm">
+                    {data.contact.address}
+                  </p>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-5 w-5 text-red-400 mt-1 shrink-0" />
+                  <div className="text-blue-100 text-sm">
+                    <p>{t('contact_hours')}</p>
+                    <p>{t('contact_days')}</p>
+                    <p>{t('contact_time')}</p>
                   </div>
-                  <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">Хот байгуулалт, барилга,<br/>орон сууцжуулалтын яам</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Mail className="h-5 w-5 text-red-400 shrink-0" />
+                  <a href={`mailto:${data.contact.email}`} className="text-blue-100 text-sm hover:text-white transition-colors">
+                    {data.contact.email}
+                  </a>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Phone className="h-5 w-5 text-red-400 mt-1 shrink-0" />
+                  <div className="text-blue-100 text-sm">
+                    <p>{t('contact_phone')}</p>
+                    <p>{data.contact.phone1}</p>
+                    <p>{data.contact.phone2}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 pt-4">
+                <a href={data.contact.facebookUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-blue-600 transition-colors">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+                  </svg>
                 </a>
-                <a href="https://ulaanbaatar.mn" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group" title="Нийслэлийн Засаг Даргын Тамгын газар">
-                  <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
-                    <img src="https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2025/10/unnamed.png?w=869&ssl=1" alt="Нийслэлийн Засаг Даргын Тамгын газар" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
-                  </div>
-                  <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">Нийслэлийн Засаг даргын<br/>Тамгын газар</span>
+                <a href={data.contact.youtubeUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-red-500 transition-colors">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
                 </a>
-                <a href="https://barilga.gov.mn" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group" title="Барилгын Хөгжлийн Төв">
-                  <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
-                    <img src="https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2025/10/Untitled-1.png?w=800&ssl=1" alt="Барилгын Хөгжлийн Төв" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
-                  </div>
-                  <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">Барилгын хөгжлийн<br/>төв</span>
+                <a href={data.contact.instagramUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-red-500 transition-colors">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                  </svg>
                 </a>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Footer & Contact */}
-      <footer id="contact" className="bg-blue-900 text-white pt-12 pb-10 border-t-4 border-emerald-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-4">
-              <img
-                src="https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2024/06/EXPO-LOGO.png?resize=768%2C348&ssl=1"
-                alt="Barilga Expo Logo"
-                className="h-14 object-contain brightness-0 invert"
-              />
-              <div className="w-px h-10 bg-white/30"></div>
-              <img
-                src="https://mcud.gov.mn/resource/mcud/image/2026/03/02/2eepuf1io6kp37z3/100%20logo_01.png"
-                alt="Их Барилга 100"
-                className="h-12 object-contain brightness-0 invert pb-1"
-              />
-            </div>
-            
-            <div className="flex items-center gap-6 bg-white/5 rounded-full px-6 py-3 border border-white/10">
-              <Phone className="h-5 w-5 text-emerald-400" />
-              <a href="tel:99907816" className="text-lg font-bold font-heading hover:text-emerald-300 transition-colors">9990 7816</a>
+            {/* Google Maps Location */}
+            <div className="lg:col-span-2 h-64 md:h-full min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-white/10">
+              <iframe 
+                src="https://maps.google.com/maps?q=47.9142315,106.9306781&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen={true} 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
             </div>
           </div>
           
-          <div className="mt-12 text-center text-sm text-gray-400 pt-6 border-t border-white/10">
-            &copy; {new Date().getFullYear()} BARILGA EXPO. Зохиогчийн эрх хуулиар хамгаалагдсан.
+          <div className="text-center text-sm text-gray-400 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>&copy; {new Date().getFullYear()} BARILGA EXPO. Зохиогчийн эрх хуулиар хамгаалагдсан.</div>
+            <Link to="/admin" className="text-gray-500 hover:text-white transition-colors text-xs font-semibold">Удирдах хэсэг (Admin Panel)</Link>
           </div>
         </div>
       </footer>
+      )}
 
       {/* Registration Modal */}
       {isRegModalOpen && (
@@ -421,7 +731,7 @@ export default function App() {
               <p className="text-gray-600 mb-6">Таны бүртгэлийг амжилттай хүлээн авлаа. Бид тун удахгүй тантай холбогдох болно.</p>
               <button 
                 onClick={() => {setIsRegModalOpen(false); setRegType(null); setIsRegSuccess(false);}}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-medium transition-colors"
+                className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium transition-colors"
               >
                 Хаах
               </button>
@@ -440,8 +750,8 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button 
                     onClick={() => setRegType('visitor')}
-                    className="flex flex-col items-center justify-center p-6 border-2 border-gray-100 py-10 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all group">
-                    <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                    className="flex flex-col items-center justify-center p-6 border-2 border-gray-100 py-10 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all group">
+                    <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
                        <User className="h-8 w-8" />
                     </div>
                     <span className="font-heading font-bold text-lg text-gray-900">Үзэгч</span>
@@ -450,8 +760,8 @@ export default function App() {
                   
                   <button 
                     onClick={() => setRegType('exhibitor')}
-                    className="flex flex-col items-center justify-center p-6 border-2 border-gray-100 py-10 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all group">
-                    <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                    className="flex flex-col items-center justify-center p-6 border-2 border-gray-100 py-10 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all group">
+                    <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
                        <Building2 className="h-8 w-8" />
                     </div>
                     <span className="font-heading font-bold text-lg text-gray-900">Оролцогч</span>
@@ -459,25 +769,60 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setIsRegSuccess(true); }}>
+                <form className="space-y-4" onSubmit={handleRegisterSubmit}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Нэр</label>
-                    <input type="text" required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" placeholder="Таны нэр" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('mod_name')}</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={formName}
+                      onChange={(e) => setFormName(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" 
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Утасны дугаар</label>
-                    <input type="tel" required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" placeholder="Утасны дугаар" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('mod_ph')}</label>
+                    <input 
+                      type="tel" 
+                      required 
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" 
+                    />
                   </div>
+                  {regType === 'visitor' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('mod_email')}</label>
+                      <input 
+                        type="email" 
+                        required 
+                        value={formEmail}
+                        onChange={(e) => setFormEmail(e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" 
+                      />
+                    </div>
+                  )}
                   {regType === 'exhibitor' && (
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Байгууллагын нэр</label>
-                        <input type="text" required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" placeholder="Байгууллагын нэр" />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('mod_org')}</label>
+                        <input 
+                          type="text" 
+                          required 
+                          value={formOrg}
+                          onChange={(e) => setFormOrg(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" 
+                        />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Үзэсгэлэнд оролцох ДОТОР ТАЛБАЙН сонголт</label>
-                        <select required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all bg-white" defaultValue="">
-                          <option value="" disabled>Сонгох</option>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('mod_area')}</label>
+                        <select 
+                          required 
+                          value={formArea}
+                          onChange={(e) => setFormArea(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all bg-white"
+                        >
+                          <option value="" disabled>{t('mod_sel')}</option>
                           <option value="6">6 м²</option>
                           <option value="9">9 м²</option>
                           <option value="12">12 м²</option>
@@ -488,18 +833,32 @@ export default function App() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Хүсэлт / Тайлбар</label>
-                        <textarea className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all resize-none" rows={3} placeholder="Талбайн хэмжээ болон бусад хүсэлтээ энд бичнэ үү..."></textarea>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('mod_req')}</label>
+                        <textarea 
+                          value={formReq}
+                          onChange={(e) => setFormReq(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all resize-none" 
+                          rows={3}
+                        />
                       </div>
                     </>
                   )}
                   
                   <div className="pt-4 flex gap-3">
-                    <button type="button" onClick={() => setRegType(null)} className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-colors">
-                      Буцах
+                    <button 
+                      type="button" 
+                      onClick={() => setRegType(null)} 
+                      disabled={isSubmitting}
+                      className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50"
+                    >
+                      {t('btn_back')}
                     </button>
-                    <button type="submit" className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-3 rounded-xl font-medium transition-colors shadow-lg shadow-emerald-500/20 active:scale-[0.98]">
-                      Илгээх
+                    <button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className="flex-[2] bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-medium transition-colors shadow-lg shadow-red-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {isSubmitting ? "Илгээж байна..." : t('btn_send')}
                     </button>
                   </div>
                 </form>
@@ -508,6 +867,19 @@ export default function App() {
           </div>
           )}
         </div>
+      )}
+
+      {/* Scroll to top button */}
+      {!isAdminRoute && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className={`fixed right-6 bottom-6 z-50 p-3 rounded-full bg-blue-900/40 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-blue-900/60 transition-all duration-300 shadow-lg ${
+            isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+          }`}
+          aria-label="Дээш гүйлгэх"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </button>
       )}
     </div>
   );
