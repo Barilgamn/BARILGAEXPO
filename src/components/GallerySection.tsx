@@ -3,6 +3,24 @@ import { useTranslation } from '../i18n';
 import { Camera, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 
+// Жижиг хэмжээтэй (хурдан ачаалагддаг) хувилбар авахын тулд Jetpack Photon
+// CDN-ээр дамжуулж зургийг шаардлагатай өргөнөөр нь шахаж/хэмжээг өөрчилнө.
+const optimizeImage = (url: string, width: number) => {
+  try {
+    const u = new URL(url);
+    if (u.hostname.endsWith('wp.com')) {
+      u.searchParams.set('w', String(width));
+      u.searchParams.set('quality', '75');
+      u.searchParams.set('ssl', '1');
+      return u.toString();
+    }
+    const stripped = url.replace(/^https?:\/\//, '');
+    return `https://i0.wp.com/${stripped}?w=${width}&quality=75&ssl=1`;
+  } catch {
+    return url;
+  }
+};
+
 export function GallerySection() {
   const { data } = useAdmin();
   const IMAGES = data.gallery;
@@ -71,12 +89,15 @@ export function GallerySection() {
               className="relative group cursor-pointer overflow-hidden rounded-2xl aspect-[4/3] shadow-sm hover:shadow-xl transition-all"
               onClick={() => openLightbox(idx)}
             >
-              <img 
-                src={src} 
-                alt={`${t('gallery_title')} ${idx + 1}`} 
+              <img
+                src={optimizeImage(src, 500)}
+                srcSet={`${optimizeImage(src, 500)} 500w, ${optimizeImage(src, 800)} 800w`}
+                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                alt={`${t('gallery_title')} ${idx + 1}`}
                 loading="lazy"
+                decoding="async"
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" 
+                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-blue-900/0 group-hover:bg-blue-900/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <div className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white transform scale-50 group-hover:scale-100 transition-transform duration-300">
@@ -115,11 +136,12 @@ export function GallerySection() {
             </button>
             
             <div className="relative flex items-center justify-center h-[70vh] md:h-[85vh] w-full px-16">
-              <img 
-                src={IMAGES[currentImageIdx]} 
-                alt={`${t('gallery_title')} ${currentImageIdx + 1}`} 
+              <img
+                src={optimizeImage(IMAGES[currentImageIdx], 1600)}
+                alt={`${t('gallery_title')} ${currentImageIdx + 1}`}
+                decoding="async"
                 referrerPolicy="no-referrer"
-                className="max-h-full max-w-full object-contain rounded-lg shadow-2xl" 
+                className="max-h-full max-w-full object-contain rounded-lg shadow-2xl"
               />
             </div>
             
