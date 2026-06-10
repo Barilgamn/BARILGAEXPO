@@ -200,20 +200,20 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
-            <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="flex items-center gap-3">
+            <div className="flex-shrink-0 flex items-center min-w-0">
+              <Link to="/" className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <img
                   src={data.logoUrl}
                   alt="Barilga Expo Logo"
                   referrerPolicy="no-referrer"
-                  className="h-10 md:h-16 object-contain brightness-0 invert transition-all"
+                  className="h-8 sm:h-10 md:h-16 object-contain brightness-0 invert transition-all shrink-0"
                 />
-                <div className="w-px h-8 md:h-10 bg-white/30"></div>
+                <div className="w-px h-6 sm:h-8 md:h-10 bg-white/30 shrink-0"></div>
                 <img
                   src="https://mcud.gov.mn/resource/mcud/image/2026/03/02/2eepuf1io6kp37z3/100%20logo_01.png"
                   alt="Их Барилга 100"
                   referrerPolicy="no-referrer"
-                  className="h-8 md:h-12 object-contain brightness-0 invert transition-all pb-1"
+                  className="h-6 sm:h-8 md:h-12 object-contain brightness-0 invert transition-all pb-1 shrink-0"
                 />
               </Link>
             </div>
@@ -286,7 +286,7 @@ export default function App() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-blue-900/80 backdrop-blur-md border-t border-white/10 px-4 pt-2 pb-6 space-y-1 shadow-xl">
+          <div className="lg:hidden bg-blue-900/80 backdrop-blur-md border-t border-white/10 px-4 pt-2 pb-6 space-y-1 shadow-xl">
             {data.menus.map(menu => (
               menu.path.startsWith('/') ? (
                 <Link key={menu.id} to={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
@@ -445,7 +445,7 @@ export default function App() {
             
             <div className="lg:w-2/3 flex flex-col items-center lg:items-start">
               <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center lg:text-left">{t('org_co')}</div>
-              <div className="flex flex-wrap justify-center lg:justify-start gap-10 items-start">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-6 sm:gap-10 items-start">
                 {data.organizers.map(org => (
                   <a key={org.id} href="#" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group" title={org.name}>
                     <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
@@ -868,7 +868,7 @@ export default function App() {
                       disabled={isSubmitting}
                       className="flex-[2] bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-medium transition-colors shadow-lg shadow-red-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      {isSubmitting ? "Илгээж байна..." : t('btn_send')}
+                      {isSubmitting ? t('bb_submitting') : t('btn_send')}
                     </button>
                   </div>
                 </form>
