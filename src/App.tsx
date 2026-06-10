@@ -415,7 +415,7 @@ export default function App() {
                     {t('space_open')}
                   </p>
                   <Link to="/booking" className="bg-red-500 hover:bg-red-600 text-white px-8 py-3.5 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:shadow-red-500/25 active:scale-95 flex items-center justify-center gap-2 group border-b-4 border-red-700 active:border-b-0 active:translate-y-[4px] w-full">
-                    Талбай захиалах
+                    {t('book_booth')}
                     <CheckCircle2 className="h-5 w-5 opacity-80" />
                   </Link>
                 </div>
