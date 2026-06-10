@@ -113,7 +113,7 @@ const defaultData: SiteData = {
   logoUrl: 'https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2024/06/EXPO-LOGO.png?resize=768%2C348&ssl=1',
   contact: defaultContact,
   menus: [
-    { id: '1', labelMn: 'ЭХЛЭЛ', labelEn: 'HOME', path: '/#home' },
+    { id: '1', labelMn: 'ЭХЛЭЛ', labelEn: 'HOME', path: '/' },
     { id: '2', labelMn: 'МЭДЭЭ', labelEn: 'NEWS', path: '/#news' },
     { id: '3', labelMn: 'УДИРДАМЖ', labelEn: 'GUIDE', path: '/guide' },
     { id: '4', labelMn: 'ХӨТӨЛБӨР', labelEn: 'PROGRAM', path: '/#program' },
