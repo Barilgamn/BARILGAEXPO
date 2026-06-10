@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin } from 'lucide-react';
+import { BoothRequestsTab } from './BoothRequestsTab';
 import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '../supabase';
 
@@ -183,6 +184,7 @@ export const AdminPanel: React.FC = () => {
 
   const tabs = [
     { id: 'registrations', label: 'Бүртгэлүүд (Registrations)', icon: <Users size={18} /> },
+    { id: 'booth_requests', label: 'Талбайн захиалга (Booth Requests)', icon: <MapPin size={18} /> },
     { id: 'logo', label: 'Website Logo', icon: <Image size={18} /> },
     { id: 'menus', label: 'Menus', icon: <Menu size={18} /> },
     { id: 'organizers', label: 'Organizers', icon: <Users size={18} /> },
@@ -324,7 +326,7 @@ export const AdminPanel: React.FC = () => {
             </div>
             
             {/* Save Action Button */}
-            {activeTab !== 'registrations' && (
+            {activeTab !== 'registrations' && activeTab !== 'booth_requests' && (
               <button
                 onClick={async () => {
                   if (isSyncing) return;
@@ -349,6 +351,11 @@ export const AdminPanel: React.FC = () => {
               </button>
             )}
           </div>
+
+          {/* Booth Requests Tab */}
+          {activeTab === 'booth_requests' && (
+            <BoothRequestsTab />
+          )}
 
           {/* Registrations Tab */}
           {activeTab === 'registrations' && (
@@ -734,7 +741,7 @@ export const AdminPanel: React.FC = () => {
           )}
 
           {/* Bottom Save Action Bar */}
-          {activeTab !== 'registrations' && (
+          {activeTab !== 'registrations' && activeTab !== 'booth_requests' && (
             <div className="mt-8 pt-6 border-t border-gray-150 flex justify-end">
               <button
                 onClick={async () => {

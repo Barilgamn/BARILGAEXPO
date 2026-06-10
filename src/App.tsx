@@ -16,6 +16,7 @@ const NewsSection = lazy(() => import('./components/NewsSection').then(m => ({ d
 const ProgramSection = lazy(() => import('./components/ProgramSection').then(m => ({ default: m.ProgramSection })));
 const GallerySection = lazy(() => import('./components/GallerySection').then(m => ({ default: m.GallerySection })));
 const GuidePage = lazy(() => import('./components/GuidePage').then(m => ({ default: m.GuidePage })));
+const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({ default: m.BoothBooking })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({ default: m.AuthCallback })));
 
@@ -231,6 +232,9 @@ export default function App() {
                     </a>
                   )
                 ))}
+                <Link to="/booking" className="text-sm font-medium text-white/90 hover:text-white transition-colors uppercase">
+                  Талбай захиалах
+                </Link>
                 <button onClick={() => setIsRegModalOpen(true)} className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all hover:shadow-lg hover:shadow-red-500/20 active:scale-95">
                   {t('nav_register')}
                 </button>
@@ -297,6 +301,9 @@ export default function App() {
                 </a>
               )
             ))}
+            <Link to="/booking" onClick={() => setIsMenuOpen(false)} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
+              Талбай захиалах
+            </Link>
             <button onClick={() => {setIsRegModalOpen(true); setIsMenuOpen(false);}} className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-base font-semibold transition-colors">
               {t('nav_register')}
             </button>
@@ -612,6 +619,11 @@ export default function App() {
         <Route path="/guide" element={
           <Suspense fallback={<LoadingPlaceHolder />}>
             <GuidePage />
+          </Suspense>
+        } />
+        <Route path="/booking" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <BoothBooking />
           </Suspense>
         } />
       </Routes>
