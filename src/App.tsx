@@ -728,7 +728,7 @@ export default function App() {
                 <CheckCircle2 className="h-8 w-8" />
               </div>
               <h3 className="font-heading text-2xl font-bold text-gray-900 mb-2">Амжилттай</h3>
-              <p className="text-gray-600 mb-6">Таны бүртгэлийг амжилттай хүлээн авлаа. Бид тун удахгүй тантай холбогдох болно.</p>
+              <p className="text-gray-600 mb-6">Таны бүртгэлийг амжилттай хүлээн авлаа.</p>
               <button 
                 onClick={() => {setIsRegModalOpen(false); setRegType(null); setIsRegSuccess(false);}}
                 className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium transition-colors"
@@ -782,12 +782,16 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">{t('mod_ph')}</label>
-                    <input 
-                      type="tel" 
-                      required 
+                    <input
+                      type="tel"
+                      required
+                      inputMode="numeric"
+                      pattern="[0-9]{8}"
+                      maxLength={8}
+                      placeholder="99112233"
                       value={formPhone}
-                      onChange={(e) => setFormPhone(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" 
+                      onChange={(e) => setFormPhone(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all"
                     />
                   </div>
                   {regType === 'visitor' && (
