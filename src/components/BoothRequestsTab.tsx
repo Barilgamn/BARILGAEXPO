@@ -143,41 +143,43 @@ export const BoothRequestsTab: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 items-stretch md:items-end shrink-0 md:w-56">
+                  <div className="flex flex-col gap-2 shrink-0 w-full md:w-56">
                     <button
                       onClick={() => setActiveRequest(req)}
-                      className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors w-full"
                     >
                       <FileSignature size={16} /> Гэрээ/Нэхэмжлэх
                     </button>
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => updateStatus(req, 'approved')}
                         disabled={req.status === 'approved'}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-700 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                        className="flex items-center justify-center gap-1 px-2 py-2.5 bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-700 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
                       >
-                        <CheckCircle2 size={14} /> Зөвшөөрөх
+                        <CheckCircle2 size={14} className="shrink-0" /> <span className="truncate">Зөвшөөрөх</span>
                       </button>
                       <button
                         onClick={() => updateStatus(req, 'rejected')}
                         disabled={req.status === 'rejected'}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-50 hover:bg-red-500 hover:text-white text-red-700 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                        className="flex items-center justify-center gap-1 px-2 py-2.5 bg-red-50 hover:bg-red-500 hover:text-white text-red-700 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
                       >
-                        <XCircle size={14} /> Татгалзах
+                        <XCircle size={14} className="shrink-0" /> <span className="truncate">Татгалзах</span>
                       </button>
                     </div>
-                    <button
-                      onClick={() => togglePaid(req)}
-                      className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${req.is_paid ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                    >
-                      <BadgeCheck size={14} /> {req.is_paid ? 'Төлбөр баталгаажсан' : 'Төлбөр баталгаажуулах'}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(req.id)}
-                      className="flex items-center justify-center gap-2 px-4 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl text-xs font-semibold transition-colors border border-transparent hover:border-red-100"
-                    >
-                      <Trash2 size={14} /> Устгах
-                    </button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => togglePaid(req)}
+                        className={`flex items-center justify-center gap-1 px-2 py-2.5 rounded-xl text-xs font-bold transition-colors ${req.is_paid ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      >
+                        <BadgeCheck size={14} className="shrink-0" /> <span className="truncate">{req.is_paid ? 'Төлбөр OK' : 'Төлбөр болгох'}</span>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(req.id)}
+                        className="flex items-center justify-center gap-1 px-2 py-2.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl text-xs font-semibold transition-colors border border-transparent hover:border-red-100"
+                      >
+                        <Trash2 size={14} className="shrink-0" /> <span className="truncate">Устгах</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
