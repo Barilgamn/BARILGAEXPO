@@ -1,12 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, X, MapPin, ShoppingCart, Loader2 } from 'lucide-react';
 import { supabase } from '../supabase';
-import { booths, Booth, CATEGORY_LABELS, CATEGORY_COLORS, getBoothPrice } from '../data/booths';
-
-const SECTIONS: Array<{ key: 'A' | 'B'; title: string }> = [
-  { key: 'A', title: 'A блок' },
-  { key: 'B', title: 'B блок' },
-];
+import {
+  booths,
+  Booth,
+  CATEGORY_LABELS,
+  CATEGORY_COLORS,
+  getBoothPrice,
+  getBoothSpan,
+  PERIMETER_TOP,
+  PERIMETER_RIGHT,
+  PERIMETER_BOTTOM,
+  PERIMETER_LEFT,
+} from '../data/booths';
 
 export const BoothBooking: React.FC = () => {
   const [reservedIds, setReservedIds] = useState<Set<string>>(new Set());
@@ -64,6 +70,9 @@ export const BoothBooking: React.FC = () => {
       return next;
     });
   };
+
+  const boothMap = useMemo(() => new Map(booths.map(b => [b.id, b])), []);
+  const centerBooths = useMemo(() => booths.filter(b => b.section === 'A'), []);
 
   const selectedBooths = useMemo(
     () => booths.filter(b => selected.has(b.id)),
@@ -140,6 +149,36 @@ export const BoothBooking: React.FC = () => {
     }
   };
 
+  const renderCell = (id: string, gridSpan?: { col: number; row: number }) => {
+    const booth = boothMap.get(id);
+    if (!booth) return <div key={id} />;
+    const isReserved = reservedIds.has(booth.id);
+    const isSelected = selected.has(booth.id);
+    return (
+      <button
+        key={id}
+        type="button"
+        disabled={isReserved}
+        onClick={() => toggleBooth(booth)}
+        title={`${booth.id} — ${booth.size} (${booth.area}м²) — $${getBoothPrice(booth).toLocaleString()}`}
+        style={{
+          backgroundColor: isReserved ? '#e5e7eb' : isSelected ? '#2563eb' : CATEGORY_COLORS[booth.category],
+          ...(gridSpan ? { gridColumn: `span ${gridSpan.col}`, gridRow: `span ${gridSpan.row}` } : { flex: '1 1 0%', minWidth: 0, height: 32 }),
+        }}
+        className={`relative rounded-[3px] border flex flex-col items-center justify-center text-[7px] sm:text-[8px] font-bold leading-tight transition-all overflow-hidden px-0.5 ${
+          isReserved
+            ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+            : isSelected
+            ? 'border-blue-700 text-white shadow scale-[1.05] z-10'
+            : 'border-gray-300 text-gray-800 hover:scale-[1.08] hover:z-10 cursor-pointer'
+        }`}
+      >
+        <span className="truncate w-full text-center">{booth.id}</span>
+        {isReserved && <CheckCircle2 className="w-2 h-2 absolute top-0 right-0 text-green-600" />}
+      </button>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800">
       {/* Header */}
@@ -163,6 +202,17 @@ export const BoothBooking: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Reference floor plan image */}
+        <details className="mb-8 bg-gray-50 border border-gray-100 rounded-xl group" open>
+          <summary className="cursor-pointer select-none px-4 py-3 font-semibold text-blue-950 flex items-center justify-between">
+            <span>Талбайн ерөнхий зураг (лавлагаа)</span>
+            <span className="text-xs text-gray-400">Хураах / Дэлгэх</span>
+          </summary>
+          <div className="p-4 pt-0">
+            <img src="/floorplan.jpg" alt="40th BARILGA EXPO талбайн зураг" className="w-full rounded-lg border border-gray-200" />
+          </div>
+        </details>
+
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-4 mb-8 bg-gray-50 border border-gray-100 rounded-xl p-4">
           {(['standard', 'supporting', 'sponsor', 'b'] as const).map(cat => (
@@ -186,48 +236,45 @@ export const BoothBooking: React.FC = () => {
             <Loader2 className="w-8 h-8 animate-spin" />
           </div>
         ) : (
-          <div className="space-y-12">
-            {SECTIONS.map(section => {
-              const sectionBooths = booths
-                .filter(b => b.section === section.key)
-                .sort((a, b) => {
-                  const na = parseInt(a.id.replace(/\D/g, ''), 10);
-                  const nb = parseInt(b.id.replace(/\D/g, ''), 10);
-                  return na - nb;
-                });
-              return (
-                <div key={section.key}>
-                  <h2 className="text-2xl font-bold font-heading text-blue-950 mb-4">{section.title}</h2>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-2">
-                    {sectionBooths.map(booth => {
-                      const isReserved = reservedIds.has(booth.id);
-                      const isSelected = selected.has(booth.id);
-                      return (
-                        <button
-                          key={booth.id}
-                          type="button"
-                          disabled={isReserved}
-                          onClick={() => toggleBooth(booth)}
-                          title={`${booth.id} — ${booth.size} (${booth.area}м²) — $${getBoothPrice(booth).toLocaleString()}`}
-                          className={`relative aspect-square rounded-lg border-2 flex flex-col items-center justify-center text-[10px] sm:text-xs font-bold transition-all ${
-                            isReserved
-                              ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed'
-                              : isSelected
-                              ? 'bg-blue-600 border-blue-700 text-white shadow-md scale-105'
-                              : 'border-gray-300 text-gray-800 hover:border-blue-500 hover:scale-105 cursor-pointer'
-                          }`}
-                          style={!isReserved && !isSelected ? { backgroundColor: CATEGORY_COLORS[booth.category] } : undefined}
-                        >
-                          <span>{booth.id}</span>
-                          <span className="text-[8px] sm:text-[10px] font-normal opacity-80">{booth.area}м²</span>
-                          {isReserved && <CheckCircle2 className="w-3 h-3 absolute top-0.5 right-0.5 text-green-600" />}
-                        </button>
-                      );
-                    })}
-                  </div>
+          <div className="border-2 border-gray-200 rounded-2xl p-2 sm:p-4 bg-white overflow-x-auto">
+            <div className="min-w-[1000px]">
+              {/* Top perimeter (B32-B59) */}
+              <div className="flex gap-1 mb-1 ml-12 mr-12">
+                {PERIMETER_TOP.map(id => renderCell(id))}
+              </div>
+
+              <div className="flex gap-1">
+                {/* Left perimeter (B31-B16) */}
+                <div className="flex flex-col gap-1 w-10 shrink-0">
+                  {PERIMETER_LEFT.map(id => renderCell(id))}
                 </div>
-              );
-            })}
+
+                {/* Center: A booths + stage */}
+                <div
+                  className="flex-1 grid gap-1"
+                  style={{ gridTemplateColumns: 'repeat(20, 1fr)', gridAutoRows: '32px', gridAutoFlow: 'row dense' }}
+                >
+                  <div
+                    style={{ gridColumn: '9 / 13', gridRow: '6 / 9' }}
+                    className="bg-red-600 text-white rounded-md flex flex-col items-center justify-center font-extrabold text-[10px] sm:text-xs tracking-wide"
+                  >
+                    <span>STAGE</span>
+                    <span className="font-normal opacity-80 text-[8px] sm:text-[10px]">8x5</span>
+                  </div>
+                  {centerBooths.map(b => renderCell(b.id, getBoothSpan(b)))}
+                </div>
+
+                {/* Right perimeter (B60-B72) */}
+                <div className="flex flex-col gap-1 w-10 shrink-0">
+                  {PERIMETER_RIGHT.map(id => renderCell(id))}
+                </div>
+              </div>
+
+              {/* Bottom perimeter (B73-B80, B1-B15) */}
+              <div className="flex gap-1 mt-1 ml-12 mr-12">
+                {PERIMETER_BOTTOM.map(id => renderCell(id))}
+              </div>
+            </div>
           </div>
         )}
       </div>

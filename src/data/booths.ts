@@ -207,3 +207,24 @@ export const booths: Booth[] = [
 ];
 
 export const getBoothPrice = (booth: Booth) => booth.area * booth.pricePerM2;
+
+// Approximate grid span (in 3m units) used to render the booth on the floor plan grid,
+// derived from the booth's "WxH" size string (e.g. "6x6" -> 2x2 cells).
+export const getBoothSpan = (booth: Booth): { col: number; row: number } => {
+  const [wRaw, hRaw] = booth.size.split('x').map(n => parseFloat(n));
+  const w = isFinite(wRaw) ? wRaw : 3;
+  const h = isFinite(hRaw) ? hRaw : 3;
+  const col = Math.min(3, Math.max(1, Math.round(w / 3)));
+  const row = Math.min(3, Math.max(1, Math.round(h / 3)));
+  return { col, row };
+};
+
+// Booth IDs arranged around the hall perimeter (B section), grouped by side,
+// matching the layout of the official floor plan.
+export const PERIMETER_TOP: string[] = Array.from({ length: 28 }, (_, i) => `B${32 + i}`); // B32-B59
+export const PERIMETER_RIGHT: string[] = Array.from({ length: 13 }, (_, i) => `B${60 + i}`); // B60-B72
+export const PERIMETER_BOTTOM: string[] = [
+  ...Array.from({ length: 8 }, (_, i) => `B${73 + i}`), // B73-B80
+  ...Array.from({ length: 15 }, (_, i) => `B${1 + i}`), // B1-B15
+];
+export const PERIMETER_LEFT: string[] = Array.from({ length: 16 }, (_, i) => `B${31 - i}`); // B31-B16
