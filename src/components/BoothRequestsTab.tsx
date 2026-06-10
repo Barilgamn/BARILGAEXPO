@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, MapPin, Trash2, FileSignature, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Loader2, MapPin, Trash2, FileSignature, CheckCircle2, XCircle, Clock, Wallet, BadgeCheck } from 'lucide-react';
 import { supabase } from '../supabase';
 import { DocumentModal } from './documents/DocumentModal';
 
@@ -50,6 +50,11 @@ export const BoothRequestsTab: React.FC = () => {
         await supabase.from('booth_status').upsert({ id: boothId, is_reserved: true, updated_at: new Date().toISOString() });
       }
     }
+  };
+
+  const togglePaid = async (req: any) => {
+    const { error } = await supabase.from('booth_requests').update({ is_paid: !req.is_paid }).eq('id', req.id);
+    if (error) alert('Шинэчлэхэд алдаа гарлаа: ' + error.message);
   };
 
   const handleDelete = async (id: string) => {
@@ -122,13 +127,17 @@ export const BoothRequestsTab: React.FC = () => {
                       <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded border flex items-center gap-1 ${statusInfo.classes}`}>
                         {statusInfo.icon} {statusInfo.label}
                       </span>
+                      <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded border flex items-center gap-1 ${req.is_paid ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                        <Wallet size={12} /> {req.is_paid ? 'Төлбөр баталгаажсан' : 'Төлбөр хүлээгдэж буй'}
+                      </span>
                       <span className="text-gray-400 font-mono text-[10px]">{dateStr}</span>
                     </div>
                     <h3 className="text-md font-bold text-gray-900">{req.company_name}</h3>
                     <p className="text-sm text-gray-600 font-mono">Утас: {req.phone} {req.email && `· ${req.email}`}</p>
                     <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 text-xs text-gray-700 space-y-1 mt-2">
-                      <p><strong className="text-gray-900">Сонгосон талбай:</strong> {Array.isArray(req.booth_ids) ? req.booth_ids.join(', ') : ''}</p>
-                      <p><strong className="text-gray-900">Нийт төлбөр:</strong> ${Number(req.total_price_usd || 0).toLocaleString()}</p>
+                      {req.requested_booth_info && <p><strong className="text-gray-900">Хүссэн талбай:</strong> {req.requested_booth_info}</p>}
+                      {Array.isArray(req.booth_ids) && req.booth_ids.length > 0 && <p><strong className="text-gray-900">Сонгосон талбай:</strong> {req.booth_ids.join(', ')}</p>}
+                      {!!Number(req.total_price_usd) && <p><strong className="text-gray-900">Нийт төлбөр:</strong> ${Number(req.total_price_usd).toLocaleString()}</p>}
                       {req.product_description && <p><strong className="text-gray-900">Бүтээгдэхүүн:</strong> {req.product_description}</p>}
                       {req.contact_person && <p><strong className="text-gray-900">Холбогдох ажилтан:</strong> {req.contact_person} {req.contact_position && `(${req.contact_position})`}</p>}
                     </div>
@@ -157,6 +166,12 @@ export const BoothRequestsTab: React.FC = () => {
                         <XCircle size={14} /> Татгалзах
                       </button>
                     </div>
+                    <button
+                      onClick={() => togglePaid(req)}
+                      className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${req.is_paid ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                      <BadgeCheck size={14} /> {req.is_paid ? 'Төлбөр баталгаажсан' : 'Төлбөр баталгаажуулах'}
+                    </button>
                     <button
                       onClick={() => handleDelete(req.id)}
                       className="flex items-center justify-center gap-2 px-4 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl text-xs font-semibold transition-colors border border-transparent hover:border-red-100"

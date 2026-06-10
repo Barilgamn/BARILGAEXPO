@@ -50,7 +50,7 @@ export const buildDefaultFields = (req: any): DocumentFields => {
     contactPerson: req?.contact_person || '',
     contactPosition: req?.contact_position || '',
     productDescription: req?.product_description || '',
-    boothIds: boothIds.join(', '),
+    boothIds: boothIds.length ? boothIds.join(', ') : (req?.requested_booth_info || ''),
     boothArea: '',
     pricePerM2: '',
     additionalFee: '',
