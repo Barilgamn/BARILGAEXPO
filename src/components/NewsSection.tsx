@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Calendar, X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ArrowRight, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin } from '../context/AdminContext';
 import { newsTranslations, NewsTranslationLang } from '../data/newsTranslations';
@@ -18,7 +18,7 @@ export const NewsSection: React.FC = () => {
     if (lang === 'mn') return news;
     const translation = newsTranslations[news.id]?.[lang as NewsTranslationLang];
     if (!translation) return news;
-    return { ...news, title: translation.title, description: translation.description };
+    return { ...news, title: translation.title, description: translation.description, content: translation.content || news.content };
   };
 
   const itemsPerPage = 6;
@@ -187,24 +187,8 @@ export const NewsSection: React.FC = () => {
                   </div>
                 )}
 
-                {lang !== 'mn' && newsTranslations[selectedNews.id] && (
-                  <div className="flex items-center justify-between gap-4 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-sm text-blue-900">
-                    <span>{t('news_full_mn_notice')}</span>
-                    {selectedNews.link && (
-                      <a
-                        href={selectedNews.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap"
-                      >
-                        {t('news_view_original')} <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    )}
-                  </div>
-                )}
-
                 <div className="space-y-6 sm:space-y-8 mt-8 md:mt-10 text-gray-700" data-color-mode="light">
-                  <MDEditor.Markdown source={selectedNews.content} />
+                  <MDEditor.Markdown source={localizedSelected.content} />
                 </div>
               </div>
             </div>
