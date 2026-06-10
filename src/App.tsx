@@ -717,7 +717,7 @@ export default function App() {
           </div>
           
           <div className="text-center text-sm text-gray-400 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>&copy; {new Date().getFullYear()} BARILGA EXPO. Зохиогчийн эрх хуулиар хамгаалагдсан.</div>
+            <div>&copy; {new Date().getFullYear()} {t('copyright')}</div>
             <Link to="/admin" className="text-gray-500 hover:text-white transition-colors text-xs font-semibold">Удирдах хэсэг (Admin Panel)</Link>
           </div>
         </div>
@@ -733,19 +733,19 @@ export default function App() {
               <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <h3 className="font-heading text-2xl font-bold text-gray-900 mb-2">Амжилттай</h3>
-              <p className="text-gray-600 mb-6">Таны бүртгэлийг амжилттай хүлээн авлаа.</p>
-              <button 
+              <h3 className="font-heading text-2xl font-bold text-gray-900 mb-2">{t('mod_succ')}</h3>
+              <p className="text-gray-600 mb-6">{t('mod_succ_desc')}</p>
+              <button
                 onClick={() => {setIsRegModalOpen(false); setRegType(null); setIsRegSuccess(false);}}
                 className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium transition-colors"
               >
-                Хаах
+                {t('btn_close')}
               </button>
             </div>
           ) : (
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h3 className="font-heading text-2xl font-bold text-blue-900">Бүртгүүлэх</h3>
+              <h3 className="font-heading text-2xl font-bold text-blue-900">{t('mod_title')}</h3>
               <button onClick={() => {setIsRegModalOpen(false); setRegType(null);}} className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
                 <X className="h-5 w-5" />
               </button>
@@ -760,8 +760,8 @@ export default function App() {
                     <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
                        <User className="h-8 w-8" />
                     </div>
-                    <span className="font-heading font-bold text-lg text-gray-900">Үзэгч</span>
-                    <span className="text-sm text-gray-500 text-center mt-2 leading-relaxed">Үзэсгэлэн үзэх, сонирхох</span>
+                    <span className="font-heading font-bold text-lg text-gray-900">{t('mod_vis')}</span>
+                    <span className="text-sm text-gray-500 text-center mt-2 leading-relaxed">{t('mod_vis_desc')}</span>
                   </button>
                   
                   <button 
@@ -770,8 +770,8 @@ export default function App() {
                     <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
                        <Building2 className="h-8 w-8" />
                     </div>
-                    <span className="font-heading font-bold text-lg text-gray-900">Оролцогч</span>
-                    <span className="text-sm text-gray-500 text-center mt-2 leading-relaxed">Талбай захиалах, бүтээгдэхүүнээ танилцуулах</span>
+                    <span className="font-heading font-bold text-lg text-gray-900">{t('mod_exh')}</span>
+                    <span className="text-sm text-gray-500 text-center mt-2 leading-relaxed">{t('mod_exh_desc')}</span>
                   </button>
                 </div>
               ) : (
