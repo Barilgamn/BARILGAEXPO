@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Calendar, X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin } from '../context/AdminContext';
+import { newsTranslations, NewsTranslationLang } from '../data/newsTranslations';
 import MDEditor from '@uiw/react-md-editor';
 
 export const NewsSection: React.FC = () => {
   const { data } = useAdmin();
   const newsItems = data.news;
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedNews, setSelectedNews] = useState<typeof newsItems[0] | null>(null);
+
+  // Сонгосон хэл дээр орчуулга байвал title/description-ийг түүгээр сольж харуулна.
+  // Монгол хэл болон орчуулгагүй мэдээний хувьд эх хувилбараа харуулна.
+  const getLocalizedNews = (news: typeof newsItems[0]) => {
+    if (lang === 'mn') return news;
+    const translation = newsTranslations[news.id]?.[lang as NewsTranslationLang];
+    if (!translation) return news;
+    return { ...news, title: translation.title, description: translation.description };
+  };
 
   const itemsPerPage = 6;
   const totalPages = Math.ceil(newsItems.length / itemsPerPage);
@@ -46,17 +56,19 @@ export const NewsSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {currentItems.map((news) => (
-            <div 
-              key={news.id} 
+          {currentItems.map((news) => {
+            const localized = getLocalizedNews(news);
+            return (
+            <div
+              key={news.id}
               onClick={() => setSelectedNews(news)}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer"
             >
               <div className="relative h-56 overflow-hidden">
                 {news.image && (
-                  <img 
-                    src={news.image} 
-                    alt={news.title}
+                  <img
+                    src={news.image}
+                    alt={localized.title}
                     loading="lazy"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -69,17 +81,18 @@ export const NewsSection: React.FC = () => {
                   {news.date}
                 </div>
                 <h3 className="text-xl font-bold font-heading text-gray-900 mb-3 group-hover:text-red-600 transition-colors line-clamp-2">
-                  {news.title}
+                  {localized.title}
                 </h3>
                 <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-                  {news.description}
+                  {localized.description}
                 </p>
                 <div className="flex items-center text-red-600 font-semibold text-sm group-hover:text-red-700">
                   {t('news_more')} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Pagination Controls */}
@@ -119,27 +132,29 @@ export const NewsSection: React.FC = () => {
       </div>
 
       {/* Detail Modal */}
-      {selectedNews && (
+      {selectedNews && (() => {
+        const localizedSelected = getLocalizedNews(selectedNews);
+        return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div 
+          <div
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
             onClick={() => setSelectedNews(null)}
           ></div>
           <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative z-10 flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
-            <button 
+            <button
               onClick={() => setSelectedNews(null)}
               className="absolute top-4 right-4 z-20 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
             >
               <X className="w-6 h-6" />
             </button>
-            
+
             <div className="overflow-y-auto w-full flex-grow relative pb-10">
               {selectedNews.image && (
                 <div className="w-full min-h-[16rem] h-64 sm:h-80 md:h-96 relative flex items-end">
                   <div className="absolute inset-0">
-                    <img 
-                      src={selectedNews.image} 
-                      alt={selectedNews.title}
+                    <img
+                      src={selectedNews.image}
+                      alt={localizedSelected.title}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
@@ -152,13 +167,13 @@ export const NewsSection: React.FC = () => {
                         {selectedNews.date}
                       </div>
                       <h2 className="text-base sm:text-xl lg:text-2xl font-bold font-heading leading-tight max-h-[4.5rem] sm:max-h-none overflow-hidden text-ellipsis line-clamp-2 sm:line-clamp-none">
-                        {selectedNews.title}
+                        {localizedSelected.title}
                       </h2>
                     </div>
                   </div>
                 </div>
               )}
-              
+
               <div className="p-6 md:p-10 max-w-3xl mx-auto space-y-6">
                 {!selectedNews.image && (
                   <div className="bg-red-50 p-6 md:p-8 rounded-2xl border border-red-100">
@@ -167,11 +182,27 @@ export const NewsSection: React.FC = () => {
                       {selectedNews.date}
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 leading-tight">
-                      {selectedNews.title}
+                      {localizedSelected.title}
                     </h2>
                   </div>
                 )}
-                
+
+                {lang !== 'mn' && newsTranslations[selectedNews.id] && (
+                  <div className="flex items-center justify-between gap-4 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-sm text-blue-900">
+                    <span>{t('news_full_mn_notice')}</span>
+                    {selectedNews.link && (
+                      <a
+                        href={selectedNews.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap"
+                      >
+                        {t('news_view_original')} <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                )}
+
                 <div className="space-y-6 sm:space-y-8 mt-8 md:mt-10 text-gray-700" data-color-mode="light">
                   <MDEditor.Markdown source={selectedNews.content} />
                 </div>
@@ -179,7 +210,8 @@ export const NewsSection: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </section>
   );
 };
