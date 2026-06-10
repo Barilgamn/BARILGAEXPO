@@ -13,15 +13,11 @@ export const BoothBooking: React.FC = () => {
   const [companyAddress, setCompanyAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [bankName, setBankName] = useState('');
-  const [bankAccount, setBankAccount] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [contactPosition, setContactPosition] = useState('');
   const [productDescription, setProductDescription] = useState('');
   const [requestedBoothInfo, setRequestedBoothInfo] = useState('');
   const [needsStandWall, setNeedsStandWall] = useState(false);
-  const [needsSignage, setNeedsSignage] = useState(false);
-  const [signageName, setSignageName] = useState('');
   const [needsStageProgram, setNeedsStageProgram] = useState(false);
   const [needsVipRoom, setNeedsVipRoom] = useState(false);
 
@@ -32,15 +28,11 @@ export const BoothBooking: React.FC = () => {
     setCompanyAddress('');
     setPhone('');
     setEmail('');
-    setBankName('');
-    setBankAccount('');
     setContactPerson('');
     setContactPosition('');
     setProductDescription('');
     setRequestedBoothInfo('');
     setNeedsStandWall(false);
-    setNeedsSignage(false);
-    setSignageName('');
     setNeedsStageProgram(false);
     setNeedsVipRoom(false);
   };
@@ -61,15 +53,11 @@ export const BoothBooking: React.FC = () => {
         company_address: companyAddress || null,
         phone,
         email: email || null,
-        bank_name: bankName || null,
-        bank_account: bankAccount || null,
         contact_person: contactPerson || null,
         contact_position: contactPosition || null,
         product_description: productDescription || null,
         requested_booth_info: requestedBoothInfo || null,
         needs_stand_wall: needsStandWall,
-        needs_signage: needsSignage,
-        signage_name: signageName || null,
         needs_stage_program: needsStageProgram,
         needs_vip_room: needsVipRoom,
         status: 'pending',
@@ -164,14 +152,6 @@ export const BoothBooking: React.FC = () => {
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Банкны нэр</label>
-                <input type="text" value={bankName} onChange={(e) => setBankName(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Дансны дугаар</label>
-                <input type="text" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Холбогдох ажилтан</label>
                 <input type="text" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
               </div>
@@ -210,17 +190,7 @@ export const BoothBooking: React.FC = () => {
                   <input type="checkbox" checked={needsVipRoom} onChange={(e) => setNeedsVipRoom(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
                   VIP өрөө хэрэгтэй
                 </label>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" checked={needsSignage} onChange={(e) => setNeedsSignage(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                  Нэрийн самбар хэрэгтэй
-                </label>
               </div>
-              {needsSignage && (
-                <div className="mt-3">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Нэрийн самбарт бичих нэр</label>
-                  <input type="text" value={signageName} onChange={(e) => setSignageName(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
-                </div>
-              )}
             </div>
 
             <div className="pt-2">
