@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, XCircle, Lock, Unlock } from 'lucide-react';
 import { supabase } from '../supabase';
+import { InteractiveFloorPlan } from './InteractiveFloorPlan';
 import {
   booths,
   getBoothPrice,
@@ -166,9 +167,9 @@ export const BoothInfoContent: React.FC = () => {
 
   return (
     <div>
-      {/* Floor plan image */}
-      <div className="mb-10 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-        <img src="/floor-plan.jpg" alt="Талбайн байршлын зураг" className="w-full h-auto" loading="lazy" />
+      {/* Interactive floor plan */}
+      <div className="mb-10">
+        <InteractiveFloorPlan statusOf={effectiveStatus} />
       </div>
 
       {/* Legend */}
