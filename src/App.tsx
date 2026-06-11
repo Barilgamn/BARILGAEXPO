@@ -9,6 +9,7 @@ import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight,
 import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
+import { ChatWidget } from './components/ChatWidget';
 
 // Optimize bundle size & performance via dynamic code-splitting
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
@@ -883,7 +884,7 @@ export default function App() {
       {!isAdminRoute && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className={`fixed right-6 bottom-6 z-50 p-3 rounded-full bg-blue-900/40 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-blue-900/60 transition-all duration-300 shadow-lg ${
+          className={`fixed right-6 bottom-24 z-50 p-3 rounded-full bg-blue-900/40 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-blue-900/60 transition-all duration-300 shadow-lg ${
             isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
           }`}
           aria-label="Дээш гүйлгэх"
@@ -891,6 +892,9 @@ export default function App() {
           <ArrowUp className="w-6 h-6" />
         </button>
       )}
+
+      {/* AI Chat Widget */}
+      {!isAdminRoute && <ChatWidget />}
     </div>
   );
 }
