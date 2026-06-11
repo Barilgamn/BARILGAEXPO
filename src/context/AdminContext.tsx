@@ -72,7 +72,7 @@ const defaultContact = {
   phone1: '+976 7711 3333',
   phone2: '+976 9990 7816',
   email: 'expo@barilga.mn',
-  address: 'Монгол улс, Улаанбаатар хот. Баянгол дүүрэг, 20-р хороо, Төв зам-49, Барс 2 захын хойно, Барилга МН оффис',
+  address: 'Улаанбаатар 13373, Баянзүрх дүүрэг, 6-р хороо, "BARILGA.MN" оффис',
   facebookUrl: 'https://facebook.com/barilga.mn',
   instagramUrl: 'https://instagram.com/barilga.mn',
   youtubeUrl: 'https://youtube.com/c/barilgagroup'

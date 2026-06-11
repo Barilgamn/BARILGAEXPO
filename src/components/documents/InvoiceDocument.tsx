@@ -73,8 +73,8 @@ export const InvoiceDocument = React.forwardRef<HTMLDivElement, Props>(({ fields
         <div style={{ textAlign: 'right' }}>
           <p style={{ fontWeight: 800, fontSize: '14px' }}>"БАРИЛГА МН" ХХК</p>
           <p>РД: 6030548</p>
-          <p>Улаанбаатар хот, Баянзүрх дүүрэг,</p>
-          <p>6-р хороо, Barilga.MN оффис, 5 давхар</p>
+          <p>Улаанбаатар 13373, Баянзүрх дүүрэг,</p>
+          <p>6-р хороо, "BARILGA.MN" оффис</p>
           <p>Утас: 99907816, 77113333</p>
         </div>
       </div>

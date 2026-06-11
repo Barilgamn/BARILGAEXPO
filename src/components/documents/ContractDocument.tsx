@@ -234,7 +234,7 @@ export const ContractDocument = React.forwardRef<HTMLDivElement, Props>(({ field
           <p>Албан тушаал: Үзэсгэлэн хариуцсан менежер</p>
           <p style={{ fontWeight: 700 }}>С.Оргилцэцэг</p>
           <p style={{ marginTop: 30 }}>Гарын үсэг: ____________________</p>
-          <p style={{ marginTop: 12 }}>Хаяг: Улаанбаатар хот, Баянзүрх дүүрэг, 6-р хороо, Barilga.MN оффис, 5 давхар</p>
+          <p style={{ marginTop: 12 }}>Хаяг: Улаанбаатар 13373, Баянзүрх дүүрэг, 6-р хороо, "BARILGA.MN" оффис</p>
           <p>Утас: 99907816, 77113333</p>
           <p>Вэб сайт: www.barilgaexpo.mn</p>
           <p>И-Мэйл: Orgiltsetseg@barilga.mn</p>
