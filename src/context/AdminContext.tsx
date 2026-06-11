@@ -6,6 +6,7 @@ export interface Organizer {
   id: string;
   name: string;
   logo: string;
+  url?: string;
 }
 
 export interface Sponsor {
@@ -78,9 +79,9 @@ const defaultContact = {
 };
 
 const defaultOrganizers: Organizer[] = [
-  { id: '1', name: 'Хот Байгуулалт, Барилга, Орон Сууцжуулалтын Яам', logo: 'https://www.barilgaexpo.mn/organizer-1.jpg' },
-  { id: '2', name: 'Нийслэлийн Засаг Даргын Тамгын газар', logo: 'https://www.barilgaexpo.mn/organizer-2.png' },
-  { id: '3', name: 'Барилгын Хөгжлийн Төв', logo: 'https://www.barilgaexpo.mn/organizer-3.png' },
+  { id: '1', name: 'Хот Байгуулалт, Барилга, Орон Сууцжуулалтын Яам', logo: 'https://www.barilgaexpo.mn/organizer-1.jpg', url: 'https://mcud.gov.mn' },
+  { id: '2', name: 'Нийслэлийн Засаг Даргын Тамгын газар', logo: 'https://www.barilgaexpo.mn/organizer-2.png', url: 'https://www.ulaanbaatar.mn' },
+  { id: '3', name: 'Барилгын Хөгжлийн Төв', logo: 'https://www.barilgaexpo.mn/organizer-3.png', url: 'https://barilga.gov.mn' },
 ];
 
 const defaultGallery = [

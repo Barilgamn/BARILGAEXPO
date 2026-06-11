@@ -448,14 +448,31 @@ export default function App() {
             <div className="lg:w-2/3 flex flex-col items-center lg:items-start">
               <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center lg:text-left">{t('org_co')}</div>
               <div className="flex flex-wrap justify-center lg:justify-start gap-6 sm:gap-10 items-start">
-                {data.organizers.map(org => (
-                  <a key={org.id} href="#" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group" title={org.name}>
-                    <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
-                      <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
-                    </div>
-                    <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">{org.name}</span>
-                  </a>
-                ))}
+                {data.organizers.map(org => {
+                  const resolveOrgUrl = (o: typeof org): string | undefined => {
+                    if (o.url) return o.url;
+                    const n = (o.name || '').toLowerCase();
+                    if (n.includes('яам')) return 'https://mcud.gov.mn';
+                    if (n.includes('нийслэл') || n.includes('засаг')) return 'https://www.ulaanbaatar.mn';
+                    if (n.includes('хөгж')) return 'https://barilga.gov.mn';
+                    return undefined;
+                  };
+                  const url = resolveOrgUrl(org);
+                  return (
+                    <a
+                      key={org.id}
+                      href={url || '#'}
+                      {...(url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group"
+                      title={org.name}
+                    >
+                      <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
+                        <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                      </div>
+                      <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">{org.name}</span>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>

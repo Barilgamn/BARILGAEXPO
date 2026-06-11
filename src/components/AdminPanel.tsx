@@ -606,6 +606,7 @@ export const AdminPanel: React.FC = () => {
                     <div className="flex-1 space-y-2">
                       <input type="text" value={org.name} onChange={e => updateOrganizer(org.id, 'name', e.target.value)} placeholder="Name" className="w-full border border-gray-300 rounded px-3 py-2" />
                       <input type="text" value={org.logo} onChange={e => updateOrganizer(org.id, 'logo', e.target.value)} placeholder="Logo URL" className="w-full border border-gray-300 rounded px-3 py-2" />
+                      <input type="text" value={org.url || ''} onChange={e => updateOrganizer(org.id, 'url', e.target.value)} placeholder="Вэбсайтын линк (https://...)" className="w-full border border-gray-300 rounded px-3 py-2" />
                     </div>
                     <button onClick={() => removeOrganizer(org.id)} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={20} /></button>
                   </div>
