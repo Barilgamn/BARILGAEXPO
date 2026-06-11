@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
+import { BoothInfoContent } from './BoothInfoContent';
 import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '../supabase';
 import { optimizeImage } from '../utils/image';
@@ -186,6 +187,7 @@ export const AdminPanel: React.FC = () => {
   const tabs = [
     { id: 'registrations', label: 'Бүртгэлүүд (Registrations)', icon: <Users size={18} /> },
     { id: 'booth_requests', label: 'Талбайн захиалга (Booth Requests)', icon: <MapPin size={18} /> },
+    { id: 'booth_info', label: 'Талбайн мэдээлэл (Booth Info)', icon: <MapPin size={18} /> },
     { id: 'logo', label: 'Website Logo', icon: <Image size={18} /> },
     { id: 'menus', label: 'Menus', icon: <Menu size={18} /> },
     { id: 'organizers', label: 'Organizers', icon: <Users size={18} /> },
@@ -401,6 +403,11 @@ export const AdminPanel: React.FC = () => {
           {/* Booth Requests Tab */}
           {activeTab === 'booth_requests' && (
             <BoothRequestsTab />
+          )}
+
+          {/* Booth Info Tab */}
+          {activeTab === 'booth_info' && (
+            <BoothInfoContent />
           )}
 
           {/* Registrations Tab */}
