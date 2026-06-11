@@ -717,9 +717,8 @@ export default function App() {
             </div>
           </div>
           
-          <div className="text-center text-sm text-gray-400 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center text-sm text-gray-400 pt-6 border-t border-white/10">
             <div>&copy; {new Date().getFullYear()} {t('copyright')}</div>
-            <Link to="/admin" className="text-gray-500 hover:text-white transition-colors text-xs font-semibold">Удирдах хэсэг (Admin Panel)</Link>
           </div>
         </div>
       </footer>
