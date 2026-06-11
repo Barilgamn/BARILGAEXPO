@@ -285,6 +285,28 @@ export const AdminPanel: React.FC = () => {
 
   const activeNews = data.news.find(n => n.id === newsEditId);
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  const uploadNewsImage = async (file: File, newsId: number) => {
+    setUploadError('');
+    setUploadingImage(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `news/${newsId}-${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from('media')
+        .upload(path, file, { cacheControl: '3600', upsert: true });
+      if (uploadErr) throw uploadErr;
+      const { data: publicUrlData } = supabase.storage.from('media').getPublicUrl(path);
+      updateNews(newsId, 'image', publicUrlData.publicUrl);
+    } catch (err: any) {
+      setUploadError(err.message || 'Зураг байршуулахад алдаа гарлаа');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Sidebar */}
@@ -642,8 +664,31 @@ export const AdminPanel: React.FC = () => {
                     <input type="text" value={activeNews.date} onChange={e => updateNews(activeNews.id, 'date', e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Main Image URL</label>
-                    <input type="text" value={activeNews.image} onChange={e => updateNews(activeNews.id, 'image', e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Main Image</label>
+                    <div className="flex items-start gap-4">
+                      {activeNews.image && (
+                        <img src={activeNews.image} alt="preview" className="w-32 h-24 object-cover rounded-lg border border-gray-200 bg-white" />
+                      )}
+                      <div className="flex-1 space-y-2">
+                        <input type="text" value={activeNews.image} onChange={e => updateNews(activeNews.id, 'image', e.target.value)} placeholder="https://..." className="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                        <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-200 text-sm font-medium">
+                          {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Image size={16} />}
+                          {uploadingImage ? 'Байршуулж байна...' : 'Зургийн файл оруулах'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingImage}
+                            onChange={e => {
+                              const file = e.target.files?.[0];
+                              if (file) uploadNewsImage(file, activeNews.id);
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
+                        {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Short Description</label>
