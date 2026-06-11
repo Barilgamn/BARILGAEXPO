@@ -12,9 +12,9 @@ export const ProgramSection: React.FC = () => {
     <section id="program" className="relative py-24 bg-gray-900 flex items-center justify-center overflow-hidden min-h-[500px]">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2000&auto=format&fit=crop" 
-          alt="Exhibition Stage" 
+        <img
+          src="/program-bg.jpg"
+          alt="Exhibition Stage"
           loading="lazy"
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
