@@ -331,8 +331,20 @@ export default function App() {
             src="https://greatergo.org/uploads/article/63ab00ab-f707-4b23-b389-96b04b22552a.jpg"
             alt="Ulaanbaatar city background"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover blur-[1px] scale-105 opacity-50"
+            className="absolute inset-0 w-full h-full object-cover blur-[1px] scale-105 opacity-50"
           />
+          {/* Хотын хөдөлгөөн — барилгын ажил/тээврийн урсгал (давталттай видео) */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            poster="https://greatergo.org/uploads/article/63ab00ab-f707-4b23-b389-96b04b22552a.jpg"
+            className="absolute inset-0 w-full h-full object-cover blur-[1px] scale-105 opacity-50"
+          >
+            <source src="/hero-city.mp4" type="video/mp4" />
+          </video>
         </div>
         
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10">
