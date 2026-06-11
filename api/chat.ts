@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
 import { booths, getBoothPrice, CATEGORY_LABELS } from '../src/data/booths';
+import { newsItems as bundledNews } from '../src/data/newsItems';
 
 // BARILGA EXPO вэбсайтын зочдод зориулсан туслах чатбот.
 // Энэ нь Vercel serverless function бөгөөд Gemini API-г сервер талд
@@ -94,9 +95,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    // Хөтөлбөр болон сул талбайн мэдээллийг Supabase-аас татаж нэмэлт контекст болгож өгнө
+    // Хөтөлбөр, мэдээ болон сул талбайн мэдээллийг Supabase-аас татаж нэмэлт контекст болгож өгнө
     let programInfo = '';
     let boothInfo = '';
+    let newsInfo = '';
     try {
       const supabaseUrl = process.env.VITE_SUPABASE_URL;
       const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
@@ -106,6 +108,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const program = (data?.data as any)?.program;
         if (Array.isArray(program) && program.length > 0) {
           programInfo = `\nХөтөлбөрийн мэдээлэл (JSON): ${JSON.stringify(program).slice(0, 4000)}`;
+        }
+
+        // Мэдээний хэсэг — өмнөх үзэсгэлэн, шилдэг байгууллага, үр дүн г.м асуултад хариулахад ашиглана
+        let news = (data?.data as any)?.news;
+        if (!Array.isArray(news) || news.length === 0) news = bundledNews; // fallback
+        if (Array.isArray(news) && news.length > 0) {
+          const stripHtml = (s: string) =>
+            String(s || '')
+              .replace(/<[^>]*>/g, ' ')
+              .replace(/&nbsp;/g, ' ')
+              .replace(/&hellip;/g, '…')
+              .replace(/&#8220;|&#8221;/g, '"')
+              .replace(/&amp;/g, '&')
+              .replace(/\s+/g, ' ')
+              .trim();
+          const items = news.slice(0, 12).map((n: any) => {
+            const body = stripHtml(n.content || n.description || '').slice(0, 1600);
+            return `• [${n.date || ''}] ${n.title || ''}${body ? ' — ' + body : ''}`;
+          }).join('\n');
+          newsInfo = `\n\n== САЙТЫН МЭДЭЭ / НИЙТЛЭЛҮҮД ==\nДоорх нь сайтын "Мэдээ" хэсгийн агуулга. Өмнөх үзэсгэлэнгийн үр дүн, шилдэг/онцлох оролцогч байгууллагууд, шагнал, ивээн тэтгэгчид, статистик, зохион байгуулалт зэрэг асуултад ЗӨВХӨН доорх мэдээнд тулгуурлан тодорхой, нэр дурдан хариул. Хэрэв тухайн асуултын хариу мэдээнд байхгүй бол таамаглахгүйгээр "Энэ талаар сайтын мэдээнд тодорхой мэдээлэл алга" гэж хэлээд холбоо барих мэдээллийг өг.\n${items}`.slice(0, 16000);
         }
 
         const { data: statusRows } = await supabase.from('booth_status').select('id, status, is_reserved');
@@ -137,7 +159,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       model: 'gemini-2.5-flash',
       history,
       config: {
-        systemInstruction: SYSTEM_INFO + programInfo + boothInfo,
+        systemInstruction: SYSTEM_INFO + programInfo + newsInfo + boothInfo,
         maxOutputTokens: 1024,
         temperature: 0.4,
       },
