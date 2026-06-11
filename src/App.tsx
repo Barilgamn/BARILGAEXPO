@@ -393,20 +393,20 @@ export default function App() {
                 
                 <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center relative z-10">
                   <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-xl sm:text-2xl font-black text-white font-mono mb-1">{timeLeft.days}</div>
-                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('days')}</div>
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.days}</div>
+                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('days')}</div>
                   </div>
                   <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-xl sm:text-2xl font-black text-white font-mono mb-1">{timeLeft.hours.toString().padStart(2, '0')}</div>
-                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('hours')}</div>
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.hours.toString().padStart(2, '0')}</div>
+                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('hours')}</div>
                   </div>
                   <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-xl sm:text-2xl font-black text-white font-mono mb-1">{timeLeft.minutes.toString().padStart(2, '0')}</div>
-                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('minutes')}</div>
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.minutes.toString().padStart(2, '0')}</div>
+                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('minutes')}</div>
                   </div>
                   <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-xl sm:text-2xl font-black text-white font-mono mb-1">{timeLeft.seconds.toString().padStart(2, '0')}</div>
-                    <div className="text-[10px] sm:text-xs text-blue-200/60 uppercase tracking-wider font-semibold">{t('seconds')}</div>
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.seconds.toString().padStart(2, '0')}</div>
+                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('seconds')}</div>
                   </div>
                 </div>
                 
