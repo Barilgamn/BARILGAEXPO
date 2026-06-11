@@ -10,6 +10,7 @@ import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
+import { TowerConstruction } from './components/TowerConstruction';
 
 // Optimize bundle size & performance via dynamic code-splitting
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
@@ -333,18 +334,8 @@ export default function App() {
             referrerPolicy="no-referrer"
             className="absolute inset-0 w-full h-full object-cover blur-[1px] scale-105 opacity-50"
           />
-          {/* Хотын хөдөлгөөн — барилгын ажил/тээврийн урсгал (давталттай видео) */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            poster="https://greatergo.org/uploads/article/63ab00ab-f707-4b23-b389-96b04b22552a.jpg"
-            className="absolute inset-0 w-full h-full object-cover blur-[1px] scale-105 opacity-50"
-          >
-            <source src="/hero-city.mp4" type="video/mp4" />
-          </video>
+          {/* Хотын зураг дээр баригдаж буй цамхаг (CGI blueprint анимэйшн) */}
+          <TowerConstruction />
         </div>
         
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10">
