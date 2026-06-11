@@ -2,8 +2,8 @@ import React from 'react';
 
 /**
  * Улаанбаатарын хотын зураг дээр баригдаж буй цамхгууд (CGI blueprint).
- * Доороос дээш удаан давтан "баригдах" гэрэлтсэн wireframe цамхаг + кран + барилгын шугам.
- * Зөвхөн CSS/SVG. Хоёр цамхаг өөр өөр байрлал, хэмжээ, хурдтай.
+ * Цамхгууд ЭЭЛЖЛЭН нэг нэгээр доороос дээш баригдаж, баригдсан хэвээрээ зогсоно
+ * (1 → 2 → 3). Бүгд босч дуусаад түр зогсоод, дараа нь дахин эхэлнэ. Зөвхөн CSS/SVG.
  */
 const TowerSvg: React.FC = () => {
   const floors = 11;
@@ -48,8 +48,6 @@ const TowerSvg: React.FC = () => {
         </svg>
       </div>
       <div className="tc-line" />
-      <span className="tc-spark tc-spark-1" />
-      <span className="tc-spark tc-spark-2" />
     </>
   );
 };
@@ -57,19 +55,28 @@ const TowerSvg: React.FC = () => {
 export const TowerConstruction: React.FC = () => {
   return (
     <div className="tc-wrap pointer-events-none absolute inset-0 overflow-hidden z-[12]">
-      <div className="tc-stage tc-stage-a"><TowerSvg /></div>
-      <div className="tc-stage tc-stage-b"><TowerSvg /></div>
+      <div className="tc-stage tc-a"><TowerSvg /></div>
+      <div className="tc-stage tc-b"><TowerSvg /></div>
+      <div className="tc-stage tc-c"><TowerSvg /></div>
 
       <style>{`
-        .tc-stage { position: absolute; bottom: 0; }
-        /* Гол цамхаг — баруун талд */
-        .tc-stage-a { right: 3%; width: 230px; height: 320px; --dur: 17s; --delay: 0s; --blur: 1.6px; opacity: 0.9; }
-        @media (min-width: 640px) { .tc-stage-a { width: 300px; height: 360px; } }
-        @media (min-width: 1024px) { .tc-stage-a { width: 360px; height: 420px; right: 5%; } }
-        /* Хоёр дахь цамхаг — зүүн талд, жижиг, бүдэг, удаан (алсын барилга мэт) */
-        .tc-stage-b { left: 2%; width: 150px; height: 240px; --dur: 23s; --delay: -11s; --blur: 2.8px; opacity: 0.6; }
-        @media (min-width: 640px) { .tc-stage-b { width: 190px; height: 280px; } }
-        @media (min-width: 1024px) { .tc-stage-b { width: 230px; height: 320px; left: 4%; } }
+        .tc-stage { position: absolute; bottom: 0; --dur: 30s; }
+        /* Давхцахгүй 3 байрлал: зүүн → төв → баруун */
+        .tc-a { left: 2%;  width: 190px; height: 270px; --blur: 1.8px; opacity: 0.85; }
+        .tc-b { left: 36%; width: 220px; height: 320px; --blur: 1.4px; opacity: 0.95; }
+        .tc-c { right: 2%; width: 175px; height: 250px; --blur: 2.2px; opacity: 0.8; }
+        @media (min-width: 640px) {
+          .tc-a { width: 240px; height: 320px; left: 3%; }
+          .tc-b { width: 280px; height: 380px; left: 38%; }
+          .tc-c { width: 220px; height: 300px; right: 3%; }
+        }
+        @media (min-width: 1024px) {
+          .tc-a { width: 280px; height: 360px; left: 4%; }
+          .tc-b { width: 330px; height: 430px; left: 39%; }
+          .tc-c { width: 250px; height: 340px; right: 4%; }
+        }
+        /* Жижиг дэлгэцэнд зөвхөн нэг цамхаг (давхцахгүйн тулд) */
+        @media (max-width: 639px) { .tc-b, .tc-c { display: none; } .tc-a { left: 50%; transform: translateX(-50%); } }
 
         .tc-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 3px rgba(125,211,252,0.8)) blur(var(--blur)); }
         .tc-stroke { stroke: #7dd3fc; }
@@ -78,52 +85,69 @@ export const TowerConstruction: React.FC = () => {
         .tc-win-lit { fill: #fcd34d; animation: tcFlick 5s ease-in-out infinite; }
         .tc-beacon { fill: #f87171; animation: tcBeacon 2.2s ease-in-out infinite; }
 
-        .tc-building {
-          position: absolute; inset: 0;
-          animation: tcReveal var(--dur) linear infinite var(--delay), tcFade var(--dur) linear infinite var(--delay);
-        }
+        .tc-building { position: absolute; inset: 0; }
         .tc-line {
           position: absolute; left: 8%; right: 8%; height: 3px; top: 100%;
           transform: translateY(-50%);
           background: linear-gradient(90deg, transparent, #e0f2fe 20%, #7dd3fc 50%, #e0f2fe 80%, transparent);
           box-shadow: 0 0 10px 2px rgba(125,211,252,0.9);
           filter: blur(0.5px);
-          animation: tcLine var(--dur) linear infinite var(--delay);
+          opacity: 0;
         }
-        .tc-spark { position: absolute; width: 4px; height: 4px; border-radius: 9999px; background: #fde68a; box-shadow: 0 0 6px 1px #fcd34d; top: 100%; opacity: 0; }
-        .tc-spark-1 { left: 28%; animation: tcLine var(--dur) linear infinite var(--delay), tcSpark var(--dur) linear infinite var(--delay); }
-        .tc-spark-2 { left: 64%; animation: tcLine var(--dur) linear infinite var(--delay), tcSpark var(--dur) linear infinite var(--delay); }
 
-        @keyframes tcReveal {
-          0%, 6%   { clip-path: inset(100% 0 0 0); }
-          66%, 86% { clip-path: inset(0 0 0 0); }
-          100%     { clip-path: inset(0 0 0 0); }
+        /* Цамхаг бүр өөр өөр цагт босно (ээлжлэн), бүгд босоод хэвээрээ зогсоно,
+           90%-д бүгд хамт цэвэрлэгдэж дахин эхэлнэ. */
+        .tc-a .tc-building { animation: revealA var(--dur) linear infinite; }
+        .tc-b .tc-building { animation: revealB var(--dur) linear infinite; }
+        .tc-c .tc-building { animation: revealC var(--dur) linear infinite; }
+        .tc-a .tc-line { animation: lineA var(--dur) linear infinite; }
+        .tc-b .tc-line { animation: lineB var(--dur) linear infinite; }
+        .tc-c .tc-line { animation: lineC var(--dur) linear infinite; }
+
+        @keyframes revealA {
+          0%, 3%   { clip-path: inset(100% 0 0 0); opacity: 0; }
+          5%       { opacity: 1; }
+          20%      { clip-path: inset(0 0 0 0); }
+          90%      { clip-path: inset(0 0 0 0); opacity: 1; }
+          96%, 100%{ clip-path: inset(0 0 0 0); opacity: 0; }
         }
-        @keyframes tcFade {
-          0%   { opacity: 0; }
-          7%   { opacity: 1; }
-          86%  { opacity: 1; }
-          97%, 100% { opacity: 0; }
+        @keyframes revealB {
+          0%, 28%  { clip-path: inset(100% 0 0 0); opacity: 0; }
+          30%      { opacity: 1; }
+          45%      { clip-path: inset(0 0 0 0); }
+          90%      { clip-path: inset(0 0 0 0); opacity: 1; }
+          96%, 100%{ clip-path: inset(0 0 0 0); opacity: 0; }
         }
-        @keyframes tcLine {
-          0%, 6%   { top: 100%; }
-          66%      { top: 22%; }
-          72%      { top: 22%; opacity: 0.9; }
-          80%, 100% { top: 22%; opacity: 0; }
+        @keyframes revealC {
+          0%, 53%  { clip-path: inset(100% 0 0 0); opacity: 0; }
+          55%      { opacity: 1; }
+          70%      { clip-path: inset(0 0 0 0); }
+          90%      { clip-path: inset(0 0 0 0); opacity: 1; }
+          96%, 100%{ clip-path: inset(0 0 0 0); opacity: 0; }
         }
-        @keyframes tcSpark {
-          0%, 6% { opacity: 0; }
-          12% { opacity: 1; }
-          32% { opacity: 0; }
-          52% { opacity: 1; }
-          66% { opacity: 0.5; }
-          72%, 100% { opacity: 0; }
+        @keyframes lineA {
+          0%, 3% { top: 100%; opacity: 0; }
+          5% { opacity: 0.9; }
+          20% { top: 22%; opacity: 0.9; }
+          24%, 100% { top: 22%; opacity: 0; }
+        }
+        @keyframes lineB {
+          0%, 28% { top: 100%; opacity: 0; }
+          30% { opacity: 0.9; }
+          45% { top: 22%; opacity: 0.9; }
+          49%, 100% { top: 22%; opacity: 0; }
+        }
+        @keyframes lineC {
+          0%, 53% { top: 100%; opacity: 0; }
+          55% { opacity: 0.9; }
+          70% { top: 22%; opacity: 0.9; }
+          74%, 100% { top: 22%; opacity: 0; }
         }
         @keyframes tcFlick { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         @keyframes tcBeacon { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         @media (prefers-reduced-motion: reduce) {
-          .tc-building, .tc-line, .tc-spark, .tc-win-lit, .tc-beacon { animation: none; }
-          .tc-building { clip-path: inset(0 0 0 0); opacity: 0.85; }
+          .tc-building { animation: none !important; clip-path: inset(0 0 0 0); opacity: 0.85; }
+          .tc-line, .tc-win-lit, .tc-beacon { animation: none; }
           .tc-line { display: none; }
         }
       `}</style>
