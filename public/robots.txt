@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /auth/
 
-Sitemap: https://barilgaexpo.mn/sitemap.xml
+Sitemap: https://www.barilgaexpo.mn/sitemap.xml
