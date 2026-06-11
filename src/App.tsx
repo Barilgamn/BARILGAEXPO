@@ -365,7 +365,7 @@ export default function App() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-6 mb-12">
-                <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
+                <div className="glow-card flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
                   <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-red-500/20 border border-red-500/30">
                     <Calendar className="h-6 w-6 text-red-400" />
                   </div>
@@ -375,7 +375,7 @@ export default function App() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
+                <div className="glow-card flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
                   <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-red-500/20 border border-red-500/30">
                     <MapPin className="h-6 w-6 text-red-400" />
                   </div>
@@ -385,7 +385,24 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              
+
+              {/* Картын хүрээг тойрон эргэлддэг гэрэлтэх анимэйшн */}
+              <style>{`
+                @property --glow-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+                .glow-card { position: relative; isolation: isolate; }
+                .glow-card::before {
+                  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+                  background: conic-gradient(from var(--glow-angle),
+                    transparent 0deg, transparent 250deg,
+                    #f87171 300deg, #fca5a5 330deg, #fca5a5 345deg, transparent 360deg);
+                  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                  -webkit-mask-composite: xor; mask-composite: exclude;
+                  pointer-events: none;
+                  animation: glowSpin 5s linear infinite;
+                }
+                @keyframes glowSpin { to { --glow-angle: 360deg; } }
+                @media (prefers-reduced-motion: reduce) { .glow-card::before { animation: none; } }
+              `}</style>
             </div>
 
             <div className="lg:col-span-5 xl:col-span-4 mt-8 lg:mt-0 relative z-30">
