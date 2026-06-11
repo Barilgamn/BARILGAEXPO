@@ -108,13 +108,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           programInfo = `\nХөтөлбөрийн мэдээлэл (JSON): ${JSON.stringify(program).slice(0, 4000)}`;
         }
 
-        const { data: statusRows } = await supabase.from('booth_status').select('id, is_reserved');
-        const reserved = new Set((statusRows || []).filter((r: any) => r.is_reserved).map((r: any) => r.id));
-        const available = booths.filter(b => !reserved.has(b.id));
+        const { data: statusRows } = await supabase.from('booth_status').select('id, status, is_reserved');
+        const ov: Record<string, string> = {};
+        (statusRows || []).forEach((r: any) => {
+          const st = r.status ?? (r.is_reserved ? 'occupied' : null);
+          if (st) ov[r.id] = st;
+        });
+        const eff = (b: typeof booths[number]) => ov[b.id] ?? b.status;
+        const available = booths.filter(b => eff(b) === 'available');
         const summary = available.map(
-          b => `${b.id} (${b.size}, ${b.area}м², ${CATEGORY_LABELS[b.category]}, $${getBoothPrice(b)})`
+          b => `${b.id} (${b.area}м², ${CATEGORY_LABELS[b.category]}, ${getBoothPrice(b).toLocaleString()}₮)`
         ).join('; ');
-        boothInfo = `\n\nСул байгаа талбайн жагсаалт (${available.length}/${booths.length}): ${summary || 'Одоогоор бүх талбай захиалагдсан'}.\nХэрэглэгч талбай захиалах талаар асуувал дээрх СУЛ байгаа талбайнуудаас тохирох хэмжээ, төсөвт нь тохирохыг санал болгож, сайтын "Талбай захиалах" товч/хуудас ("/booking")-аар дамжуулан захиалгын хүсэлт илгээхийг зөвлө.`;
+        boothInfo = `\n\nСул (захиалах боломжтой) талбайн жагсаалт (${available.length}/${booths.length}): ${summary || 'Одоогоор сул талбай алга'}.\nТэмдэглэл: "Нөөц" төлөвтэй талбайг зөвхөн зохион байгуулагч (админ) нөөцөөс гаргасны дараа л захиалах боломжтой тул хэрэглэгчид санал болгохгүй. Захиалагдсан талбайг бас санал болгохгүй.\nХэрэглэгч талбай захиалах талаар асуувал дээрх СУЛ байгаа талбайнуудаас түүний хэмжээ, төсөвт нь тохирохыг санал болгож, үнийг төгрөгөөр хэлж, сайтын "Талбай захиалах" товч/хуудас ("/booking")-аар дамжуулан захиалгын хүсэлт илгээхийг зөвлө.`;
       }
     } catch {
       // Мэдээлэл авч чадаагүй ч чат ажиллаж байх ёстой

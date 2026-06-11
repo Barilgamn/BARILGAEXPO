@@ -47,7 +47,7 @@ export const BoothRequestsTab: React.FC = () => {
     }
     if (status === 'approved' && Array.isArray(req.booth_ids)) {
       for (const boothId of req.booth_ids) {
-        await supabase.from('booth_status').upsert({ id: boothId, is_reserved: true, updated_at: new Date().toISOString() });
+        await supabase.from('booth_status').upsert({ id: boothId, status: 'occupied', is_reserved: true, updated_at: new Date().toISOString() });
       }
     }
   };
