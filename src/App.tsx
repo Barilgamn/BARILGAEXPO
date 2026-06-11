@@ -336,6 +336,9 @@ export default function App() {
           />
           {/* Хотын гэрлүүд гэрэлтэж/анивчих анимэйшн */}
           <CityLights />
+          {/* Текст уншигдахуйц байхын тулд гэрлийн дээр харанхуй давхарга (зүүн тал илүү бараан) */}
+          <div className="absolute inset-0 z-[15] bg-gradient-to-r from-blue-950/95 via-blue-950/70 to-blue-950/30" />
+          <div className="absolute inset-0 z-[15] bg-blue-950/25" />
         </div>
         
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10">
