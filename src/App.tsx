@@ -329,7 +329,7 @@ export default function App() {
             src="https://greatergo.org/uploads/article/63ab00ab-f707-4b23-b389-96b04b22552a.jpg"
             alt="Ulaanbaatar city background"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover blur-[2px] scale-105 opacity-50"
+            className="w-full h-full object-cover blur-[1px] scale-105 opacity-50"
           />
         </div>
         
