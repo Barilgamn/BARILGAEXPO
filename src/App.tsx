@@ -18,6 +18,7 @@ const ProgramSection = lazy(() => import('./components/ProgramSection').then(m =
 const GallerySection = lazy(() => import('./components/GallerySection').then(m => ({ default: m.GallerySection })));
 const GuidePage = lazy(() => import('./components/GuidePage').then(m => ({ default: m.GuidePage })));
 const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({ default: m.BoothBooking })));
+const BoothInfoPage = lazy(() => import('./components/BoothInfoPage').then(m => ({ default: m.BoothInfoPage })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({ default: m.AuthCallback })));
 
@@ -619,6 +620,11 @@ export default function App() {
         <Route path="/booking" element={
           <Suspense fallback={<LoadingPlaceHolder />}>
             <BoothBooking />
+          </Suspense>
+        } />
+        <Route path="/booths" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <BoothInfoPage />
           </Suspense>
         } />
       </Routes>

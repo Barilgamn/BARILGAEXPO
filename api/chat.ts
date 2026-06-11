@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
+import { booths, getBoothPrice, CATEGORY_LABELS } from '../src/data/booths';
 
 // BARILGA EXPO вэбсайтын зочдод зориулсан туслах чатбот.
 // Энэ нь Vercel serverless function бөгөөд Gemini API-г сервер талд
@@ -63,6 +64,7 @@ const SYSTEM_INFO = `
 - Зургийн цомог (Өмнөх үзэсгэлэнгийн зургууд)
 - Хөтөч / Удирдамж (оролцогч, зочдод зориулсан дэлгэрэнгүй заавар)
 - Хөтөлбөр (өдөр тус бүрийн арга хэмжээний цагийн хуваарь)
+- Талбайн мэдээлэл ("/booths" хуудас) - талбайн байршлын зураг, үнэ, сул/захиалагдсан төлөв
 - Холбоо барих
 
 Хэрэв чамд тодорхой хариулах мэдээлэл байхгүй бол яаралтай тусламж эсвэл
@@ -93,8 +95,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    // Хөтөлбөрийн мэдээллийг Supabase-аас татаж нэмэлт контекст болгож өгнө
+    // Хөтөлбөр болон сул талбайн мэдээллийг Supabase-аас татаж нэмэлт контекст болгож өгнө
     let programInfo = '';
+    let boothInfo = '';
     try {
       const supabaseUrl = process.env.VITE_SUPABASE_URL;
       const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
@@ -105,9 +108,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (Array.isArray(program) && program.length > 0) {
           programInfo = `\nХөтөлбөрийн мэдээлэл (JSON): ${JSON.stringify(program).slice(0, 4000)}`;
         }
+
+        const { data: statusRows } = await supabase.from('booth_status').select('id, is_reserved');
+        const reserved = new Set((statusRows || []).filter((r: any) => r.is_reserved).map((r: any) => r.id));
+        const available = booths.filter(b => !reserved.has(b.id));
+        const summary = available.map(
+          b => `${b.id} (${b.size}, ${b.area}м², ${CATEGORY_LABELS[b.category]}, $${getBoothPrice(b)})`
+        ).join('; ');
+        boothInfo = `\n\nСул байгаа талбайн жагсаалт (${available.length}/${booths.length}): ${summary || 'Одоогоор бүх талбай захиалагдсан'}.\nХэрэглэгч талбай захиалах талаар асуувал дээрх СУЛ байгаа талбайнуудаас тохирох хэмжээ, төсөвт нь тохирохыг санал болгож, "/booths" хуудаснаас бүрэн мэдээллийг харах эсвэл "/booking" хуудаснаас захиалгын хүсэлт илгээхийг зөвлө.`;
       }
     } catch {
-      // Хөтөлбөрийн мэдээлэл авч чадаагүй ч чат ажиллаж байх ёстой
+      // Мэдээлэл авч чадаагүй ч чат ажиллаж байх ёстой
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -122,7 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       model: 'gemini-2.5-flash',
       history,
       config: {
-        systemInstruction: SYSTEM_INFO + programInfo,
+        systemInstruction: SYSTEM_INFO + programInfo + boothInfo,
         maxOutputTokens: 1024,
         temperature: 0.4,
       },
