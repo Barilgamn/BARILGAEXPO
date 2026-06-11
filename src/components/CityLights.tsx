@@ -1,61 +1,59 @@
-import React, { useMemo } from 'react';
+import React from 'react';
+
+const CITY_IMG = 'https://greatergo.org/uploads/article/63ab00ab-f707-4b23-b389-96b04b22552a.jpg';
 
 /**
- * Арын хотын зураг дээр гэрлүүд гэрэлтэж/анивчиж буй мэт зөөлөн анимэйшн.
- * Олон жижиг гэрэлтэх цэгүүд (warm/cool) санамсаргүй байрлал, хугацаатайгаар анивчина.
- * mix-blend-screen ашигласан тул зөвхөн гэрэл нэмэгдэж, харанхуй хэсэг хэвээр үлдэнэ.
+ * Арын хотын зураг дээрх ЖИНХЭНЭ барилгын цонхнуудын гэрлийг гэрэлтүүлэх анимэйшн.
+ * Зургийг өөрийг нь `screen` blend-ээр давхарлавал зөвхөн тод цэгүүд (цонхны гэрэл)
+ * нэмэгдэж гэрэлтэнэ. Хоёр давхарга:
+ *   1) "Амьсгал" — бүх гэрлүүд зөөлөн анивчина.
+ *   2) "Долгион" — гэрэлтэлтийн туяа зурвасаар нааш цааш гүйж, цонхнууд ээлжлэн ялтгана.
  */
 export const CityLights: React.FC = () => {
-  const dots = useMemo(() => {
-    const colors = ['#fde68a', '#fef3c7', '#ffffff', '#fdba74', '#bae6fd', '#fcd34d'];
-    const rnd = (a: number, b: number) => a + Math.random() * (b - a);
-    return Array.from({ length: 64 }).map(() => {
-      const size = rnd(2, 6);
-      return {
-        left: rnd(2, 98),
-        // Гэрлүүд голчлон хотын мөрийн зурвас (дунд-доод хэсэг)-т
-        top: rnd(40, 86),
-        size,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        dur: rnd(2.2, 6).toFixed(2),
-        delay: rnd(0, 5).toFixed(2),
-        min: rnd(0.05, 0.25).toFixed(2),
-        glow: (size * rnd(2.2, 4)).toFixed(1),
-      };
-    });
-  }, []);
-
+  const base = 'absolute inset-0 w-full h-full object-cover scale-105 blur-[1px] select-none';
   return (
-    <div
-      className="pointer-events-none absolute inset-0 overflow-hidden z-[11]"
-      style={{ mixBlendMode: 'screen' }}
-    >
-      {dots.map((d, i) => (
-        <span
-          key={i}
-          style={{
-            position: 'absolute',
-            left: `${d.left}%`,
-            top: `${d.top}%`,
-            width: `${d.size}px`,
-            height: `${d.size}px`,
-            borderRadius: '9999px',
-            background: d.color,
-            boxShadow: `0 0 ${d.glow}px ${Math.max(1, d.size / 2)}px ${d.color}`,
-            // @ts-ignore — CSS custom property
-            '--min': d.min,
-            opacity: d.min,
-            animation: `cityTwinkle ${d.dur}s ease-in-out ${d.delay}s infinite`,
-          }}
-        />
-      ))}
+    <div className="pointer-events-none absolute inset-0 overflow-hidden z-[11]">
+      {/* 1) Амьсгалт гэрэлтэлт */}
+      <img
+        src={CITY_IMG}
+        alt=""
+        aria-hidden
+        referrerPolicy="no-referrer"
+        className={`${base} cl-breathe`}
+        style={{ mixBlendMode: 'screen', filter: 'brightness(1.7) contrast(1.15) saturate(1.25)' }}
+      />
+      {/* 2) Долгионт ялтгал (mask зурвас гүйнэ) */}
+      <img
+        src={CITY_IMG}
+        alt=""
+        aria-hidden
+        referrerPolicy="no-referrer"
+        className={`${base} cl-sweep`}
+        style={{ mixBlendMode: 'screen', filter: 'brightness(2.1) saturate(1.35)' }}
+      />
       <style>{`
-        @keyframes cityTwinkle {
-          0%, 100% { opacity: var(--min); transform: scale(0.75); }
-          50%      { opacity: 1;          transform: scale(1.25); }
+        .cl-breathe { opacity: 0.22; animation: clBreathe 7s ease-in-out infinite; }
+        @keyframes clBreathe {
+          0%, 100% { opacity: 0.14; }
+          50%      { opacity: 0.42; }
+        }
+        .cl-sweep {
+          opacity: 0.5;
+          -webkit-mask-image: linear-gradient(100deg, transparent 38%, #000 50%, transparent 62%);
+          mask-image: linear-gradient(100deg, transparent 38%, #000 50%, transparent 62%);
+          -webkit-mask-size: 260% 100%;
+          mask-size: 260% 100%;
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+          animation: clSweep 9s linear infinite;
+        }
+        @keyframes clSweep {
+          0%   { -webkit-mask-position: 135% 0; mask-position: 135% 0; }
+          100% { -webkit-mask-position: -35% 0; mask-position: -35% 0; }
         }
         @media (prefers-reduced-motion: reduce) {
-          [style*="cityTwinkle"] { animation: none !important; opacity: 0.6 !important; }
+          .cl-breathe { animation: none; opacity: 0.25; }
+          .cl-sweep { animation: none; opacity: 0; }
         }
       `}</style>
     </div>
