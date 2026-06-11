@@ -68,7 +68,7 @@ export const ChatWidget: React.FC = () => {
       <button
         onClick={() => setOpen(o => !o)}
         aria-label="AI чат нээх"
-        className="fixed bottom-5 right-5 z-[200] w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-2xl flex items-center justify-center transition-all hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-400/40"
+        className="fixed bottom-5 right-5 z-[200] w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-2xl flex items-center justify-center transition-all hover:scale-105 hover:opacity-100 opacity-60 focus:outline-none focus:ring-4 focus:ring-red-400/40"
       >
         {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
