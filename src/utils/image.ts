@@ -9,6 +9,10 @@ export const optimizeImage = (url: string, width: number) => {
       u.searchParams.set('ssl', '1');
       return u.toString();
     }
+    // Манай өөрийн домэйн болон Supabase Storage-д хадгалсан зургийг шууд ашиглана
+    if (u.hostname.endsWith('barilgaexpo.mn') || u.hostname.endsWith('supabase.co')) {
+      return url;
+    }
     const stripped = url.replace(/^https?:\/\//, '');
     return `https://i0.wp.com/${stripped}?w=${width}&quality=75&ssl=1`;
   } catch {

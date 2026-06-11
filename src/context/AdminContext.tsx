@@ -78,39 +78,37 @@ const defaultContact = {
 };
 
 const defaultOrganizers: Organizer[] = [
-  { id: '1', name: 'Хот Байгуулалт, Барилга, Орон Сууцжуулалтын Яам', logo: 'https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2025/10/unnamed-3.webp?w=913&ssl=1' },
-  { id: '2', name: 'Нийслэлийн Засаг Даргын Тамгын газар', logo: 'https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2025/10/unnamed.png?w=869&ssl=1' },
-  { id: '3', name: 'Барилгын Хөгжлийн Төв', logo: 'https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2025/10/Untitled-1.png?w=800&ssl=1' },
+  { id: '1', name: 'Хот Байгуулалт, Барилга, Орон Сууцжуулалтын Яам', logo: 'https://www.barilgaexpo.mn/organizer-1.jpg' },
+  { id: '2', name: 'Нийслэлийн Засаг Даргын Тамгын газар', logo: 'https://www.barilgaexpo.mn/organizer-2.png' },
+  { id: '3', name: 'Барилгын Хөгжлийн Төв', logo: 'https://www.barilgaexpo.mn/organizer-3.png' },
 ];
 
 const defaultGallery = [
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-2436.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-1983.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0371.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/10-1.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0814.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0383.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/2-2.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0421.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0360.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0555.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0523.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0627.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-7690.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0569.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0411.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0612.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0798.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0709.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/MPA-PHOTO-2026-4-0687.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/677267349_1291051353159299_1013812053009267747_n.jpg',
-  'https://barilgaexpo.mn/wp-content/uploads/2024/06/SJP_4965.jpg'
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-2436.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-1983.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0371.jpg',
+  'https://www.barilgaexpo.mn/gallery/10-1.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0383.jpg',
+  'https://www.barilgaexpo.mn/gallery/2-2.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0421.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0360.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0555.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0523.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0627.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0569.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0411.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0612.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0798.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0709.jpg',
+  'https://www.barilgaexpo.mn/gallery/MPA-PHOTO-2026-4-0687.jpg',
+  'https://www.barilgaexpo.mn/gallery/677267349_1291051353159299_1013812053009267747_n.jpg',
+  'https://www.barilgaexpo.mn/gallery/SJP_4965.jpg'
 ];
 
 const defaultProgram: ProgramDay[] = [];
 
 const defaultData: SiteData = {
-  logoUrl: 'https://i0.wp.com/barilgaexpo.mn/wp-content/uploads/2024/06/EXPO-LOGO.png?resize=768%2C348&ssl=1',
+  logoUrl: 'https://www.barilgaexpo.mn/expo-logo.png',
   contact: defaultContact,
   menus: [
     { id: '1', labelMn: 'НҮҮР', labelEn: 'HOME', path: '/' },
