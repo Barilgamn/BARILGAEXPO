@@ -10,7 +10,7 @@ import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
-import { TowerConstruction } from './components/TowerConstruction';
+import { CityLights } from './components/CityLights';
 
 // Optimize bundle size & performance via dynamic code-splitting
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
@@ -334,8 +334,8 @@ export default function App() {
             referrerPolicy="no-referrer"
             className="absolute inset-0 w-full h-full object-cover blur-[1px] scale-105 opacity-50"
           />
-          {/* Хотын зураг дээр баригдаж буй цамхаг (CGI blueprint анимэйшн) */}
-          <TowerConstruction />
+          {/* Хотын гэрлүүд гэрэлтэж/анивчих анимэйшн */}
+          <CityLights />
         </div>
         
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10">
