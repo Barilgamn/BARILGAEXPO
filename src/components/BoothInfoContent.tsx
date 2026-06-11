@@ -127,7 +127,7 @@ export const BoothInfoContent: React.FC = () => {
                   <td className="px-4 py-2.5 text-gray-600">{b.area || '—'}</td>
                   <td className="px-4 py-2.5 text-gray-600">{b.pricePerM2.toLocaleString()}₮</td>
                   <td className="px-4 py-2.5 font-semibold text-gray-900">{getBoothPrice(b).toLocaleString()}₮</td>
-                  <td className="px-4 py-2.5 text-gray-600 max-w-[220px] truncate" title={b.company || ''}>{b.company || '—'}</td>
+                  <td className="px-4 py-2.5 text-gray-600 max-w-[180px] truncate" title={b.company || ''}>{b.company || '—'}</td>
                   <td className="px-4 py-2.5">{statusBadge(st)}</td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">
                     {st === 'reserved' ? (

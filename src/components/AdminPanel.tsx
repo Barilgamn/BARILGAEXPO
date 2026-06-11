@@ -366,7 +366,7 @@ export const AdminPanel: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto max-h-screen">
-        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className={`${activeTab === 'booth_info' || activeTab === 'booth_requests' ? 'max-w-7xl' : 'max-w-4xl'} mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8`}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-gray-100 pb-6">
             <div>
               <h1 className="text-2xl font-bold capitalize text-slate-900">{tabs.find(t => t.id === activeTab)?.label}</h1>
