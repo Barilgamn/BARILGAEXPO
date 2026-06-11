@@ -75,7 +75,7 @@ const defaultContact = {
   address: 'Улаанбаатар 13373, Баянзүрх дүүрэг, 6-р хороо, "BARILGA.MN" оффис',
   facebookUrl: 'https://facebook.com/barilga.mn',
   instagramUrl: 'https://instagram.com/barilga.mn',
-  youtubeUrl: 'https://youtube.com/c/barilgagroup'
+  youtubeUrl: 'https://www.youtube.com/barilgamn'
 };
 
 const defaultOrganizers: Organizer[] = [
