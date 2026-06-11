@@ -724,7 +724,7 @@ export default function App() {
             {/* Google Maps Location */}
             <div className="lg:col-span-2 h-64 md:h-full min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-white/10">
               <iframe 
-                src="https://maps.google.com/maps?q=47.9142315,106.9306781(Barilga%20MN)&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=Barilga%20MN%20%D0%91%D0%B0%D1%80%D0%B8%D0%BB%D0%B3%D0%B0%20%D0%9C%D0%9D&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%" 
                 height="100%" 
                 style={{ border: 0 }} 
