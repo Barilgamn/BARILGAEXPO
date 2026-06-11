@@ -6,6 +6,7 @@ import {
   FLOORPLAN_VIEWBOX,
   FLOORPLAN_STAGE,
   FLOORPLAN_PHOTOBOOTH,
+  FLOORPLAN_GATE,
 } from '../data/floorPlanLayout';
 
 type Cat = Booth['category'];
@@ -82,8 +83,19 @@ export const InteractiveFloorPlan: React.FC<Props> = ({ statusOf }) => {
           className="w-full h-full"
           style={{ transform: `translate(${tx}px, ${ty}px) scale(${scale})`, transformOrigin: 'center center', transition: dragRef.current ? 'none' : 'transform 0.12s ease-out' }}
         >
-          {/* hall outline */}
-          <rect x="40" y="20" width="1520" height="700" rx="60" fill="#ffffff" stroke="#cbd5e1" strokeWidth="3" />
+          {/* hall outline (stadium) */}
+          <rect x="150" y="6" width="1700" height="1320" rx="260" fill="#ffffff" stroke="#cbd5e1" strokeWidth="3" />
+          {/* inner exhibitor floor */}
+          <rect x="360" y="370" width="1290" height="770" rx="14" fill="#fafafa" stroke="#e5e7eb" strokeWidth="2" />
+          {/* gate (Хаалга) */}
+          <rect x={FLOORPLAN_GATE.x} y={FLOORPLAN_GATE.y} width={FLOORPLAN_GATE.w} height={FLOORPLAN_GATE.h} rx="3" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="1.5" />
+          <text x={FLOORPLAN_GATE.x + FLOORPLAN_GATE.w / 2} y={FLOORPLAN_GATE.y + FLOORPLAN_GATE.h / 2} textAnchor="middle" dominantBaseline="central" fill="#64748b" fontSize="16">Хаалга</text>
+          {/* seating dots in front of stage */}
+          {Array.from({ length: 4 }).flatMap((_, r) =>
+            Array.from({ length: 7 }).map((__, c) => (
+              <circle key={`d${r}-${c}`} cx={918 + c * 22} cy={965 + r * 22} r="5" fill="#e2e8f0" />
+            ))
+          )}
           {/* stage */}
           <rect x={FLOORPLAN_STAGE.x} y={FLOORPLAN_STAGE.y} width={FLOORPLAN_STAGE.w} height={FLOORPLAN_STAGE.h} rx="6" fill="#ef4444" />
           <text x={FLOORPLAN_STAGE.x + FLOORPLAN_STAGE.w / 2} y={FLOORPLAN_STAGE.y + FLOORPLAN_STAGE.h / 2} textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="22" fontWeight="700">STAGE 8×5</text>
