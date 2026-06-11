@@ -93,7 +93,7 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
           message:
             `Сайн байна уу${fields.contactPerson ? ', ' + fields.contactPerson : ''}.\n\n` +
             `40 дахь удаагийн BARILGA EXPO үзэсгэлэнгийн талбайн түрээсийн гэрээ болон нэхэмжлэхийг хавсаргав. ` +
-            `Танилцаж, гарын үсэг зурсны дараа буцаан илгээнэ үү.\n\nХүндэтгэсэн,\nBARILGA EXPO багаас\norder@barilgaexpo.mn`,
+            `Танилцаж, гарын үсэг зурсны дараа буцаан илгээнэ үү.\n\nХүндэтгэсэн,\nBARILGA EXPO багаас\ninfo@barilga.mn`,
           attachments,
         }),
       });

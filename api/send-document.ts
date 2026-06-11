@@ -7,7 +7,7 @@ import nodemailer from 'nodemailer';
 //   SMTP_PORT      (465 эсвэл 587)
 //   SMTP_USER      (order@barilgaexpo.mn)
 //   SMTP_PASS      (мэйлийн нууц үг / app password)
-//   MAIL_FROM      (сонголтоор, default: order@barilgaexpo.mn)
+//   MAIL_FROM      (сонголтоор, default: info@barilga.mn)
 
 interface Attachment {
   filename: string;
@@ -38,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const port = Number(process.env.SMTP_PORT || 465);
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
-    const from = process.env.MAIL_FROM || 'order@barilgaexpo.mn';
+    const from = process.env.MAIL_FROM || 'info@barilga.mn';
 
     if (!host || !user || !pass) {
       res.status(500).json({
@@ -61,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       subject: subject || 'BARILGA EXPO — Гэрээ ба нэхэмжлэх',
       text:
         message ||
-        'Сайн байна уу,\n\nBARILGA EXPO үзэсгэлэнгийн талбайн түрээсийн гэрээ болон нэхэмжлэхийг хавсаргав. Танилцаж, гарын үсэг зурсны дараа буцаан илгээнэ үү.\n\nХүндэтгэсэн,\nBARILGA EXPO багаас\norder@barilgaexpo.mn',
+        'Сайн байна уу,\n\nBARILGA EXPO үзэсгэлэнгийн талбайн түрээсийн гэрээ болон нэхэмжлэхийг хавсаргав. Танилцаж, гарын үсэг зурсны дараа буцаан илгээнэ үү.\n\nХүндэтгэсэн,\nBARILGA EXPO багаас\ninfo@barilga.mn',
       attachments: (attachments || []).map(a => ({
         filename: a.filename,
         content: a.contentBase64,
