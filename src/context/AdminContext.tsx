@@ -128,7 +128,7 @@ const defaultData: SiteData = {
 
 interface AdminContextType {
   data: SiteData;
-  updateData: (partial: Partial<SiteData>) => void;
+  updateData: (partial: Partial<SiteData> | ((prev: SiteData) => Partial<SiteData>)) => void;
   saveDataToDb: (customData?: SiteData) => Promise<void>;
   isAuthenticated: boolean;
   userEmail: string | null;
@@ -288,9 +288,10 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (e) {}
   };
 
-  const updateData = (partial: Partial<SiteData>) => {
+  const updateData = (partial: Partial<SiteData> | ((prev: SiteData) => Partial<SiteData>)) => {
     setData(prev => {
-      const next = { ...prev, ...partial };
+      const resolvedPartial = typeof partial === 'function' ? partial(prev) : partial;
+      const next = { ...prev, ...resolvedPartial };
       try {
         localStorage.setItem('barilga_admin_data', JSON.stringify(next));
       } catch (e) {}

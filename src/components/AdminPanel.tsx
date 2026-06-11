@@ -275,8 +275,7 @@ export const AdminPanel: React.FC = () => {
   };
 
   const updateNews = (id: number, field: string, value: string) => {
-    const updated = data.news.map(n => n.id === id ? { ...n, [field]: value } : n);
-    updateData({ news: updated });
+    updateData(prev => ({ news: prev.news.map(n => n.id === id ? { ...n, [field]: value } : n) }));
   };
 
   const removeNews = (id: number) => {
