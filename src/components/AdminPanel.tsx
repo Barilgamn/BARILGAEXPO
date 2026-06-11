@@ -4,6 +4,7 @@ import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, L
 import { BoothRequestsTab } from './BoothRequestsTab';
 import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '../supabase';
+import { optimizeImage } from '../utils/image';
 
 export const AdminPanel: React.FC = () => {
   const { data, updateData, saveDataToDb, isAuthenticated, userEmail, login, logout } = useAdmin();
@@ -287,22 +288,46 @@ export const AdminPanel: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
+  const uploadFileToMedia = async (file: File, folder: string, name: string | number) => {
+    const ext = file.name.split('.').pop();
+    const path = `${folder}/${name}-${Date.now()}.${ext}`;
+    const { error: uploadErr } = await supabase.storage
+      .from('media')
+      .upload(path, file, { cacheControl: '3600', upsert: true });
+    if (uploadErr) throw uploadErr;
+    const { data: publicUrlData } = supabase.storage.from('media').getPublicUrl(path);
+    return publicUrlData.publicUrl;
+  };
+
   const uploadNewsImage = async (file: File, newsId: number) => {
     setUploadError('');
     setUploadingImage(true);
     try {
-      const ext = file.name.split('.').pop();
-      const path = `news/${newsId}-${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage
-        .from('media')
-        .upload(path, file, { cacheControl: '3600', upsert: true });
-      if (uploadErr) throw uploadErr;
-      const { data: publicUrlData } = supabase.storage.from('media').getPublicUrl(path);
-      updateNews(newsId, 'image', publicUrlData.publicUrl);
+      const url = await uploadFileToMedia(file, 'news', newsId);
+      updateNews(newsId, 'image', url);
     } catch (err: any) {
       setUploadError(err.message || 'Зураг байршуулахад алдаа гарлаа');
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+
+  const uploadGalleryImages = async (files: FileList) => {
+    setUploadError('');
+    setUploadingGallery(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadFileToMedia(file, 'gallery', Date.now());
+        urls.push(url);
+      }
+      updateData(prev => ({ gallery: [...urls, ...prev.gallery] }));
+    } catch (err: any) {
+      setUploadError(err.message || 'Зураг байршуулахад алдаа гарлаа');
+    } finally {
+      setUploadingGallery(false);
     }
   };
 
@@ -611,13 +636,32 @@ export const AdminPanel: React.FC = () => {
           {/* Gallery Tab */}
           {activeTab === 'gallery' && (
             <div>
-              <button onClick={addGalleryImage} className="mb-6 flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                <Plus size={18} /> Add Image URL
-              </button>
+              <div className="mb-6 flex flex-wrap items-center gap-3">
+                <button onClick={addGalleryImage} className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200">
+                  <Plus size={18} /> Add Image URL
+                </button>
+                <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 text-sm font-medium">
+                  {uploadingGallery ? <Loader2 size={18} className="animate-spin" /> : <Image size={18} />}
+                  {uploadingGallery ? 'Байршуулж байна...' : 'Зураг upload хийх'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    disabled={uploadingGallery}
+                    onChange={e => {
+                      const files = e.target.files;
+                      if (files && files.length > 0) uploadGalleryImages(files);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+                {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {data.gallery.map((img, idx) => (
-                  <div key={idx} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square">
-                    <img src={img} alt="gallery" className="w-full h-full object-cover" />
+                  <div key={idx} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square bg-gray-100">
+                    <img src={optimizeImage(img, 300)} alt="gallery" className="w-full h-full object-cover" loading="lazy" />
                     <button onClick={() => removeGalleryImage(idx)} className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 size={16} />
                     </button>
