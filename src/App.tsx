@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User, Mail, ArrowUp, ChevronDown } from 'lucide-react';
 import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
@@ -34,6 +34,7 @@ function LoadingPlaceHolder() {
 export default function App() {
   const { data } = useAdmin();
   const location = useLocation();
+  const navigate = useNavigate();
   const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/auth');
   const { lang, setLang, t } = useTranslation();
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -764,8 +765,8 @@ export default function App() {
                     <span className="text-sm text-gray-500 text-center mt-2 leading-relaxed">{t('mod_vis_desc')}</span>
                   </button>
                   
-                  <button 
-                    onClick={() => setRegType('exhibitor')}
+                  <button
+                    onClick={() => { setIsRegModalOpen(false); setRegType(null); navigate('/booking'); window.scrollTo({ top: 0 }); }}
                     className="flex flex-col items-center justify-center p-6 border-2 border-gray-100 py-10 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all group">
                     <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
                        <Building2 className="h-8 w-8" />
