@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MessageCircle, X, Send, Loader2, Bot } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageCircle, X, Send, Loader2, Bot, Phone, ArrowRight } from 'lucide-react';
 
 interface ChatMessage {
   role: 'user' | 'model';
@@ -11,7 +12,69 @@ const WELCOME_MESSAGE: ChatMessage = {
   text: 'Сайн байна уу! Би BARILGA EXPO-ийн AI туслах. Үзэсгэлэнгийн огноо, байршил, талбай захиалга, холбоо барих мэдээллийн талаар асуугаарай.',
 };
 
+// Текст дотор байгаа [label](url) markdown линкийг танигдах товч болгон рендэрлэнэ
+const renderMessageContent = (
+  text: string,
+  navigate: (path: string) => void,
+  closeChat: () => void,
+) => {
+  const linkRegex = /\[([^\]]+)\]\((\/[^\s)]*|tel:[^\s)]+|https?:\/\/[^\s)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    const [full, label, url] = match;
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    const isTel = url.startsWith('tel:');
+    const isInternal = url.startsWith('/');
+    const Icon = isTel ? Phone : ArrowRight;
+
+    if (isInternal) {
+      parts.push(
+        <button
+          key={`link-${key++}`}
+          onClick={() => {
+            closeChat();
+            navigate(url);
+          }}
+          className="inline-flex items-center gap-1.5 my-1 px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors"
+        >
+          {label}
+          <Icon className="w-3.5 h-3.5" />
+        </button>,
+      );
+    } else {
+      parts.push(
+        <a
+          key={`link-${key++}`}
+          href={url}
+          target={isTel ? undefined : '_blank'}
+          rel={isTel ? undefined : 'noopener noreferrer'}
+          className="inline-flex items-center gap-1.5 my-1 px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors no-underline"
+        >
+          {label}
+          <Icon className="w-3.5 h-3.5" />
+        </a>,
+      );
+    }
+
+    lastIndex = match.index + full.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+};
+
 export const ChatWidget: React.FC = () => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [input, setInput] = useState('');
@@ -108,7 +171,9 @@ export const ChatWidget: React.FC = () => {
                       : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm shadow-sm'
                   }`}
                 >
-                  {m.text}
+                  {m.role === 'model'
+                    ? renderMessageContent(m.text, navigate, () => setOpen(false))
+                    : m.text}
                 </div>
               </div>
             ))}
