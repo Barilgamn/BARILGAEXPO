@@ -468,18 +468,20 @@ export default function App() {
       <section className="bg-white pt-16 pb-8 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gray-50 rounded-2xl p-8 lg:p-12 border border-gray-100 lg:flex lg:justify-between lg:items-center gap-8 shadow-sm">
-            <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center lg:items-start text-center lg:text-left">
+            <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
               <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6">{t('org_main')}</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-10 md:h-12 object-contain" />
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36" title="BARILGA.MN">
+                <div className="h-20 w-20 lg:h-24 lg:w-24 flex items-center justify-center">
+                  <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="max-h-full max-w-full object-contain" />
+                </div>
               </a>
             </div>
-            
+
             <div className="w-full h-px lg:w-px lg:h-24 bg-gray-200 my-8 lg:my-0"></div>
-            
-            <div className="lg:w-2/3 flex flex-col items-center lg:items-start">
-              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center lg:text-left">{t('org_co')}</div>
-              <div className="flex flex-wrap justify-center lg:justify-start gap-6 sm:gap-10 items-start">
+
+            <div className="lg:w-2/3 flex flex-col items-center">
+              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_co')}</div>
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-10 items-start">
                 {data.organizers.map(org => {
                   const resolveOrgUrl = (o: typeof org): string | undefined => {
                     if (o.url) return o.url;
