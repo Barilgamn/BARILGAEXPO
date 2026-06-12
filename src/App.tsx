@@ -470,8 +470,8 @@ export default function App() {
           <div className="bg-gray-50 rounded-2xl p-8 lg:p-12 border border-gray-100 lg:flex lg:justify-between lg:items-center gap-8 shadow-sm">
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
               <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6">{t('org_main')}</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36" title="BARILGA.MN">
-                <div className="h-20 w-20 lg:h-24 lg:w-24 flex items-center justify-center">
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-48" title="BARILGA.MN">
+                <div className="h-32 w-32 lg:h-40 lg:w-40 flex items-center justify-center">
                   <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="max-h-full max-w-full object-contain" />
                 </div>
               </a>
