@@ -397,7 +397,7 @@ export const AdminPanel: React.FC = () => {
                 className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all font-bold text-xs shadow-md cursor-pointer select-none active:scale-[0.98]"
               >
                 <Save className={`w-4 h-4 ${isSyncing ? 'animate-bounce' : ''}`} />
-                {isSyncing ? "Хадгалж байна..." : "Баазад хадгалах (Save to DB)"}
+                {isSyncing ? "Хадгалж байна..." : "ХАДГАЛАХ"}
               </button>
             )}
           </div>
@@ -864,7 +864,7 @@ export const AdminPanel: React.FC = () => {
                 className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-650 active:scale-[0.98] text-white rounded-xl transition-all font-bold text-sm shadow-md cursor-pointer select-none"
               >
                 <Save className={`w-4 h-4 ${isSyncing ? 'animate-bounce' : ''}`} />
-                {isSyncing ? "Хадгалж байна..." : "Өөрчлөлтийг баазад ХАДГАЛАХ (Save Edits)"}
+                {isSyncing ? "Хадгалж байна..." : "ХАДГАЛАХ"}
               </button>
             </div>
           )}
