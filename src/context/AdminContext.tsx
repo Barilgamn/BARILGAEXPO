@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { newsItems as initialNews } from '../data/newsItems';
-import { supabase } from '../supabase';
+import { supabase, createIsolatedSupabaseClient } from '../supabase';
 
 export interface Organizer {
   id: string;
@@ -135,6 +135,10 @@ interface AdminContextType {
   userEmail: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  adminEmails: string[];
+  fetchAdminEmails: () => Promise<void>;
+  addAdminUser: (email: string, password: string) => Promise<void>;
+  removeAdminUser: (email: string) => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType>({
@@ -145,7 +149,13 @@ const AdminContext = createContext<AdminContextType>({
   userEmail: null,
   login: async () => {},
   logout: async () => {},
+  adminEmails: [],
+  fetchAdminEmails: async () => {},
+  addAdminUser: async () => {},
+  removeAdminUser: async () => {},
 });
+
+const DEFAULT_ADMIN_EMAIL = 'info@barilga.mn';
 
 export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   const [data, setData] = useState<SiteData>(() => {
@@ -164,13 +174,49 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       const stored = localStorage.getItem('barilga_admin_auth');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.isAuthenticated && parsed.userEmail === 'info@barilga.mn') {
+        if (parsed.isAuthenticated && parsed.userEmail) {
           return parsed;
         }
       }
     } catch (e) {}
     return { isAuthenticated: false, userEmail: null };
   });
+
+  const [adminEmails, setAdminEmails] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('barilga_admin_emails');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch (e) {}
+    return [DEFAULT_ADMIN_EMAIL];
+  });
+
+  const adminEmailsRef = React.useRef(adminEmails);
+  useEffect(() => {
+    adminEmailsRef.current = adminEmails;
+  }, [adminEmails]);
+
+  const isAllowedAdminEmail = (email?: string | null) => {
+    if (!email) return false;
+    const e = email.toLowerCase();
+    if (e === DEFAULT_ADMIN_EMAIL) return true;
+    return adminEmailsRef.current.some(a => a.toLowerCase() === e);
+  };
+
+  const fetchAdminEmails = async () => {
+    try {
+      const { data: rows, error } = await supabase.from('admin_users').select('email');
+      if (!error && rows) {
+        const emails = Array.from(new Set([DEFAULT_ADMIN_EMAIL, ...rows.map((r: any) => String(r.email).toLowerCase())]));
+        setAdminEmails(emails);
+        try {
+          localStorage.setItem('barilga_admin_emails', JSON.stringify(emails));
+        } catch (e) {}
+      }
+    } catch (e) {}
+  };
 
   // 1. Эхлэлд Supabase-аас site_data унших
   useEffect(() => {
@@ -220,7 +266,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   // 3. Supabase Auth state listener
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user?.email === 'info@barilga.mn') {
+      if (session?.user?.email && isAllowedAdminEmail(session.user.email)) {
         const freshAuth = { isAuthenticated: true, userEmail: session.user.email };
         setAuthState(freshAuth);
         try {
@@ -232,7 +278,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         if (localAuthStr) {
           try {
             const parsed = JSON.parse(localAuthStr);
-            if (parsed.isAuthenticated && parsed.userEmail === 'info@barilga.mn') {
+            if (parsed.isAuthenticated && isAllowedAdminEmail(parsed.userEmail)) {
               return;
             }
           } catch (e) {}
@@ -246,13 +292,21 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  // 4. Admин имэйлийн жагсаалтыг Supabase-аас унших
+  useEffect(() => {
+    fetchAdminEmails();
+  }, []);
+
   const login = async (email: string, password: string) => {
+    // Эхлээд хамгийн сүүлийн админ жагсаалтыг авна
+    await fetchAdminEmails();
+
     const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    if (authData.user?.email !== 'info@barilga.mn') {
+    if (!authData.user?.email || !isAllowedAdminEmail(authData.user.email)) {
       await supabase.auth.signOut();
-      throw new Error(`Хандах эрхгүй байна! Зөвхөн "info@barilga.mn" имэйлээр нэвтрэх боломжтой.`);
+      throw new Error(`Хандах эрхгүй байна! Энэ имэйл админ хэрэглэгчийн жагсаалтад байхгүй байна.`);
     }
 
     const freshAuth = { isAuthenticated: true, userEmail: authData.user.email };
@@ -271,6 +325,37 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     if (!existing) {
       await supabase.from('site_data').upsert({ id: 'config', data });
     }
+  };
+
+  // Шинэ админ хэрэглэгч нэмэх: Supabase Auth-д шинэ хэрэглэгч үүсгэж,
+  // admin_users жагсаалтад имэйлийг бүртгэнэ. Тусдаа (session хадгалахгүй)
+  // клиент ашигладаг тул одоо нэвтэрсэн админы session-д нөлөөлөхгүй.
+  const addAdminUser = async (email: string, password: string) => {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized || !password) {
+      throw new Error('Имэйл болон нууц үг шаардлагатай.');
+    }
+
+    const isolated = createIsolatedSupabaseClient();
+    const { error: signUpError } = await isolated.auth.signUp({ email: normalized, password });
+    if (signUpError) throw signUpError;
+
+    const { error: insertError } = await supabase.from('admin_users').upsert({ email: normalized });
+    if (insertError) throw insertError;
+
+    await fetchAdminEmails();
+  };
+
+  // Админ хэрэглэгчийг жагсаалтаас хасах (Supabase Auth-д байгаа бүртгэлийг устгахгүй,
+  // зөвхөн админ панелд хандах эрхийг хасна)
+  const removeAdminUser = async (email: string) => {
+    const normalized = email.trim().toLowerCase();
+    if (normalized === DEFAULT_ADMIN_EMAIL) {
+      throw new Error(`"${DEFAULT_ADMIN_EMAIL}" имэйлийг хасах боломжгүй.`);
+    }
+    const { error } = await supabase.from('admin_users').delete().eq('email', normalized);
+    if (error) throw error;
+    await fetchAdminEmails();
   };
 
   const logout = async () => {
@@ -306,7 +391,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AdminContext.Provider value={{ data, updateData, saveDataToDb, isAuthenticated: authState.isAuthenticated, userEmail: authState.userEmail, login, logout }}>
+    <AdminContext.Provider value={{ data, updateData, saveDataToDb, isAuthenticated: authState.isAuthenticated, userEmail: authState.userEmail, login, logout, adminEmails, fetchAdminEmails, addAdminUser, removeAdminUser }}>
       {children}
     </AdminContext.Provider>
   );
