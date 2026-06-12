@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Calendar, X } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin } from '../context/AdminContext';
 import { newsTranslations, NewsTranslationLang } from '../data/newsTranslations';
@@ -9,7 +9,6 @@ export const NewsSection: React.FC = () => {
   const { data } = useAdmin();
   const newsItems = data.news;
   const { t, lang } = useTranslation();
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedNews, setSelectedNews] = useState<typeof newsItems[0] | null>(null);
 
   // Сонгосон хэл дээр орчуулга байвал title/description-ийг түүгээр сольж харуулна.
@@ -20,17 +19,6 @@ export const NewsSection: React.FC = () => {
     if (!translation) return news;
     return { ...news, title: translation.title, description: translation.description, content: translation.content || news.content };
   };
-
-  const itemsPerPage = 6;
-  const totalPages = Math.ceil(newsItems.length / itemsPerPage);
-
-  const currentItems = newsItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -56,7 +44,7 @@ export const NewsSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {currentItems.map((news) => {
+          {newsItems.map((news) => {
             const localized = getLocalizedNews(news);
             return (
             <div
@@ -95,40 +83,6 @@ export const NewsSection: React.FC = () => {
           })}
         </div>
 
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="mt-16 flex items-center justify-center gap-4">
-            <button 
-              onClick={prevPage}
-              disabled={currentPage === 1}
-              className="p-2 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentPage(idx + 1)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                    currentPage === idx + 1 
-                      ? 'bg-red-600 text-white shadow-md' 
-                      : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {idx + 1}
-                </button>
-              ))}
-            </div>
-            <button 
-              onClick={nextPage}
-              disabled={currentPage === totalPages}
-              className="p-2 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Detail Modal */}
