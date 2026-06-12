@@ -42,9 +42,16 @@ export const ChatWidget: React.FC = () => {
         body: JSON.stringify({ messages: nextMessages }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || 'Алдаа гарлаа');
+      // Хариу JSON биш байж болзошгүй (сервер алдаа г.м) — аюулгүй уншина
+      const raw = await res.text();
+      let data: any = null;
+      try { data = raw ? JSON.parse(raw) : null; } catch { /* JSON биш */ }
+
+      if (!res.ok || !data) {
+        throw new Error(
+          (data && data.error) ||
+            'Чат түр зуур ажиллахгүй байна. Хэсэг хүлээгээд дахин оролдоно уу.',
+        );
       }
 
       setMessages(prev => [...prev, { role: 'model', text: data.reply }]);

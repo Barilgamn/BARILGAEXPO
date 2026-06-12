@@ -123,11 +123,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .replace(/&amp;/g, '&')
               .replace(/\s+/g, ' ')
               .trim();
-          const items = news.slice(0, 12).map((n: any) => {
-            const body = stripHtml(n.content || n.description || '').slice(0, 1600);
+          const items = news.slice(0, 6).map((n: any) => {
+            const body = stripHtml(n.content || n.description || '').slice(0, 900);
             return `• [${n.date || ''}] ${n.title || ''}${body ? ' — ' + body : ''}`;
           }).join('\n');
-          newsInfo = `\n\n== САЙТЫН МЭДЭЭ / НИЙТЛЭЛҮҮД ==\nДоорх нь сайтын "Мэдээ" хэсгийн агуулга. Өмнөх үзэсгэлэнгийн үр дүн, шилдэг/онцлох оролцогч байгууллагууд, шагнал, ивээн тэтгэгчид, статистик, зохион байгуулалт зэрэг асуултад ЗӨВХӨН доорх мэдээнд тулгуурлан тодорхой, нэр дурдан хариул. Хэрэв тухайн асуултын хариу мэдээнд байхгүй бол таамаглахгүйгээр "Энэ талаар сайтын мэдээнд тодорхой мэдээлэл алга" гэж хэлээд холбоо барих мэдээллийг өг.\n${items}`.slice(0, 16000);
+          newsInfo = `\n\n== САЙТЫН МЭДЭЭ / НИЙТЛЭЛҮҮД ==\nДоорх нь сайтын "Мэдээ" хэсгийн агуулга. Өмнөх үзэсгэлэнгийн үр дүн, шилдэг/онцлох оролцогч байгууллагууд, шагнал, ивээн тэтгэгчид, статистик, зохион байгуулалт зэрэг асуултад ЗӨВХӨН доорх мэдээнд тулгуурлан тодорхой, нэр дурдан хариул. Хэрэв тухайн асуултын хариу мэдээнд байхгүй бол таамаглахгүйгээр "Энэ талаар сайтын мэдээнд тодорхой мэдээлэл алга" гэж хэлээд холбоо барих мэдээллийг өг.\n${items}`.slice(0, 7000);
         }
 
         const { data: statusRows } = await supabase.from('booth_status').select('id, status, is_reserved');
@@ -138,9 +138,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         const eff = (b: typeof booths[number]) => ov[b.id] ?? b.status;
         const available = booths.filter(b => eff(b) === 'available');
-        const summary = available.map(
-          b => `${b.id} (${b.area}м², ${CATEGORY_LABELS[b.category]}, ${getBoothPrice(b).toLocaleString()}₮)`
-        ).join('; ');
+        const summary = available
+          .slice(0, 70)
+          .map(b => `${b.id} (${b.area}м², ${CATEGORY_LABELS[b.category]}, ${getBoothPrice(b).toLocaleString()}₮)`)
+          .join('; ');
         boothInfo = `\n\nСул (захиалах боломжтой) талбайн жагсаалт (${available.length}/${booths.length}): ${summary || 'Одоогоор сул талбай алга'}.\nТэмдэглэл: "Нөөц" төлөвтэй талбайг зөвхөн зохион байгуулагч (админ) нөөцөөс гаргасны дараа л захиалах боломжтой тул хэрэглэгчид санал болгохгүй. Захиалагдсан талбайг бас санал болгохгүй.\nХэрэглэгч талбай захиалах талаар асуувал дээрх СУЛ байгаа талбайнуудаас түүний хэмжээ, төсөвт нь тохирохыг санал болгож, үнийг төгрөгөөр хэлж, сайтын "Талбай захиалах" товч/хуудас ("/booking")-аар дамжуулан захиалгын хүсэлт илгээхийг зөвлө.`;
       }
     } catch {
@@ -149,24 +150,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const last = messages[messages.length - 1];
-    const history = messages.slice(0, -1).map(m => ({
-      role: m.role,
-      parts: [{ text: m.text }],
+    // Сүүлийн ~10 мессежийг л авч, контентыг хэт томруулахгүй
+    const contents = messages.slice(-10).map(m => ({
+      role: m.role === 'model' ? 'model' : 'user',
+      parts: [{ text: String(m.text || '').slice(0, 2000) }],
     }));
 
-    const chat = ai.chats.create({
+    // Gemini хариу хэт удвал hang болохгүйн тулд 25 секундын хязгаар
+    const genPromise = ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      history,
+      contents,
       config: {
         systemInstruction: SYSTEM_INFO + programInfo + newsInfo + boothInfo,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 900,
         temperature: 0.4,
       },
     });
-
-    const result = await chat.sendMessage({ message: last.text });
-    const text = result.text || 'Уучлаарай, одоогоор хариулт өгөх боломжгүй байна.';
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 25000),
+    );
+    const result: any = await Promise.race([genPromise, timeoutPromise]);
+    const text = result?.text || 'Уучлаарай, одоогоор хариулт өгөх боломжгүй байна.';
 
     res.status(200).json({ reply: text });
   } catch (err: any) {
