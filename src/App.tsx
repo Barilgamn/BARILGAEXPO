@@ -11,6 +11,7 @@ import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
 import { CityLights } from './components/CityLights';
+import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
@@ -37,6 +38,14 @@ export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/auth');
+
+  // Сайтын хандалтын тоог бүртгэх (админ хуудсыг тооцохгүй)
+  useEffect(() => {
+    if (!isAdminRoute) {
+      trackVisit(location.pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { lang, setLang, t } = useTranslation();
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);

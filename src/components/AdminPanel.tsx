@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3 } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
+import { AnalyticsTab } from './AnalyticsTab';
 import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '../supabase';
 import { optimizeImage } from '../utils/image';
 
 export const AdminPanel: React.FC = () => {
   const { data, updateData, saveDataToDb, isAuthenticated, userEmail, login, logout } = useAdmin();
-  const [activeTab, setActiveTab] = useState('registrations');
+  const [activeTab, setActiveTab] = useState('analytics');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState('');
@@ -185,6 +186,7 @@ export const AdminPanel: React.FC = () => {
   }
 
   const tabs = [
+    { id: 'analytics', label: 'Статистик (Analytics)', icon: <BarChart3 size={18} /> },
     { id: 'registrations', label: 'Бүртгэлүүд (Registrations)', icon: <Users size={18} /> },
     { id: 'booth_requests', label: 'Талбайн захиалга (Booth Requests)', icon: <MapPin size={18} /> },
     { id: 'booth_info', label: 'Талбайн мэдээлэл (Booth Info)', icon: <MapPin size={18} /> },
@@ -366,7 +368,7 @@ export const AdminPanel: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto max-h-screen">
-        <div className={`${activeTab === 'booth_info' || activeTab === 'booth_requests' ? 'max-w-7xl' : 'max-w-4xl'} mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8`}>
+        <div className={`${activeTab === 'booth_info' || activeTab === 'booth_requests' || activeTab === 'analytics' ? 'max-w-7xl' : 'max-w-4xl'} mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8`}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-gray-100 pb-6">
             <div>
               <h1 className="text-2xl font-bold capitalize text-slate-900">{tabs.find(t => t.id === activeTab)?.label}</h1>
@@ -374,7 +376,7 @@ export const AdminPanel: React.FC = () => {
             </div>
             
             {/* Save Action Button */}
-            {activeTab !== 'registrations' && activeTab !== 'booth_requests' && (
+            {activeTab !== 'registrations' && activeTab !== 'booth_requests' && activeTab !== 'analytics' && (
               <button
                 onClick={async () => {
                   if (isSyncing) return;
@@ -399,6 +401,11 @@ export const AdminPanel: React.FC = () => {
               </button>
             )}
           </div>
+
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <AnalyticsTab />
+          )}
 
           {/* Booth Requests Tab */}
           {activeTab === 'booth_requests' && (

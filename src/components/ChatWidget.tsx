@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, X, Send, Loader2, Bot, Phone, ArrowRight } from 'lucide-react';
+import { trackChatUsage } from '../utils/analytics';
 
 interface ChatMessage {
   role: 'user' | 'model';
@@ -97,6 +98,11 @@ export const ChatWidget: React.FC = () => {
     setInput('');
     setError(null);
     setLoading(true);
+
+    // Чат хэрэглэгчийн тоог статистикт бүртгэх (зөвхөн анхны мессеж дээр)
+    if (messages.length === 1) {
+      trackChatUsage();
+    }
 
     try {
       const res = await fetch('/api/chat', {
