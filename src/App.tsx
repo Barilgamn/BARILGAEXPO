@@ -471,7 +471,7 @@ export default function App() {
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
               <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_main')}</div>
               <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-24 sm:h-28 lg:h-36 w-auto object-contain" />
+                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-[150px] w-auto object-contain" />
               </a>
             </div>
 
