@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, MapPin, CheckCircle2, Navigation, Target, ArrowLeft, Download, Info, User } from 'lucide-react';
+import { Calendar, MapPin, CheckCircle2, Navigation, Target, ArrowLeft, Download, Info, User, TrendingUp, Megaphone, Eye } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin } from '../context/AdminContext';
 
@@ -162,14 +162,19 @@ export const GuidePage: React.FC = () => {
         <div className="space-y-16">
           <div className="flex flex-col md:flex-row gap-12 items-center">
             <div className="md:w-1/2">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-50 text-red-700 font-semibold text-xs mb-4 border border-red-100 uppercase tracking-wider">
+                <Navigation className="w-3.5 h-3.5" />
+                GLOBAL
+              </span>
               <h2 className="text-3xl font-bold font-heading text-gray-900 mb-6">{t('gd_int_t')}</h2>
               <div className="w-12 h-1 bg-red-500 rounded-full mb-6"></div>
               <p className="text-gray-600 leading-relaxed text-lg">
                 {t('gd_int_d')}
               </p>
             </div>
-            <div className="md:w-1/2 rounded-2xl overflow-hidden shadow-xl">
-              <img src="https://5.imimg.com/data5/BW/OV/MY-622376/international-flags-500x500.jpg" alt="International Companies" loading="lazy" referrerPolicy="no-referrer" className="w-full h-80 object-cover" />
+            <div className="md:w-1/2 rounded-2xl overflow-hidden shadow-2xl relative">
+              <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1600&auto=format&fit=crop" alt="International Companies" loading="lazy" referrerPolicy="no-referrer" className="w-full h-80 md:h-96 object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-blue-950/50 via-transparent to-transparent"></div>
             </div>
           </div>
 
@@ -211,6 +216,10 @@ export const GuidePage: React.FC = () => {
 
           <div className="flex flex-col md:flex-row-reverse gap-12 items-center">
             <div className="md:w-1/2">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 font-semibold text-xs mb-4 border border-blue-100 uppercase tracking-wider">
+                <TrendingUp className="w-3.5 h-3.5" />
+                ROI
+              </span>
               <h2 className="text-3xl font-bold font-heading text-gray-900 mb-6">{t('gd_mark_t')}</h2>
               <div className="w-12 h-1 bg-blue-600 rounded-full mb-6"></div>
               <p className="text-gray-600 leading-relaxed text-lg mb-4">
@@ -220,8 +229,35 @@ export const GuidePage: React.FC = () => {
                 {t('gd_mark_d2')}
               </p>
             </div>
-            <div className="md:w-1/2 rounded-2xl overflow-hidden shadow-xl">
-              <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1600&auto=format&fit=crop" alt="Marketing Results" loading="lazy" referrerPolicy="no-referrer" className="w-full h-80 object-cover" />
+            <div className="md:w-1/2 relative pb-6 pr-6">
+              <div className="rounded-2xl overflow-hidden shadow-2xl relative">
+                <img
+                  src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1600&auto=format&fit=crop"
+                  alt="Marketing Results"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-80 md:h-96 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-950/70 via-blue-950/0 to-transparent"></div>
+              </div>
+              <div className="absolute -bottom-2 left-4 right-auto md:left-6 bg-white rounded-2xl shadow-xl p-4 md:p-5 border border-gray-100 flex items-center gap-3 md:gap-4 max-w-[88%]">
+                <div className="w-11 h-11 md:w-12 md:h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center shrink-0">
+                  <Eye className="w-5 h-5 md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <p className="text-xl md:text-2xl font-black text-gray-900 leading-tight">40,000+</p>
+                  <p className="text-xs text-gray-500 font-medium leading-tight">{t('gd_v_t')}</p>
+                </div>
+              </div>
+              <div className="absolute -top-6 -right-0 md:-right-6 bg-blue-900 text-white rounded-2xl shadow-xl p-4 md:p-5 border border-blue-800 flex items-center gap-3 md:gap-4">
+                <div className="w-11 h-11 md:w-12 md:h-12 bg-red-500/20 text-red-300 rounded-xl flex items-center justify-center shrink-0">
+                  <Megaphone className="w-5 h-5 md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <p className="text-xl md:text-2xl font-black leading-tight">100 {t('stat3_suf')}</p>
+                  <p className="text-xs text-blue-200/80 font-medium leading-tight">{t('gd_s_t')}</p>
+                </div>
+              </div>
             </div>
           </div>
 
