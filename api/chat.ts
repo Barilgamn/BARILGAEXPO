@@ -1,8 +1,24 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
-import { booths, getBoothPrice, CATEGORY_LABELS } from '../src/data/booths';
-import { newsItems as bundledNews } from '../src/data/newsItems';
+// ⚠️ Vercel функц нь `../src/*` гадуурх TS файлыг bundle хийж чаддаггүй тул
+// booth өгөгдлийг api/ дотор JSON хэлбэрээр өөрөө агуулна (self-contained).
+import boothsJson from './booths.json';
+
+type Booth = {
+  id: string; section: string; area: number; pricePerM2: number;
+  category: 'standard' | 'supporting' | 'sponsor' | 'b' | 'g'; status: string; company: string;
+};
+const booths = boothsJson as Booth[];
+
+const CATEGORY_LABELS: Record<Booth['category'], string> = {
+  standard: 'А павильон (энгийн)',
+  supporting: 'А павильон (дунд)',
+  sponsor: 'А павильон (онцгой)',
+  b: 'B павильон',
+  g: 'Гадаа талбай',
+};
+const getBoothPrice = (b: Booth) => (b.area > 0 ? b.area * b.pricePerM2 : b.pricePerM2);
 
 // BARILGA EXPO вэбсайтын зочдод зориулсан туслах чатбот.
 // Энэ нь Vercel serverless function бөгөөд Gemini API-г сервер талд
@@ -111,8 +127,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Мэдээний хэсэг — өмнөх үзэсгэлэн, шилдэг байгууллага, үр дүн г.м асуултад хариулахад ашиглана
-        let news = (data?.data as any)?.news;
-        if (!Array.isArray(news) || news.length === 0) news = bundledNews; // fallback
+        const news = (data?.data as any)?.news;
         if (Array.isArray(news) && news.length > 0) {
           const stripHtml = (s: string) =>
             String(s || '')
