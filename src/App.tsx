@@ -213,7 +213,7 @@ export default function App() {
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center min-w-0">
-              <Link to="/" className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Link to="/" onClick={(e) => handleMenuClick('/', e)} className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <img
                   src={data.logoUrl}
                   alt="Barilga Expo Logo"
