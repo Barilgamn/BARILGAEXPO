@@ -9,26 +9,31 @@ const MN_MONTHS = [
   '7-р сар', '8-р сар', '9-р сар', '10-р сар', '11-р сар', '12-р сар',
 ];
 
-// Сүүлийн N өдрийн (YYYY-MM-DD) жагсаалт, өнөөдрөөс хойш
-const lastNDays = (n: number) => {
+// Эхлэлийн огноо (энэ сарын 1-ний өдөр, цаг тэглэгдсэн)
+const monthStart = () => {
+  const d = new Date();
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+// Энэ сарын эхнээс өнөөдөр хүртэлх өдрүүдийн (YYYY-MM-DD) жагсаалт
+const daysSinceMonthStart = () => {
   const days: string[] = [];
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+  const start = monthStart();
+  const now = new Date();
+  const d = new Date(start);
+  while (d <= now) {
     days.push(d.toISOString().slice(0, 10));
+    d.setDate(d.getDate() + 1);
   }
   return days;
 };
 
-// Сүүлийн N сарын (YYYY-MM) жагсаалт
-const lastNMonths = (n: number) => {
-  const months: string[] = [];
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
-    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
-  }
-  return months;
+// Энэ сараас эхлэх сарын (YYYY-MM) жагсаалт (одоогоор зөвхөн энэ сар)
+const monthsSinceThisMonth = () => {
+  const d = new Date();
+  return [`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`];
 };
 
 const formatDayLabel = (day: string) => {
@@ -80,15 +85,14 @@ const StatCard: React.FC<{
 }> = ({ icon, title, rows, colorClass }) => {
   const [period, setPeriod] = useState<'day' | 'month'>('day');
 
-  const days = lastNDays(14);
-  const months = lastNMonths(12);
+  const days = daysSinceMonthStart();
+  const months = monthsSinceThisMonth();
 
   const dayCounts = aggregate(rows, days, (iso) => iso.slice(0, 10));
   const monthCounts = aggregate(rows, months, (iso) => iso.slice(0, 7));
 
   const todayTotal = dayCounts[days[days.length - 1]] || 0;
   const monthTotal = monthCounts[months[months.length - 1]] || 0;
-  const grandTotal = rows.length;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
@@ -115,7 +119,7 @@ const StatCard: React.FC<{
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="bg-gray-50 rounded-xl p-3 text-center">
           <p className="text-2xl font-black text-gray-900">{todayTotal}</p>
           <p className="text-[11px] text-gray-500 mt-1">Өнөөдөр</p>
@@ -123,10 +127,6 @@ const StatCard: React.FC<{
         <div className="bg-gray-50 rounded-xl p-3 text-center">
           <p className="text-2xl font-black text-gray-900">{monthTotal}</p>
           <p className="text-[11px] text-gray-500 mt-1">Энэ сар</p>
-        </div>
-        <div className="bg-gray-50 rounded-xl p-3 text-center">
-          <p className="text-2xl font-black text-gray-900">{grandTotal}</p>
-          <p className="text-[11px] text-gray-500 mt-1">Нийт</p>
         </div>
       </div>
 
@@ -149,9 +149,10 @@ export const AnalyticsTab: React.FC = () => {
     setLoading(true);
     setErrorMsg('');
     try {
+      const since = monthStart().toISOString();
       const [{ data: v, error: ev }, { data: c, error: ec }] = await Promise.all([
-        supabase.from('site_visits').select('created_at').order('created_at', { ascending: false }).limit(5000),
-        supabase.from('chat_sessions').select('created_at').order('created_at', { ascending: false }).limit(5000),
+        supabase.from('site_visits').select('created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(5000),
+        supabase.from('chat_sessions').select('created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(5000),
       ]);
       if (ev || ec) {
         setErrorMsg((ev || ec)?.message || 'Алдаа гарлаа');
@@ -181,7 +182,7 @@ export const AnalyticsTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
-          Сайтад хандсан хэрэглэгчийн тоо (session тус бүрт өдөрт 1 удаа тоологдоно) ба AI чат ашигласан хэрэглэгчийн тоо.
+          Энэ сараас хойшхи мэдээлэл: сайтад хандсан хэрэглэгчийн тоо (session тус бүрт өдөрт 1 удаа тоологдоно) ба AI чат ашигласан хэрэглэгчийн тоо.
         </p>
         <button
           onClick={fetchData}
