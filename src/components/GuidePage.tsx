@@ -257,12 +257,13 @@ export const GuidePage: React.FC = () => {
             <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center font-heading">{t('gd_cnt_t')}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
               <div className="flex flex-col gap-2 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <span className="font-bold text-gray-800 uppercase tracking-wider text-xs">Менежерүүд / Утас 1</span>
-                <span className="text-gray-600 font-medium">{data.contact.phone1}</span>
+                <span className="font-bold text-gray-800 uppercase tracking-wider text-xs">Менежерүүд / Утас</span>
+                <a href={`tel:${data.contact.phone1}`} className="text-blue-600 hover:underline font-medium">{data.contact.phone1}</a>
+                <a href={`tel:${data.contact.phone3}`} className="text-blue-600 hover:underline font-medium">{data.contact.phone3}</a>
               </div>
               <div className="flex flex-col gap-2 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <span className="font-bold text-gray-800 uppercase tracking-wider text-xs">Гадаад харилцаа / Утас 2</span>
-                <span className="text-gray-600 font-medium">{data.contact.phone2}</span>
+                <span className="font-bold text-gray-800 uppercase tracking-wider text-xs">Гадаад харилцаа (English)</span>
+                <a href={`tel:${data.contact.phone2}`} className="text-blue-600 hover:underline font-medium">{data.contact.phone2}</a>
               </div>
               <div className="flex flex-col gap-2 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                 <span className="font-bold text-gray-800 uppercase tracking-wider text-xs">И-Мэйл хаяг</span>

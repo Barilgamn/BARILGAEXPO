@@ -717,10 +717,11 @@ export default function App() {
 
                 <div className="flex items-start gap-3">
                   <Phone className="h-5 w-5 text-red-400 mt-1 shrink-0" />
-                  <div className="text-blue-100 text-sm">
+                  <div className="text-blue-100 text-sm space-y-0.5">
                     <p>{t('contact_phone')}</p>
-                    <p>{data.contact.phone1}</p>
-                    <p>{data.contact.phone2}</p>
+                    <a href={`tel:${data.contact.phone1}`} className="block hover:text-white transition-colors">{data.contact.phone1}</a>
+                    <a href={`tel:${data.contact.phone2}`} className="block hover:text-white transition-colors">{data.contact.phone2}</a>
+                    <a href={`tel:${data.contact.phone3}`} className="block hover:text-white transition-colors">{data.contact.phone3}</a>
                   </div>
                 </div>
               </div>

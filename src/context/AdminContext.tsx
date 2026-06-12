@@ -40,6 +40,7 @@ export interface Menu {
 export interface ContactInfo {
   phone1: string;
   phone2: string;
+  phone3: string;
   email: string;
   address: string;
   facebookUrl: string;
@@ -69,8 +70,9 @@ export interface SiteData {
 }
 
 const defaultContact = {
-  phone1: '+976 7711 3333',
-  phone2: '+976 9990 7816',
+  phone1: '77113333',
+  phone2: '99907814',
+  phone3: '99907816',
   email: 'expo@barilga.mn',
   address: 'Улаанбаатар 13373, Баянзүрх дүүрэг, 6-р хороо, "BARILGA.MN" оффис',
   facebookUrl: 'https://facebook.com/barilga.mn',
@@ -149,7 +151,10 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   const [data, setData] = useState<SiteData>(() => {
     try {
       const stored = localStorage.getItem('barilga_admin_data');
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return { ...parsed, contact: { ...defaultContact, ...parsed.contact } };
+      }
     } catch (e) {}
     return defaultData;
   });
@@ -178,9 +183,10 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!error && result?.data) {
         const cloudData = result.data as SiteData;
-        setData(cloudData);
+        const merged = { ...cloudData, contact: { ...defaultContact, ...cloudData.contact } };
+        setData(merged);
         try {
-          localStorage.setItem('barilga_admin_data', JSON.stringify(cloudData));
+          localStorage.setItem('barilga_admin_data', JSON.stringify(merged));
         } catch (e) {}
       }
     };
@@ -196,9 +202,10 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         (payload) => {
           const newRow = payload.new as { data: SiteData } | null;
           if (newRow?.data) {
-            setData(newRow.data);
+            const merged = { ...newRow.data, contact: { ...defaultContact, ...newRow.data.contact } };
+            setData(merged);
             try {
-              localStorage.setItem('barilga_admin_data', JSON.stringify(newRow.data));
+              localStorage.setItem('barilga_admin_data', JSON.stringify(merged));
             } catch (e) {}
           }
         }

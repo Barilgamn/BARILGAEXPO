@@ -34,8 +34,9 @@ if (!url || !key) {
 
 // 👇 Шинэчлэх утгууд (энд нэмж/өөрчилж болно)
 const updates = {
-  'contact.address': 'Улаанбаатар 13373, Баянзүрх дүүрэг, 6-р хороо, "BARILGA.MN" оффис',
-  'contact.youtubeUrl': 'https://www.youtube.com/barilgamn',
+  'contact.phone1': '77113333',
+  'contact.phone2': '99907814',
+  'contact.phone3': '99907816',
 };
 
 const supabase = createClient(url, key, { auth: { persistSession: false } });
