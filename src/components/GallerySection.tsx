@@ -65,7 +65,7 @@ export function GallerySection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
           {IMAGES.map((src, idx) => (
             <div 
               key={idx} 
@@ -93,50 +93,62 @@ export function GallerySection() {
       </div>
 
       {lightboxOpen && (
-        <div 
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4"
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center"
           onClick={closeLightbox}
         >
-          <button 
-            className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors focus:outline-none"
-            onClick={closeLightbox}
+          {/* Хаах товч — хамгийн дээд давхаргад, touch дэмжинэ */}
+          <button
+            type="button"
+            className="absolute top-4 right-4 z-[110] text-white bg-white/20 active:bg-white/40 p-3 rounded-full"
+            onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
           >
-            <X className="w-8 h-8" />
+            <X className="w-7 h-7" />
           </button>
-          
-          <div className="relative w-full max-w-6xl h-full flex flex-col items-center justify-center isolate" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="absolute left-2 md:left-8 z-10 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 p-3 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-              onClick={prevImage}
-            >
-              <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" />
-            </button>
-            <button 
-              className="absolute right-2 md:right-8 z-10 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 p-3 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-              onClick={nextImage}
-            >
-              <ChevronRight className="w-8 h-8 md:w-10 md:h-10" />
-            </button>
-            
-            <div className="relative flex items-center justify-center h-[70vh] md:h-[85vh] w-full px-16">
-              <img
-                src={optimizeImage(IMAGES[currentImageIdx], 1600)}
-                alt={`${t('gallery_title')} ${currentImageIdx + 1}`}
-                decoding="async"
-                referrerPolicy="no-referrer"
-                className="max-h-full max-w-full object-contain rounded-lg shadow-2xl"
+
+          {/* Зүүн/Баруун товч */}
+          <button
+            type="button"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-[110] text-white bg-black/50 active:bg-black/80 p-3 rounded-full"
+            onClick={(e) => { e.stopPropagation(); prevImage(e); }}
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+          <button
+            type="button"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-[110] text-white bg-black/50 active:bg-black/80 p-3 rounded-full"
+            onClick={(e) => { e.stopPropagation(); nextImage(e); }}
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+
+          {/* Зураг */}
+          <div
+            className="flex items-center justify-center w-full h-full px-14"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={optimizeImage(IMAGES[currentImageIdx], 1600)}
+              alt={`${t('gallery_title')} ${currentImageIdx + 1}`}
+              decoding="async"
+              referrerPolicy="no-referrer"
+              className="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+
+          {/* Dots indicator */}
+          <div
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-2 bg-black/50 rounded-full z-[110] overflow-x-auto max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {IMAGES.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setCurrentImageIdx(idx)}
+                className={`h-2 rounded-full transition-all flex-shrink-0 ${idx === currentImageIdx ? 'bg-red-400 w-6' : 'bg-white/40 w-2'}`}
               />
-            </div>
-            
-            <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 overflow-hidden px-4 md:px-6 py-2 md:py-3 bg-black/50 backdrop-blur-md rounded-full shadow-lg">
-              {IMAGES.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentImageIdx(idx)}
-                  className={`h-2 md:h-2.5 rounded-full transition-all focus:outline-none ${idx === currentImageIdx ? 'bg-red-400 w-8 md:w-10' : 'bg-white/40 hover:bg-white/80 w-2 md:w-2.5'}`}
-                />
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       )}
