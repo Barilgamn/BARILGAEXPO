@@ -43,7 +43,7 @@ export const NewsSection: React.FC = () => {
           <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {newsItems.map((news) => {
             const localized = getLocalizedNews(news);
             return (
@@ -52,7 +52,7 @@ export const NewsSection: React.FC = () => {
               onClick={() => setSelectedNews(news)}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer"
             >
-              <div className="relative h-56 overflow-hidden">
+              <div className="relative h-36 sm:h-56 overflow-hidden">
                 {news.image && (
                   <img
                     src={news.image}
@@ -63,15 +63,15 @@ export const NewsSection: React.FC = () => {
                   />
                 )}
               </div>
-              <div className="p-6 flex flex-col flex-grow">
+              <div className="p-3 sm:p-6 flex flex-col flex-grow">
                 <div className="flex items-center gap-2 text-red-600 mb-3 text-sm font-medium">
                   <Calendar className="w-4 h-4" />
                   {news.date}
                 </div>
-                <h3 className="text-xl font-bold font-heading text-gray-900 mb-3 group-hover:text-red-600 transition-colors line-clamp-2">
+                <h3 className="text-sm sm:text-xl font-bold font-heading text-gray-900 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors line-clamp-2">
                   {localized.title}
                 </h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 line-clamp-2 sm:line-clamp-3 flex-grow hidden sm:block">
                   {localized.description}
                 </p>
                 <div className="flex items-center text-red-600 font-semibold text-sm group-hover:text-red-700">
