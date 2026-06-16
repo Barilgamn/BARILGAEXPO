@@ -71,7 +71,7 @@ export const NewsSection: React.FC = () => {
                 <h3 className="text-sm sm:text-xl font-bold font-heading text-gray-900 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors">
                   {localized.title}
                 </h3>
-                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 line-clamp-2 sm:line-clamp-3 flex-grow hidden sm:block">
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 line-clamp-2 flex-grow hidden sm:block">
                   {localized.description}
                 </p>
                 <div className="flex items-center text-red-600 font-semibold text-sm group-hover:text-red-700">
