@@ -13,6 +13,19 @@ export const NewsSection: React.FC = () => {
 
   // Сонгосон хэл дээр орчуулга байвал title/description-ийг түүгээр сольж харуулна.
   // Монгол хэл болон орчуулгагүй мэдээний хувьд эх хувилбараа харуулна.
+  const stripAndTruncate = (text: string, max = 150) => {
+    const stripped = text
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&hellip;/g, '…')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&#8220;|&#8221;|&ldquo;|&rdquo;/g, '"')
+      .replace(/&#8216;|&#8217;|&lsquo;|&rsquo;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+    return stripped.length > max ? stripped.slice(0, max) + '…' : stripped;
+  };
+
   const getLocalizedNews = (news: typeof newsItems[0]) => {
     if (lang === 'mn') return news;
     const translation = newsTranslations[news.id]?.[lang as NewsTranslationLang];
@@ -71,8 +84,8 @@ export const NewsSection: React.FC = () => {
                 <h3 className="text-sm sm:text-xl font-bold font-heading text-gray-900 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors">
                   {localized.title}
                 </h3>
-                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 line-clamp-2 flex-grow hidden sm:block">
-                  {localized.description}
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 flex-grow hidden sm:block">
+                  {stripAndTruncate(localized.description)}
                 </p>
                 <div className="flex items-center text-red-600 font-semibold text-sm group-hover:text-red-700">
                   {t('news_more')} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
