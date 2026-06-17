@@ -3,7 +3,7 @@ import { X, Download, Loader2, FileText, Receipt, Mail } from 'lucide-react';
 import { DocumentFields, buildDefaultFields } from './types';
 import { ContractDocument } from './ContractDocument';
 import { InvoiceDocument } from './InvoiceDocument';
-import { downloadElementAsPdf, elementToPdfBase64 } from '../../utils/pdf';
+import { downloadElementAsPdf } from '../../utils/pdf';
 
 interface Props {
   request: any;
@@ -73,26 +73,13 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
 
     setIsSending(true);
     try {
-      const safe = (fields.companyName || 'document').replace(/[^\p{L}\p{N}_-]+/gu, '_');
-      const attachments: { filename: string; contentBase64: string }[] = [];
-      if (contractRef.current) {
-        attachments.push({ filename: `${safe}_geree.pdf`, contentBase64: await elementToPdfBase64(contractRef.current) });
-      }
-      if (invoiceRef.current) {
-        attachments.push({ filename: `${safe}_nehemjleh.pdf`, contentBase64: await elementToPdfBase64(invoiceRef.current) });
-      }
-
       const res = await fetch('/api/send-document', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to,
           subject: `BARILGA EXPO — Гэрээ ба нэхэмжлэх (${fields.companyName || ''})`,
-          message:
-            `Сайн байна уу${fields.contactPerson ? ', ' + fields.contactPerson : ''}.\n\n` +
-            `40 дахь удаагийн BARILGA EXPO үзэсгэлэнгийн талбайн түрээсийн гэрээ болон нэхэмжлэхийг хавсаргав. ` +
-            `Танилцаж, гарын үсэг зурсны дараа буцаан илгээнэ үү.\n\nХүндэтгэсэн,\nBARILGA EXPO багаас\ninfo@barilga.mn`,
-          attachments,
+          fields,
         }),
       });
       const raw = await res.text();
