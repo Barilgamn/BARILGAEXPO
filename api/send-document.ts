@@ -1,13 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 
-// Гэрээ / нэхэмжлэхийг тухайн байгууллагын и-мэйл рүү (order@barilgaexpo.mn-ээс) илгээх.
-// SMTP тохиргоог орчны хувьсагчаар (Vercel env) дамжуулна:
-//   SMTP_HOST      (жишээ: smtp.zoho.com)
-//   SMTP_PORT      (465 эсвэл 587)
-//   SMTP_USER      (order@barilgaexpo.mn)
-//   SMTP_PASS      (мэйлийн нууц үг / app password)
-//   MAIL_FROM      (сонголтоор, default: info@barilga.mn)
+// Гэрээ / нэхэмжлэхийг тухайн байгууллагын и-мэйл рүү Gmail-ээс илгээх.
+// Gmail App Password авах: Google Account → Security → 2-Step Verification → App passwords
+// Vercel env хувьсагчид:
+//   GMAIL_USER   (жишээ: info@barilga.mn)
+//   GMAIL_PASS   (Gmail App Password — 16 тэмдэгт, хоосон зайгүй)
+//   MAIL_FROM    (сонголтоор, default: GMAIL_USER)
 
 interface Attachment {
   filename: string;
@@ -34,24 +33,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    const host = process.env.SMTP_HOST;
-    const port = Number(process.env.SMTP_PORT || 465);
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
-    const from = process.env.MAIL_FROM || 'info@barilga.mn';
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPass = process.env.GMAIL_PASS;
+    const from = process.env.MAIL_FROM || gmailUser || 'info@barilga.mn';
 
-    if (!host || !user || !pass) {
+    if (!gmailUser || !gmailPass) {
       res.status(500).json({
-        error: 'И-мэйл тохиргоо хийгдээгүй байна (SMTP_HOST / SMTP_USER / SMTP_PASS дутуу).',
+        error: 'Gmail тохиргоо хийгдээгүй байна. Vercel env-д GMAIL_USER болон GMAIL_PASS (App Password) оруулна уу.',
       });
       return;
     }
 
     const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465, // 465=SSL, 587=STARTTLS
-      auth: { user, pass },
+      service: 'gmail',
+      auth: { user: gmailUser, pass: gmailPass },
     });
 
     await transporter.sendMail({
