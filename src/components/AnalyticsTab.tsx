@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, Users, MessageCircle, RefreshCw } from 'lucide-react';
+import { Loader2, Users, MessageCircle, RefreshCw, TrendingUp } from 'lucide-react';
 import { supabase } from '../supabase';
 
 type Row = { created_at: string };
@@ -178,8 +178,38 @@ export const AnalyticsTab: React.FC = () => {
     );
   }
 
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayVisits = visits.filter(r => r.created_at.slice(0, 10) === todayKey).length;
+  const todayChats = chats.filter(r => r.created_at.slice(0, 10) === todayKey).length;
+  const todayLabel = new Date().toLocaleDateString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric' });
+
   return (
     <div className="space-y-6">
+      {/* Өнөөдрийн хандалт — онцлох хэсэг */}
+      <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-blue-300" />
+            <span className="font-bold text-sm text-blue-200 uppercase tracking-wide">Өнөөдрийн хандалт</span>
+          </div>
+          <span className="text-xs text-blue-300">{todayLabel}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white/10 rounded-xl p-4 text-center">
+            <p className="text-4xl font-black">{todayVisits}</p>
+            <p className="text-sm text-blue-200 mt-1 flex items-center justify-center gap-1">
+              <Users className="w-3.5 h-3.5" /> Сайтын хандалт
+            </p>
+          </div>
+          <div className="bg-white/10 rounded-xl p-4 text-center">
+            <p className="text-4xl font-black">{todayChats}</p>
+            <p className="text-sm text-blue-200 mt-1 flex items-center justify-center gap-1">
+              <MessageCircle className="w-3.5 h-3.5" /> AI чат хэрэглэгч
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
           Энэ сараас хойшхи мэдээлэл: сайтад хандсан хэрэглэгчийн тоо (session тус бүрт өдөрт 1 удаа тоологдоно) ба AI чат ашигласан хэрэглэгчийн тоо.
