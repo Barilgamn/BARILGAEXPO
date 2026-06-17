@@ -3,7 +3,7 @@ import { X, Download, Loader2, FileText, Receipt, Mail } from 'lucide-react';
 import { DocumentFields, buildDefaultFields } from './types';
 import { ContractDocument } from './ContractDocument';
 import { InvoiceDocument } from './InvoiceDocument';
-import { downloadElementAsPdf } from '../../utils/pdf';
+import { downloadElementAsPdf, elementToPdfBase64 } from '../../utils/pdf';
 
 interface Props {
   request: any;
@@ -73,6 +73,15 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
 
     setIsSending(true);
     try {
+      const safe = (fields.companyName || 'document').replace(/[^\p{L}\p{N}_-]+/gu, '_');
+      const attachments: { filename: string; contentBase64: string }[] = [];
+      if (contractRef.current) {
+        attachments.push({ filename: `${safe}_geree.pdf`, contentBase64: await elementToPdfBase64(contractRef.current) });
+      }
+      if (invoiceRef.current) {
+        attachments.push({ filename: `${safe}_nehemjleh.pdf`, contentBase64: await elementToPdfBase64(invoiceRef.current) });
+      }
+
       const res = await fetch('/api/send-document', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,6 +89,7 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
           to,
           subject: `BARILGA EXPO — Гэрээ ба нэхэмжлэх (${fields.companyName || ''})`,
           fields,
+          attachments,
         }),
       });
       const raw = await res.text();

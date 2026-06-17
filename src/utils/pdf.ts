@@ -47,7 +47,7 @@ export async function downloadElementAsPdf(element: HTMLElement, filename: strin
 /** Renders the element to a PDF and returns the raw base64 (no data-URI prefix).
  *  Uses lower scale + JPEG compression to keep email attachment size small. */
 export async function elementToPdfBase64(element: HTMLElement): Promise<string> {
-  const pdf = await buildPdf(element, { scale: 1, quality: 0.7 });
+  const pdf = await buildPdf(element, { scale: 0.6, quality: 0.45 });
   const dataUri = pdf.output('datauristring'); // data:application/pdf;filename=...;base64,XXXX
   const base64 = dataUri.substring(dataUri.indexOf('base64,') + 'base64,'.length);
   return base64;
