@@ -13,8 +13,6 @@ interface Props {
 const FIELD_LABELS: Record<string, string> = {
   companyName: 'Байгууллагын нэр',
   registerNumber: 'Регистрийн дугаар (РД)',
-  stateRegisterNumber: 'Улсын бүртгэлийн дугаар',
-  companyAddress: 'Хаяг',
   phone: 'Утас',
   email: 'И-мэйл',
   bankName: 'Банкны нэр',
@@ -108,7 +106,7 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
   };
 
   const textFieldKeys: (keyof DocumentFields)[] = [
-    'companyName', 'registerNumber', 'stateRegisterNumber', 'companyAddress', 'phone', 'email',
+    'companyName', 'registerNumber', 'phone', 'email',
     'bankName', 'bankAccount', 'contactPerson', 'contactPosition',
     'boothIds', 'boothArea', 'pricePerM2', 'additionalFee', 'totalPriceUsd', 'totalPriceMnt',
     'contractNo', 'contractDate', 'invoiceNo', 'invoiceDate', 'signageName',

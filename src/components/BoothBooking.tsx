@@ -11,8 +11,6 @@ export const BoothBooking: React.FC = () => {
   // Form fields
   const [companyName, setCompanyName] = useState('');
   const [registerNumber, setRegisterNumber] = useState('');
-  const [stateRegisterNumber, setStateRegisterNumber] = useState('');
-  const [companyAddress, setCompanyAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [contactPerson, setContactPerson] = useState('');
@@ -26,8 +24,6 @@ export const BoothBooking: React.FC = () => {
   const resetForm = () => {
     setCompanyName('');
     setRegisterNumber('');
-    setStateRegisterNumber('');
-    setCompanyAddress('');
     setPhone('');
     setEmail('');
     setContactPerson('');
@@ -51,8 +47,6 @@ export const BoothBooking: React.FC = () => {
         total_price_usd: 0,
         company_name: companyName,
         register_number: registerNumber || null,
-        state_register_number: stateRegisterNumber || null,
-        company_address: companyAddress || null,
         phone,
         email: email || null,
         contact_person: contactPerson || null,
@@ -125,14 +119,6 @@ export const BoothBooking: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('bb_register_number')}</label>
                 <input type="text" value={registerNumber} onChange={(e) => setRegisterNumber(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('bb_state_register_number')}</label>
-                <input type="text" value={stateRegisterNumber} onChange={(e) => setStateRegisterNumber(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('bb_address')}</label>
-                <input type="text" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('bb_phone')} *</label>

@@ -88,8 +88,8 @@ export const InvoiceDocument = React.forwardRef<HTMLDivElement, Props>(({ fields
               <td style={{ padding: '2px 0' }}><strong>Регистрийн дугаар:</strong> {fill(f.registerNumber)}</td>
             </tr>
             <tr>
-              <td style={{ padding: '2px 0' }}><strong>Хаяг:</strong> {fill(f.companyAddress)}</td>
               <td style={{ padding: '2px 0' }}><strong>Утас:</strong> {fill(f.phone)}</td>
+              <td style={{ padding: '2px 0' }}><strong>И-мэйл:</strong> {fill(f.email)}</td>
             </tr>
             <tr>
               <td style={{ padding: '2px 0' }}><strong>Гэрээний дугаар:</strong> {fill(f.contractNo, '......')}</td>
