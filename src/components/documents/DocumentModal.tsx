@@ -95,8 +95,10 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
           attachments,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Илгээж чадсангүй.');
+      const raw = await res.text();
+      let data: any = null;
+      try { data = JSON.parse(raw); } catch { /* JSON бус хариу */ }
+      if (!res.ok) throw new Error(data?.error || `Сервер алдаа (${res.status}): ${raw.slice(0, 120)}`);
       alert(`Амжилттай илгээгдлээ → ${to}`);
     } catch (e) {
       alert('И-мэйл илгээхэд алдаа гарлаа: ' + (e instanceof Error ? e.message : String(e)));
