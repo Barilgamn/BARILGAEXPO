@@ -10,7 +10,7 @@ import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
-import { CityLights } from './components/CityLights';
+import { YouTubeBackground } from './components/YouTubeBackground';
 import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
@@ -335,19 +335,16 @@ export default function App() {
             <section id="home" className="relative pt-28 pb-12 md:pb-0 md:pt-20 min-h-[100svh] md:min-h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full bg-blue-950">
           <div className="absolute inset-0 bg-blueprint z-10 opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/90 via-blue-900/80 to-blue-900/40 mix-blend-multiply z-10" />
-          <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-blue-950 to-transparent z-10" />
-          <img
-            src="https://greatergo.org/uploads/article/63ab00ab-f707-4b23-b389-96b04b22552a.jpg"
-            alt="Ulaanbaatar city background"
-            referrerPolicy="no-referrer"
-            className="absolute inset-0 w-full h-full object-cover blur-[3px] scale-105 opacity-50"
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/50 via-blue-900/35 to-blue-900/10 mix-blend-multiply z-10" />
+          <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-blue-950/80 to-transparent z-10" />
+          {/* Дэвсгэр видео — удаашруулж, дуугүй, давталттай тоглоно */}
+          <YouTubeBackground
+            videoId="QNXtbsS633w"
+            rate={0.25}
+            className="w-full h-full blur-[1.5px] scale-105 opacity-90"
           />
-          {/* Хотын гэрлүүд гэрэлтэж/анивчих анимэйшн */}
-          <CityLights />
-          {/* Текст уншигдахуйц байхын тулд гэрлийн дээр харанхуй давхарга (зүүн тал илүү бараан) */}
-          <div className="absolute inset-0 z-[15] bg-gradient-to-r from-blue-950/95 via-blue-950/70 to-blue-950/30" />
-          <div className="absolute inset-0 z-[15] bg-blue-950/25" />
+          {/* Текст уншигдахуйц байхын тулд зүүн талд харанхуй давхарга (баруун тал ил тод) */}
+          <div className="absolute inset-0 z-[15] bg-gradient-to-r from-blue-950/85 via-blue-950/40 to-transparent" />
         </div>
         
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10">
