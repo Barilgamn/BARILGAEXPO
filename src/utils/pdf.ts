@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { supabase } from '../supabase';
 
 async function buildPdf(element: HTMLElement, opts: { scale?: number; quality?: number } = {}): Promise<jsPDF> {
   const scale = opts.scale ?? 2;
@@ -35,14 +36,20 @@ export async function downloadElementAsPdf(element: HTMLElement, filename: strin
 }
 
 /**
- * Renders element to JPEG and returns { jpegBase64, widthPx, heightPx }.
- * Server uses this to build a PDF — keeps request payload tiny (~20–50 KB each).
+ * Renders element to PDF, uploads to Supabase Storage, returns public URL.
+ * Bucket "documents" must exist and be public in Supabase.
  */
-export async function elementToJpegBase64(
-  element: HTMLElement
-): Promise<{ jpegBase64: string; widthPx: number; heightPx: number }> {
-  const canvas = await html2canvas(element, { scale: 0.75, useCORS: true, backgroundColor: '#ffffff' });
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-  const jpegBase64 = dataUrl.replace(/^data:image\/jpeg;base64,/, '');
-  return { jpegBase64, widthPx: canvas.width, heightPx: canvas.height };
+export async function uploadPdfAndGetUrl(element: HTMLElement, filename: string): Promise<string> {
+  const pdf = await buildPdf(element, { scale: 1.5, quality: 0.85 });
+  const pdfBlob = pdf.output('blob');
+
+  const path = `booth-docs/${Date.now()}_${filename}`;
+  const { error } = await supabase.storage.from('documents').upload(path, pdfBlob, {
+    contentType: 'application/pdf',
+    upsert: true,
+  });
+  if (error) throw new Error('PDF upload алдаа: ' + error.message);
+
+  const { data } = supabase.storage.from('documents').getPublicUrl(path);
+  return data.publicUrl;
 }

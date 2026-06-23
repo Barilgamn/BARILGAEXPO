@@ -3,7 +3,7 @@ import { X, Download, Loader2, FileText, Receipt, Mail } from 'lucide-react';
 import { DocumentFields, buildDefaultFields } from './types';
 import { ContractDocument } from './ContractDocument';
 import { InvoiceDocument } from './InvoiceDocument';
-import { downloadElementAsPdf, elementToJpegBase64 } from '../../utils/pdf';
+import { downloadElementAsPdf, uploadPdfAndGetUrl } from '../../utils/pdf';
 
 interface Props {
   request: any;
@@ -74,14 +74,14 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
     setIsSending(true);
     try {
       const safe = (fields.companyName || 'document').replace(/[^\p{L}\p{N}_-]+/gu, '_');
-      const pageImages: { filename: string; jpegBase64: string; widthPx: number; heightPx: number }[] = [];
+      const docUrls: { label: string; url: string }[] = [];
       if (contractRef.current) {
-        const img = await elementToJpegBase64(contractRef.current);
-        pageImages.push({ filename: `${safe}_geree.pdf`, ...img });
+        const url = await uploadPdfAndGetUrl(contractRef.current, `${safe}_geree.pdf`);
+        docUrls.push({ label: 'Гэрээ татах', url });
       }
       if (invoiceRef.current) {
-        const img = await elementToJpegBase64(invoiceRef.current);
-        pageImages.push({ filename: `${safe}_nehemjleh.pdf`, ...img });
+        const url = await uploadPdfAndGetUrl(invoiceRef.current, `${safe}_nehemjleh.pdf`);
+        docUrls.push({ label: 'Нэхэмжлэх татах', url });
       }
 
       const res = await fetch('/api/send-document', {
@@ -91,7 +91,7 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
           to,
           subject: `BARILGA EXPO — Гэрээ ба нэхэмжлэх (${fields.companyName || ''})`,
           fields,
-          pageImages,
+          docUrls,
         }),
       });
       const raw = await res.text();
