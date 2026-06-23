@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
+import { jsPDF } from 'jspdf';
 
 interface DocumentFields {
   companyName?: string;
@@ -28,14 +29,42 @@ interface DocumentFields {
   needsVipRoom?: boolean;
 }
 
-interface Attachment {
+interface PageImage {
   filename: string;
-  contentBase64: string;
+  jpegBase64: string;
+  widthPx: number;
+  heightPx: number;
 }
 
 export const config = {
   api: { bodyParser: { sizeLimit: '4mb' } },
 };
+
+/** Build a PDF buffer from a JPEG image (A4 page, image fills the page). */
+function jpegToPdfBuffer(jpegBase64: string, widthPx: number, heightPx: number): Buffer {
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+
+  // Scale image to fit A4 maintaining aspect ratio
+  const imgAspect = widthPx / heightPx;
+  const pageAspect = pageW / pageH;
+  let drawW: number, drawH: number, offsetX: number, offsetY: number;
+  if (imgAspect > pageAspect) {
+    drawW = pageW;
+    drawH = pageW / imgAspect;
+    offsetX = 0;
+    offsetY = (pageH - drawH) / 2;
+  } else {
+    drawH = pageH;
+    drawW = pageH * imgAspect;
+    offsetX = (pageW - drawW) / 2;
+    offsetY = 0;
+  }
+
+  pdf.addImage(`data:image/jpeg;base64,${jpegBase64}`, 'JPEG', offsetX, offsetY, drawW, drawH);
+  return Buffer.from(pdf.output('arraybuffer'));
+}
 
 const fmtDate = (iso: string) => {
   if (!iso) return '';
@@ -116,11 +145,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { to, subject, fields, attachments, cc } = req.body as {
+    const { to, subject, fields, pageImages, cc } = req.body as {
       to: string;
       subject?: string;
       fields?: DocumentFields;
-      attachments?: Attachment[];
+      pageImages?: PageImage[];
       cc?: string;
     };
 
@@ -143,21 +172,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       auth: { user: gmailUser, pass: gmailPass },
     });
 
-    const html = buildHtml(fields || {});
+    // Build PDF attachments server-side from JPEG images
+    const attachments = (pageImages || []).map(img => ({
+      filename: img.filename,
+      content: jpegToPdfBuffer(img.jpegBase64, img.widthPx, img.heightPx),
+      contentType: 'application/pdf',
+    }));
 
     await transporter.sendMail({
       from: `"BARILGA EXPO" <${from}>`,
       to,
       cc: cc || undefined,
       subject: subject || `BARILGA EXPO — Гэрээ ба нэхэмжлэх${fields?.companyName ? ' (' + fields.companyName + ')' : ''}`,
-      html,
-      text: `BARILGA EXPO — Гэрээ ба нэхэмжлэх\nБайгууллага: ${fields?.companyName || ''}\nТалбай: ${fields?.boothIds || ''}\ninfo@barilga.mn`,
-      attachments: (attachments || []).map(a => ({
-        filename: a.filename,
-        content: a.contentBase64,
-        encoding: 'base64' as const,
-        contentType: 'application/pdf',
-      })),
+      html: buildHtml(fields || {}),
+      text: `BARILGA EXPO — Гэрээ ба нэхэмжлэх\nБайгууллага: ${fields?.companyName || ''}\ninfo@barilga.mn`,
+      attachments,
     });
 
     res.status(200).json({ ok: true });
