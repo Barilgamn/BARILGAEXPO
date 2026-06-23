@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { X, Download, Loader2, FileText, Receipt, Mail } from 'lucide-react';
 import { DocumentFields, buildDefaultFields } from './types';
 import { ContractDocument } from './ContractDocument';
@@ -33,17 +33,45 @@ const FIELD_LABELS: Record<string, string> = {
   invoiceDate: 'Нэхэмжлэхийн огноо',
 };
 
+const storageKey = (id: any) => `doc_fields_${id}`;
+
 export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
-  const [fields, setFields] = useState<DocumentFields>(() => buildDefaultFields(request));
+  const [fields, setFields] = useState<DocumentFields>(() => {
+    const base = buildDefaultFields(request);
+    try {
+      const saved = localStorage.getItem(storageKey(request?.id));
+      if (saved) return { ...base, ...JSON.parse(saved) };
+    } catch { /* ignore */ }
+    return base;
+  });
   const [activeDoc, setActiveDoc] = useState<'contract' | 'invoice'>('contract');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
 
   const contractRef = useRef<HTMLDivElement>(null);
   const invoiceRef = useRef<HTMLDivElement>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Автоматаар хадгалах (500ms debounce)
+  const scheduleAutoSave = useCallback((newFields: DocumentFields) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      try {
+        localStorage.setItem(storageKey(request?.id), JSON.stringify(newFields));
+        setSavedAt(new Date().toLocaleTimeString('mn-MN', { hour: '2-digit', minute: '2-digit' }));
+      } catch { /* ignore */ }
+    }, 500);
+  }, [request?.id]);
+
+  useEffect(() => () => { if (saveTimer.current) clearTimeout(saveTimer.current); }, []);
 
   const setField = (key: keyof DocumentFields, value: string | boolean) => {
-    setFields(prev => ({ ...prev, [key]: value }));
+    setFields(prev => {
+      const next = { ...prev, [key]: value };
+      scheduleAutoSave(next);
+      return next;
+    });
   };
 
   const handleDownload = async () => {
@@ -134,7 +162,10 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
         <div className="flex justify-between items-center p-5 border-b border-gray-100 shrink-0">
           <div>
             <h3 className="font-heading text-xl font-bold text-blue-900">Гэрээ / Нэхэмжлэх үүсгэх</h3>
-            <p className="text-xs text-gray-500 mt-1">{fields.companyName || 'Байгууллагын нэр оруулаагүй'}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {fields.companyName || 'Байгууллагын нэр оруулаагүй'}
+              {savedAt && <span className="ml-2 text-green-600">· {savedAt} хадгалагдсан</span>}
+            </p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
             <X className="h-5 w-5" />
