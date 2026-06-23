@@ -1,53 +1,44 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { DocumentFields } from './types';
 
-const fmtDate = (iso: string) => {
-  if (!iso) return '20__ оны __ сарын __';
+const fill = (value: string | undefined, placeholder = '') => (value && value.trim() ? value : placeholder);
+
+const fmtInvoiceDate = (iso: string | undefined) => {
+  if (!iso) return { year: '2026', month: '', day: '' };
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  return `${d.getFullYear()} оны ${d.getMonth() + 1} сарын ${d.getDate()}`;
+  if (isNaN(d.getTime())) return { year: '2026', month: '', day: '' };
+  return { year: String(d.getFullYear()), month: String(d.getMonth() + 1), day: String(d.getDate()) };
 };
 
-const fill = (value: string, placeholder = '......................') => (value && value.trim() ? value : placeholder);
+interface Props { fields: DocumentFields }
 
-interface LineItem {
-  name: string;
-  qty: string;
-  unitPrice: string;
-  total: string;
-}
-
-interface Props {
-  fields: DocumentFields;
-}
+const border = '1px solid #222';
+const cellBase: React.CSSProperties = { border, padding: '5px 8px', verticalAlign: 'middle', fontSize: '11px' };
+const italic: React.CSSProperties = { ...cellBase, fontStyle: 'italic' };
 
 export const InvoiceDocument = React.forwardRef<HTMLDivElement, Props>(({ fields: f }, ref) => {
-  const items: LineItem[] = useMemo(() => {
-    const rows: LineItem[] = [];
-    const areaText = f.boothArea ? `${f.boothArea} м²` : '';
-    rows.push({
-      name: `"40 дэх удаагийн BARILGA EXPO" үзэсгэлэнгийн ${fill(f.boothIds, '....')} тоот талбайн түрээс${areaText ? ` (${areaText})` : ''}`,
-      qty: '1',
-      unitPrice: f.totalPriceMnt || (f.totalPriceUsd ? `$${f.totalPriceUsd}` : ''),
-      total: f.totalPriceMnt || (f.totalPriceUsd ? `$${f.totalPriceUsd}` : ''),
-    });
-    if (f.needsStandWall) {
-      rows.push({ name: 'Стенд (хана) угсралтын үйлчилгээ', qty: '1', unitPrice: '', total: '' });
-    }
-    if (f.needsSignage) {
-      rows.push({ name: `Стенд нэрийн самбар хийлгэх (${fill(f.signageName, '...')})`, qty: '1', unitPrice: '', total: '' });
-    }
-    if (f.needsStageProgram) {
-      rows.push({ name: 'Тайзны хөтөлбөр / семинар, ЛЕД дэлгэцийн сурталчилгаа', qty: '1', unitPrice: '', total: '' });
-    }
-    if (f.needsVipRoom) {
-      rows.push({ name: 'VIP уулзалтын өрөөний түрээс', qty: '1', unitPrice: '', total: '' });
-    }
-    if (f.additionalFee) {
-      rows.push({ name: 'Нэмэлт төлбөр', qty: '1', unitPrice: f.additionalFee, total: f.additionalFee });
-    }
-    return rows;
-  }, [f]);
+  const invDate = fmtInvoiceDate(f.invoiceDate);
+  const payDate = fmtInvoiceDate(f.invoiceDate); // same as invoice date
+
+  const totalMnt = fill(f.totalPriceMnt);
+  const totalUsd = fill(f.totalPriceUsd);
+  const totalDisplay = totalMnt || (totalUsd ? `$${totalUsd}` : '');
+  const unitDisplay = fill(f.pricePerM2) || totalDisplay;
+  const qtyDisplay = fill(f.boothArea);
+
+  // Line items
+  const rows: { name: string; qty: string; unit: string; total: string }[] = [];
+  rows.push({
+    name: `40th BARILGA EXPO ${fill(f.boothIds, '......')}`,
+    qty: qtyDisplay,
+    unit: unitDisplay,
+    total: totalDisplay,
+  });
+  if (f.needsStandWall) rows.push({ name: 'Стенд (хана) угсралт', qty: '1', unit: '', total: '' });
+  if (f.needsSignage) rows.push({ name: `Нэрийн самбар (${fill(f.signageName, '...')})`, qty: '1', unit: '', total: '' });
+  if (f.needsStageProgram) rows.push({ name: 'Тайзны хөтөлбөр / семинар', qty: '1', unit: '', total: '' });
+  if (f.needsVipRoom) rows.push({ name: 'VIP өрөө', qty: '1', unit: '', total: '' });
+  if (f.additionalFee) rows.push({ name: 'Нэмэлт төлбөр', qty: '1', unit: f.additionalFee, total: f.additionalFee });
 
   return (
     <div
@@ -55,93 +46,132 @@ export const InvoiceDocument = React.forwardRef<HTMLDivElement, Props>(({ fields
       style={{
         width: '210mm',
         minHeight: '297mm',
-        padding: '15mm',
+        padding: '12mm 14mm',
         boxSizing: 'border-box',
         backgroundColor: '#fff',
-        color: '#1a1a1a',
-        fontFamily: "'Noto Sans', Arial, sans-serif",
+        color: '#111',
+        fontFamily: "'Times New Roman', serif",
         fontSize: '11px',
-        lineHeight: 1.6,
+        lineHeight: 1.5,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-        <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 800, marginBottom: 4 }}>НЭХЭМЖЛЭХ</h1>
-          <p>№ {fill(f.invoiceNo, '......')}</p>
-          <p>Огноо: {fmtDate(f.invoiceDate)}</p>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ fontWeight: 800, fontSize: '14px' }}>"БАРИЛГА МН" ХХК</p>
-          <p>РД: 6030548</p>
-          <p>Улаанбаатар 13373, Баянзүрх дүүрэг,</p>
-          <p>6-р хороо, "BARILGA.MN" оффис</p>
-          <p>Утас: 99907816, 77113333</p>
-        </div>
-      </div>
+      {/* Title */}
+      <p style={{ textAlign: 'center', fontWeight: 800, fontSize: '15px', marginBottom: 14, textTransform: 'uppercase', letterSpacing: 1 }}>
+        НЭХЭМЖЛЭХ № {fill(f.invoiceNo, '24/05')}
+      </p>
 
-      <div style={{ border: '1px solid #999', borderRadius: 4, padding: '10px 14px', marginBottom: 16 }}>
-        <p style={{ fontWeight: 700, marginBottom: 6 }}>Төлбөр төлөгчийн мэдээлэл:</p>
-        <table style={{ width: '100%', fontSize: '11px' }}>
-          <tbody>
-            <tr>
-              <td style={{ padding: '2px 0', width: '50%' }}><strong>Байгууллагын нэр:</strong> {fill(f.companyName)}</td>
-              <td style={{ padding: '2px 0' }}><strong>Регистрийн дугаар:</strong> {fill(f.registerNumber)}</td>
-            </tr>
-            <tr>
-              <td style={{ padding: '2px 0' }}><strong>Утас:</strong> {fill(f.phone)}</td>
-              <td style={{ padding: '2px 0' }}><strong>И-мэйл:</strong> {fill(f.email)}</td>
-            </tr>
-            <tr>
-              <td style={{ padding: '2px 0' }}><strong>Гэрээний дугаар:</strong> {fill(f.contractNo, '......')}</td>
-              <td style={{ padding: '2px 0' }}><strong>Холбогдох ажилтан:</strong> {fill(f.contactPerson)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, fontSize: '11px' }}>
-        <thead>
-          <tr style={{ backgroundColor: '#1e3a8a', color: '#fff' }}>
-            <th style={thStyle}>№</th>
-            <th style={thStyle}>Гүйлгээний утга</th>
-            <th style={thStyle}>Тоо хэмжээ</th>
-            <th style={thStyle}>Нэгж үнэ</th>
-            <th style={thStyle}>Нийт үнэ</th>
-          </tr>
-        </thead>
+      {/* Company info table */}
+      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14 }}>
         <tbody>
-          {items.map((item, idx) => (
-            <tr key={idx}>
-              <td style={tdStyle}>{idx + 1}</td>
-              <td style={{ ...tdStyle, textAlign: 'left' }}>{item.name}</td>
-              <td style={tdStyle}>{item.qty}</td>
-              <td style={tdStyle}>{item.unitPrice || '—'}</td>
-              <td style={tdStyle}>{item.total || '—'}</td>
-            </tr>
-          ))}
+          {/* Header row */}
           <tr>
-            <td style={tdStyle} colSpan={4}><strong>НИЙТ ДҮН</strong></td>
-            <td style={{ ...tdStyle, fontWeight: 800 }}>
-              {f.totalPriceMnt ? `${f.totalPriceMnt}₮` : (f.totalPriceUsd ? `$${f.totalPriceUsd}` : '—')}
+            <td style={{ ...cellBase, fontWeight: 700, textAlign: 'center', width: '50%' }}>"БАРИЛГА МН" ХХК</td>
+            <td style={{ ...cellBase, textAlign: 'center' }}>{fill(f.companyName)}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cellBase, fontStyle: 'italic', textAlign: 'center' }}>/нэхэмжлэгч байгууллага/</td>
+            <td style={{ ...cellBase, fontStyle: 'italic', textAlign: 'center' }}>/төлөгч байгууллага/</td>
+          </tr>
+          {/* РД */}
+          <tr>
+            <td style={italic}><span style={{ fontStyle: 'italic' }}>Байгууллагын РД:</span>&nbsp;&nbsp;<strong>6030548</strong></td>
+            <td style={italic}><span style={{ fontStyle: 'italic' }}>Байгууллагын РД:</span>&nbsp;&nbsp;<strong>{fill(f.registerNumber)}</strong></td>
+          </tr>
+          {/* Хаяг */}
+          <tr>
+            <td style={{ ...italic, verticalAlign: 'top' }}>
+              <span style={{ fontStyle: 'italic' }}>Байгууллагын хаяг:</span>&nbsp;&nbsp;
+              <strong>БЗД, 6-р хороо, BARILGAMN оффис,</strong>
+            </td>
+            <td style={{ ...italic, verticalAlign: 'top' }}>
+              <span style={{ fontStyle: 'italic' }}>Байгууллагын хаяг:</span>&nbsp;&nbsp;
+              <strong>{fill(f.companyAddress || '')}</strong>
+            </td>
+          </tr>
+          {/* Утас */}
+          <tr>
+            <td style={italic}><strong>Харилцах утас:</strong>&nbsp;&nbsp;<strong>99907816</strong></td>
+            <td style={italic}><span style={{ fontStyle: 'italic' }}>Харилцах утас:</span>&nbsp;&nbsp;<strong>{fill(f.phone)}</strong></td>
+          </tr>
+          {/* Данс / Гэрээний дугаар */}
+          <tr>
+            <td style={{ ...cellBase, padding: 0 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <tbody>
+                  <tr>
+                    <td rowSpan={2} style={{ ...italic, width: '40%', borderRight: border }}>Байгууллагын данс:</td>
+                    <td style={{ ...italic, borderBottom: border }}><strong>Хаан банк</strong></td>
+                  </tr>
+                  <tr>
+                    <td style={italic}><strong>Iban 67000500</strong><br /><strong>5175011074</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+            <td style={italic}><span style={{ fontStyle: 'italic' }}>Гэрээний дугаар:</span>&nbsp;&nbsp;<strong>{fill(f.contractNo)}</strong></td>
+          </tr>
+          {/* Огноо */}
+          <tr>
+            <td style={italic}>
+              <span style={{ fontStyle: 'italic' }}>Нэхэмжлэлийн огноо:</span>&nbsp;&nbsp;
+              <strong>{invDate.year}. {invDate.month}</strong>&nbsp;&nbsp;<strong>{invDate.day}</strong>
+            </td>
+            <td style={italic}>
+              <span style={{ fontStyle: 'italic' }}>Төлбөр хийх огноо:</span>&nbsp;&nbsp;
+              <strong>{payDate.year}. {payDate.month}</strong>&nbsp;&nbsp;<strong>{payDate.day}</strong>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <div style={{ border: '1px solid #999', borderRadius: 4, padding: '10px 14px', marginBottom: 24 }}>
-        <p style={{ fontWeight: 700, marginBottom: 6 }}>Төлбөр шилжүүлэх дансны мэдээлэл:</p>
-        <p>Хаан банк</p>
-        <p>Дансны дугаар (IBAN): 67000500</p>
-        <p>Дансны нэр: "БАРИЛГА МН" ХХК</p>
-      </div>
+      {/* Line items table */}
+      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10 }}>
+        <thead>
+          <tr>
+            <th style={{ ...cellBase, fontWeight: 700, textAlign: 'center', width: '6%' }}>№</th>
+            <th style={{ ...cellBase, fontWeight: 700, textAlign: 'center' }}>Гүйлгээний утга</th>
+            <th style={{ ...cellBase, fontWeight: 700, textAlign: 'center', width: '10%' }}>Тоо</th>
+            <th style={{ ...cellBase, fontWeight: 700, textAlign: 'center', width: '18%' }}>Нэгж үнэ</th>
+            <th style={{ ...cellBase, fontWeight: 700, textAlign: 'center', width: '18%' }}>Нийт үнэ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((item, idx) => (
+            <tr key={idx}>
+              <td style={{ ...cellBase, textAlign: 'center' }}>{idx + 1}</td>
+              <td style={cellBase}>{item.name}</td>
+              <td style={{ ...cellBase, textAlign: 'center' }}>{item.qty}</td>
+              <td style={{ ...cellBase, textAlign: 'center' }}>{item.unit || ''}</td>
+              <td style={{ ...cellBase, textAlign: 'center' }}>{item.total || ''}</td>
+            </tr>
+          ))}
+          <tr>
+            <td colSpan={4} style={{ ...cellBase, fontWeight: 800, textAlign: 'center', textTransform: 'uppercase' }}>НИЙТ ТӨЛӨХ ДҮН</td>
+            <td style={{ ...cellBase, fontWeight: 800, textAlign: 'center' }}>{totalDisplay}</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 60 }}>
+      {/* Red note */}
+      <p style={{ color: '#c00', fontStyle: 'italic', fontSize: '10.5px', marginBottom: 20 }}>
+        Гүйлгээний утга нь &nbsp;дээр байгууллагын нэр, регистер, болон утасны дугаараа бичнэ үү !!!
+      </p>
+
+      {/* Signature */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 32, marginTop: 12 }}>
         <div>
-          <p>Нэхэмжлэх бичсэн: ____________________</p>
-          <p style={{ marginTop: 6 }}>С.Оргилцэцэг (Үзэсгэлэн хариуцсан менежер)</p>
+          <p style={{ fontStyle: 'italic', fontWeight: 700, marginBottom: 6 }}>Нэхэмжлэгч байгууллага:</p>
+          <p style={{ marginBottom: 2 }}>&nbsp;&nbsp;&nbsp;"БАРИЛГА МН" &nbsp;ХХК</p>
+          <p style={{ marginBottom: 24 }}>&nbsp;&nbsp;&nbsp;Нягтлан бодогч</p>
+          <p>/Б.Адьяасүрэн/</p>
         </div>
-        <div style={{ width: 90, height: 90, border: '2px dashed #bbb', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '9px', color: '#999' }}>
-          Тамга, тэмдэг
+        <div style={{
+          width: 90, height: 90,
+          border: '2px dashed #bbb', borderRadius: '50%',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          textAlign: 'center', fontSize: '9px', color: '#999', flexShrink: 0,
+        }}>
+          Тамга,<br />тэмдэг
         </div>
       </div>
     </div>
@@ -149,15 +179,3 @@ export const InvoiceDocument = React.forwardRef<HTMLDivElement, Props>(({ fields
 });
 
 InvoiceDocument.displayName = 'InvoiceDocument';
-
-const thStyle: React.CSSProperties = {
-  border: '1px solid #999',
-  padding: '6px 8px',
-  textAlign: 'center',
-};
-
-const tdStyle: React.CSSProperties = {
-  border: '1px solid #999',
-  padding: '6px 8px',
-  textAlign: 'center',
-};
