@@ -105,17 +105,6 @@ function buildHtml(f: DocumentFields, docUrls: DocUrl[]): string {
     <ul style="margin:0;padding:0 0 0 20px;font-size:14px;color:#333;line-height:1.8">${services.map(s => `<li>${s}</li>`).join('')}</ul>
   </div>` : ''}
 
-  <div style="padding:20px 32px 0">
-    <div style="font-size:13px;font-weight:700;color:#1e3a8a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Нэхэмжлэхийн дансны мэдээлэл</div>
-    <table style="width:100%;border-collapse:collapse;font-size:14px;background:#fafafa;border-radius:8px;overflow:hidden">
-      ${row('Нэхэмжлэхийн дугаар', f.invoiceNo || '')}
-      ${row('Нэхэмжлэхийн огноо', fmtDate(f.invoiceDate || ''))}
-      ${row('Банк', f.bankName || 'Хаан банк')}
-      ${row('Дансны дугаар', f.bankAccount || '67000500')}
-      ${row('Дансны нэр', '"БАРИЛГА МН" ХХК')}
-    </table>
-  </div>
-
   <div style="padding:24px 32px;margin-top:20px;background:#eff6ff;border-top:3px solid #1e3a8a">
     <p style="margin:0;font-size:13px;color:#555">📞 99907816, 77113333 &nbsp;|&nbsp; ✉️ info@barilga.mn</p>
     <p style="margin:6px 0 0;font-size:12px;color:#888">BARILGA EXPO — "БАРИЛГА МН" ХХК</p>

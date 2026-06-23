@@ -75,13 +75,26 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
     try {
       const safe = (fields.companyName || 'document').replace(/[^\p{L}\p{N}_-]+/gu, '_');
       const docUrls: { label: string; url: string }[] = [];
+
+      const uploadErrors: string[] = [];
       if (contractRef.current) {
-        const url = await uploadPdfAndGetUrl(contractRef.current, `${safe}_geree.pdf`);
-        docUrls.push({ label: 'Гэрээ татах', url });
+        try {
+          const url = await uploadPdfAndGetUrl(contractRef.current, `${safe}_geree.pdf`);
+          docUrls.push({ label: 'Гэрээ татах', url });
+        } catch (e) {
+          uploadErrors.push('Гэрээ: ' + String(e));
+        }
       }
       if (invoiceRef.current) {
-        const url = await uploadPdfAndGetUrl(invoiceRef.current, `${safe}_nehemjleh.pdf`);
-        docUrls.push({ label: 'Нэхэмжлэх татах', url });
+        try {
+          const url = await uploadPdfAndGetUrl(invoiceRef.current, `${safe}_nehemjleh.pdf`);
+          docUrls.push({ label: 'Нэхэмжлэх татах', url });
+        } catch (e) {
+          uploadErrors.push('Нэхэмжлэх: ' + String(e));
+        }
+      }
+      if (uploadErrors.length > 0) {
+        throw new Error('PDF upload алдаа:\n' + uploadErrors.join('\n'));
       }
 
       const res = await fetch('/api/send-document', {
