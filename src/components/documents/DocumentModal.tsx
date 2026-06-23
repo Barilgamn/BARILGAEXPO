@@ -4,6 +4,7 @@ import { DocumentFields, buildDefaultFields } from './types';
 import { ContractDocument } from './ContractDocument';
 import { InvoiceDocument } from './InvoiceDocument';
 import { downloadElementAsPdf, uploadPdfAndGetUrl } from '../../utils/pdf';
+import { supabase } from '../../supabase';
 
 interface Props {
   request: any;
@@ -53,14 +54,40 @@ export const DocumentModal: React.FC<Props> = ({ request, onClose }) => {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Автоматаар хадгалах (500ms debounce)
+  // Автоматаар хадгалах (500ms debounce) — localStorage + Талбайн захиалгын жагсаалтад харагдах Supabase мөр
   const scheduleAutoSave = useCallback((newFields: DocumentFields) => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
+    saveTimer.current = setTimeout(async () => {
       try {
         localStorage.setItem(storageKey(request?.id), JSON.stringify(newFields));
-        setSavedAt(new Date().toLocaleTimeString('mn-MN', { hour: '2-digit', minute: '2-digit' }));
       } catch { /* ignore */ }
+
+      if (request?.id) {
+        const { error } = await supabase.from('booth_requests').update({
+          company_name: newFields.companyName,
+          register_number: newFields.registerNumber,
+          state_register_number: newFields.stateRegisterNumber,
+          company_address: newFields.companyAddress,
+          phone: newFields.phone,
+          email: newFields.email,
+          bank_name: newFields.bankName,
+          bank_account: newFields.bankAccount,
+          contact_person: newFields.contactPerson,
+          contact_position: newFields.contactPosition,
+          product_description: newFields.productDescription,
+          total_price_usd: newFields.totalPriceUsd ? Number(newFields.totalPriceUsd) || null : null,
+          needs_stand_wall: newFields.needsStandWall,
+          needs_signage: newFields.needsSignage,
+          signage_name: newFields.signageName,
+          needs_stage_program: newFields.needsStageProgram,
+          needs_vip_room: newFields.needsVipRoom,
+          contract_no: newFields.contractNo,
+          invoice_no: newFields.invoiceNo,
+        }).eq('id', request.id);
+        if (error) console.error('booth_requests auto-save error', error);
+      }
+
+      setSavedAt(new Date().toLocaleTimeString('mn-MN', { hour: '2-digit', minute: '2-digit' }));
     }, 500);
   }, [request?.id]);
 
