@@ -42,6 +42,8 @@ export const YouTubeBackground: React.FC<Props> = ({ videoId, rate = 0.75, class
       if (destroyed || !hostRef.current) return;
       playerRef.current = new (window as any).YT.Player(hostRef.current, {
         videoId,
+        width: '100%',
+        height: '100%',
         playerVars: {
           autoplay: 1,
           controls: 0,
@@ -83,9 +85,9 @@ export const YouTubeBackground: React.FC<Props> = ({ videoId, rate = 0.75, class
 
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
-      {/* iframe-ийг 16:9 хадгалан бүх талбайг бүрхэхээр томруулна (object-cover мэт) */}
+      {/* 16:9 харьцааг хадгалан бүх талбайг бүрхэхээр томруулсан хүрээ (object-cover мэт).
+          YT.Player доtorх div-ийг iframe-ээр сольдог тул хэмжээсийг ЭНЭ хүрээнд тавина. */}
       <div
-        ref={hostRef}
         className="absolute top-1/2 left-1/2"
         style={{
           width: '100vw',
@@ -95,7 +97,9 @@ export const YouTubeBackground: React.FC<Props> = ({ videoId, rate = 0.75, class
           transform: 'translate(-50%, -50%)',
           pointerEvents: 'none',
         }}
-      />
+      >
+        <div ref={hostRef} className="w-full h-full" />
+      </div>
     </div>
   );
 };
