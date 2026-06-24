@@ -14,6 +14,7 @@ export interface Sponsor {
   name: string;
   logo: string;
   type: 'main' | 'sponsor' | 'supporter';
+  url?: string;
 }
 
 export interface ProgramEvent {

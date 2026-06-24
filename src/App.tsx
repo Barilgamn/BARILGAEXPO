@@ -523,14 +523,18 @@ export default function App() {
                 <div key={group.type} className="flex flex-col items-center">
                   <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
                   <div className="flex flex-wrap justify-center gap-8 sm:gap-12 items-center">
-                    {items.map(s => (
-                      <div key={s.id} className="flex flex-col items-center gap-3 w-36 text-center group" title={s.name}>
-                        <div className={`${group.size} flex items-center justify-center`}>
-                          <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
-                        </div>
-                        <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
-                      </div>
-                    ))}
+                    {items.map(s => {
+                      const Tag: any = s.url ? 'a' : 'div';
+                      const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
+                      return (
+                        <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 w-36 text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
+                          <div className={`${group.size} flex items-center justify-center`}>
+                            <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                          </div>
+                          <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
+                        </Tag>
+                      );
+                    })}
                   </div>
                 </div>
               );
