@@ -341,7 +341,7 @@ export default function App() {
           <VideoBackground
             src="/hero-timelapse.mp4"
             rate={0.15}
-            className="w-full h-full blur-[1.5px] scale-105 opacity-90"
+            className="w-full h-full scale-105 opacity-90"
           />
           {/* Текст уншигдахуйц байхын тулд зүүн талд харанхуй давхарга (баруун тал ил тод) */}
           <div className="absolute inset-0 z-[15] bg-gradient-to-r from-blue-950/85 via-blue-950/40 to-transparent" />
