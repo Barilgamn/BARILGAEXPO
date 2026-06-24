@@ -517,7 +517,7 @@ export default function App() {
               { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20' },
               { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-16' },
             ]).map(group => {
-              const items = data.sponsors.filter(s => s.type === group.type);
+              const items = data.sponsors.filter(s => s.type === group.type && s.logo);
               if (items.length === 0) return null;
               return (
                 <div key={group.type} className="flex flex-col items-center">

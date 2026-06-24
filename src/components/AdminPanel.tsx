@@ -239,7 +239,7 @@ export const AdminPanel: React.FC = () => {
   };
 
   const addSponsor = () => {
-    const newSponsor = { id: Date.now().toString(), name: 'Нэр', logo: 'https://via.placeholder.com/150', type: 'sponsor' as const };
+    const newSponsor = { id: Date.now().toString(), name: 'Нэр', logo: '', type: 'sponsor' as const };
     updateData({ sponsors: [...data.sponsors, newSponsor] });
   };
 
@@ -653,17 +653,20 @@ export const AdminPanel: React.FC = () => {
               <div className="space-y-4">
                 {data.sponsors.map(sponsor => (
                   <div key={sponsor.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <img src={sponsor.logo} alt="sponsor" className="w-16 h-16 object-contain bg-white border border-gray-200 rounded p-1" />
+                    {sponsor.logo ? (
+                      <img src={sponsor.logo} alt="sponsor" className="w-16 h-16 object-contain bg-white border border-gray-200 rounded p-1" />
+                    ) : (
+                      <div className="w-16 h-16 flex items-center justify-center bg-gray-100 border border-dashed border-gray-300 rounded text-gray-400">
+                        <Image size={20} />
+                      </div>
+                    )}
                     <div className="flex-1 space-y-2">
                       <input type="text" value={sponsor.name} onChange={e => updateSponsor(sponsor.id, 'name', e.target.value)} placeholder="Байгууллагын нэр" className="w-full border border-gray-300 rounded px-3 py-2" />
-                      <div className="flex gap-2">
-                        <input type="text" value={sponsor.logo} onChange={e => updateSponsor(sponsor.id, 'logo', e.target.value)} placeholder="Лого URL" className="flex-1 border border-gray-300 rounded px-3 py-2" />
-                        <label className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 text-sm font-medium whitespace-nowrap">
-                          {uploadingSponsorId === sponsor.id ? <Loader2 size={16} className="animate-spin" /> : <Image size={16} />}
-                          Лого оруулах
-                          <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) uploadSponsorLogo(f, sponsor.id); e.target.value = ''; }} />
-                        </label>
-                      </div>
+                      <label className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 text-sm font-medium whitespace-nowrap">
+                        {uploadingSponsorId === sponsor.id ? <Loader2 size={16} className="animate-spin" /> : <Image size={16} />}
+                        {sponsor.logo && !sponsor.logo.includes('placeholder') ? 'Лого солих' : 'Лого оруулах'}
+                        <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) uploadSponsorLogo(f, sponsor.id); e.target.value = ''; }} />
+                      </label>
                       <select value={sponsor.type} onChange={e => updateSponsor(sponsor.id, 'type', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2">
                         <option value="main">Ерөнхий ивээн тэтгэгч (Main Sponsor)</option>
                         <option value="sponsor">Ивээн тэтгэгч (Sponsor)</option>
