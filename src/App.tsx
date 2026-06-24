@@ -515,7 +515,7 @@ export default function App() {
             {([
               { type: 'main' as const, label: t('spon_main'), size: 'h-20 lg:h-24' },
               { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20' },
-              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-16' },
+              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-20 lg:h-24' },
             ]).map(group => {
               const items = data.sponsors.filter(s => s.type === group.type && s.logo);
               if (items.length === 0) return null;
