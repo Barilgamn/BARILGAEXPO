@@ -318,6 +318,21 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
+  const [uploadingSponsorId, setUploadingSponsorId] = useState<string | null>(null);
+
+  const uploadSponsorLogo = async (file: File, sponsorId: string) => {
+    setUploadError('');
+    setUploadingSponsorId(sponsorId);
+    try {
+      const url = await uploadFileToMedia(file, 'sponsors', sponsorId);
+      updateSponsor(sponsorId, 'logo', url);
+    } catch (err: any) {
+      setUploadError(err.message || 'Лого байршуулахад алдаа гарлаа');
+    } finally {
+      setUploadingSponsorId(null);
+    }
+  };
+
   const [uploadingGallery, setUploadingGallery] = useState(false);
 
   const uploadGalleryImages = async (files: FileList) => {
@@ -640,8 +655,15 @@ export const AdminPanel: React.FC = () => {
                   <div key={sponsor.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <img src={sponsor.logo} alt="sponsor" className="w-16 h-16 object-contain bg-white border border-gray-200 rounded p-1" />
                     <div className="flex-1 space-y-2">
-                      <input type="text" value={sponsor.name} onChange={e => updateSponsor(sponsor.id, 'name', e.target.value)} placeholder="Name" className="w-full border border-gray-300 rounded px-3 py-2" />
-                      <input type="text" value={sponsor.logo} onChange={e => updateSponsor(sponsor.id, 'logo', e.target.value)} placeholder="Logo URL" className="w-full border border-gray-300 rounded px-3 py-2" />
+                      <input type="text" value={sponsor.name} onChange={e => updateSponsor(sponsor.id, 'name', e.target.value)} placeholder="Байгууллагын нэр" className="w-full border border-gray-300 rounded px-3 py-2" />
+                      <div className="flex gap-2">
+                        <input type="text" value={sponsor.logo} onChange={e => updateSponsor(sponsor.id, 'logo', e.target.value)} placeholder="Лого URL" className="flex-1 border border-gray-300 rounded px-3 py-2" />
+                        <label className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 text-sm font-medium whitespace-nowrap">
+                          {uploadingSponsorId === sponsor.id ? <Loader2 size={16} className="animate-spin" /> : <Image size={16} />}
+                          Лого оруулах
+                          <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) uploadSponsorLogo(f, sponsor.id); e.target.value = ''; }} />
+                        </label>
+                      </div>
                       <select value={sponsor.type} onChange={e => updateSponsor(sponsor.id, 'type', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2">
                         <option value="main">Ерөнхий ивээн тэтгэгч (Main Sponsor)</option>
                         <option value="sponsor">Ивээн тэтгэгч (Sponsor)</option>

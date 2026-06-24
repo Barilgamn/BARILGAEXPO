@@ -508,6 +508,37 @@ export default function App() {
         </div>
       </section>
 
+      {/* Sponsors Section */}
+      {data.sponsors && data.sponsors.length > 0 && (
+        <section className="bg-white pb-16 pt-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            {([
+              { type: 'main' as const, label: t('spon_main'), size: 'h-20 lg:h-24' },
+              { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20' },
+              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-16' },
+            ]).map(group => {
+              const items = data.sponsors.filter(s => s.type === group.type);
+              if (items.length === 0) return null;
+              return (
+                <div key={group.type} className="flex flex-col items-center">
+                  <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
+                  <div className="flex flex-wrap justify-center gap-8 sm:gap-12 items-center">
+                    {items.map(s => (
+                      <div key={s.id} className="flex flex-col items-center gap-3 w-36 text-center group" title={s.name}>
+                        <div className={`${group.size} flex items-center justify-center`}>
+                          <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                        </div>
+                        <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Categories */}
       <section id="categories" className="py-16 md:py-24 bg-gray-50 relative overflow-hidden">
         {/* Subtle grid background */}
