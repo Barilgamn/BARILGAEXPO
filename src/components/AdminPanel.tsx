@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
@@ -250,6 +250,22 @@ export const AdminPanel: React.FC = () => {
 
   const removeSponsor = (id: string) => {
     updateData({ sponsors: data.sponsors.filter(s => s.id !== id) });
+  };
+
+  // Ивээн тэтгэгчийг ижил төрлийн дотор дээш/доош зөөж дарааллыг өөрчилнө
+  const moveSponsor = (id: string, dir: -1 | 1) => {
+    const list = [...data.sponsors];
+    const idx = list.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    const type = list[idx].type;
+    // Тухайн төрлийн дотор зэргэлдээх элементийн индексийг олно
+    let swapIdx = -1;
+    for (let j = idx + dir; j >= 0 && j < list.length; j += dir) {
+      if (list[j].type === type) { swapIdx = j; break; }
+    }
+    if (swapIdx === -1) return;
+    [list[idx], list[swapIdx]] = [list[swapIdx], list[idx]];
+    updateData({ sponsors: list });
   };
 
   const addGalleryImage = () => {
@@ -674,7 +690,11 @@ export const AdminPanel: React.FC = () => {
                         <option value="supporter">Дэмжигч (Supporter)</option>
                       </select>
                     </div>
-                    <button onClick={() => removeSponsor(sponsor.id)} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={20} /></button>
+                    <div className="flex flex-col items-center gap-1">
+                      <button onClick={() => moveSponsor(sponsor.id, -1)} title="Дээш зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronUp size={18} /></button>
+                      <button onClick={() => moveSponsor(sponsor.id, 1)} title="Доош зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronDown size={18} /></button>
+                      <button onClick={() => removeSponsor(sponsor.id)} title="Устгах" className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"><Trash2 size={18} /></button>
+                    </div>
                   </div>
                 ))}
               </div>
