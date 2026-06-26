@@ -5,7 +5,8 @@
 
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User, Mail, ArrowUp, ChevronDown } from 'lucide-react';
+import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User, Mail, ArrowUp, ChevronDown,
+  Home, PencilRuler, Handshake, Briefcase, Package, Paintbrush, Zap, Droplets, Sofa, Trees, Cog, Layers, Caravan } from 'lucide-react';
 import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
@@ -565,114 +566,87 @@ export default function App() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-            {/* Card 1 */}
-            <div className="group bg-white p-8 rounded-none shadow-[4px_4px_0px_rgba(59,130,246,0.1)] border-2 border-transparent hover:border-blue-900 transition-all duration-300 relative">
-              <div className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center">
-                <div className="w-3 h-3 border-t-2 border-r-2 border-gray-250 group-hover:border-red-500 absolute top-0 right-0 transition-colors duration-300"></div>
-              </div>
-              <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-none flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
-                <Building2 className="h-8 w-8" />
-              </div>
-              <h3 className="font-heading text-xl font-black text-gray-900 mb-6 h-14 tracking-tight group-hover:text-red-500 transition-colors">
-                {t('cat1_title')}
-              </h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat1_1')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat1_2')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat1_3')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat1_4')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat1_5')}</span>
-                </li>
-              </ul>
-            </div>
+            {([
+              {
+                icon: Building2,
+                titleKey: 'cat1_title',
+                accent: 'from-blue-600 to-blue-900',
+                ring: 'group-hover:ring-blue-500/30',
+                items: [
+                  { key: 'cat1_1', icon: Building2 },
+                  { key: 'cat1_2', icon: PencilRuler },
+                  { key: 'cat1_3', icon: Home },
+                  { key: 'cat1_4', icon: Handshake },
+                  { key: 'cat1_5', icon: Briefcase },
+                ],
+              },
+              {
+                icon: Wrench,
+                titleKey: 'cat2_title',
+                accent: 'from-red-500 to-rose-700',
+                ring: 'group-hover:ring-red-500/30',
+                items: [
+                  { key: 'cat2_1', icon: Package },
+                  { key: 'cat2_2', icon: Paintbrush },
+                  { key: 'cat2_3', icon: Zap },
+                  { key: 'cat2_4', icon: Droplets },
+                  { key: 'cat2_5', icon: Sofa },
+                  { key: 'cat2_6', icon: Trees },
+                ],
+              },
+              {
+                icon: Truck,
+                titleKey: 'cat3_title',
+                accent: 'from-emerald-500 to-teal-700',
+                ring: 'group-hover:ring-emerald-500/30',
+                items: [
+                  { key: 'cat3_1', icon: Cog },
+                  { key: 'cat3_2', icon: Wrench },
+                  { key: 'cat3_3', icon: Layers },
+                  { key: 'cat3_4', icon: Caravan },
+                  { key: 'cat3_5', icon: Home },
+                ],
+              },
+            ] as const).map((cat) => {
+              const CatIcon = cat.icon;
+              return (
+                <div
+                  key={cat.titleKey}
+                  className={`group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-2xl ring-1 ring-transparent ${cat.ring} transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col`}
+                >
+                  {/* Top accent bar */}
+                  <div className={`h-1.5 w-full bg-gradient-to-r ${cat.accent}`} />
 
-            {/* Card 2 */}
-            <div className="group bg-white p-8 rounded-none shadow-[4px_4px_0px_rgba(59,130,246,0.1)] border-2 border-transparent hover:border-blue-900 transition-all duration-300 relative">
-              <div className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center">
-                <div className="w-3 h-3 border-t-2 border-r-2 border-gray-250 group-hover:border-red-500 absolute top-0 right-0 transition-colors duration-300"></div>
-              </div>
-              <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-none flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
-                <Wrench className="h-8 w-8" />
-              </div>
-              <h3 className="font-heading text-xl font-black text-gray-900 mb-6 h-14 tracking-tight group-hover:text-red-500 transition-colors">
-                {t('cat2_title')}
-              </h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat2_1')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat2_2')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat2_3')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat2_4')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat2_5')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat2_6')}</span>
-                </li>
-              </ul>
-            </div>
+                  <div className="p-7 lg:p-8 flex flex-col flex-grow">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${cat.accent} text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300`}>
+                        <CatIcon className="h-7 w-7" strokeWidth={2} />
+                      </div>
+                      <h3 className="font-heading text-lg lg:text-xl font-black text-gray-900 tracking-tight leading-snug">
+                        {t(cat.titleKey)}
+                      </h3>
+                    </div>
 
-            {/* Card 3 */}
-            <div className="group bg-white p-8 rounded-none shadow-[4px_4px_0px_rgba(59,130,246,0.1)] border-2 border-transparent hover:border-blue-900 transition-all duration-300 relative">
-              <div className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center">
-                <div className="w-3 h-3 border-t-2 border-r-2 border-gray-250 group-hover:border-red-500 absolute top-0 right-0 transition-colors duration-300"></div>
-              </div>
-              <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-none flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
-                <Truck className="h-8 w-8" />
-              </div>
-              <h3 className="font-heading text-xl font-black text-gray-900 mb-6 h-14 tracking-tight group-hover:text-red-500 transition-colors">
-                {t('cat3_title')}
-              </h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat3_1')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat3_2')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat3_3')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat3_4')}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-none bg-red-500 mt-2 flex-shrink-0" />
-                  <span className="text-gray-600 font-medium">{t('cat3_5')}</span>
-                </li>
-              </ul>
-            </div>
+                    <ul className="space-y-1.5">
+                      {cat.items.map((item) => {
+                        const ItemIcon = item.icon;
+                        return (
+                          <li
+                            key={item.key}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50 transition-colors"
+                          >
+                            <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${cat.accent} bg-opacity-10 flex items-center justify-center shrink-0`}>
+                              <ItemIcon className="h-4 w-4 text-white" strokeWidth={2.2} />
+                            </span>
+                            <span className="text-gray-700 font-medium text-sm sm:text-[15px]">{t(item.key)}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
