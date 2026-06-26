@@ -802,11 +802,47 @@ export const AdminPanel: React.FC = () => {
                     <input type="text" value={activeNews.date} onChange={e => updateNews(activeNews.id, 'date', e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Main Image</label>
-                    <div className="flex items-start gap-4">
-                      {activeNews.image && (
-                        <img src={activeNews.image} alt="preview" className="w-32 h-24 object-cover rounded-lg border border-gray-200 bg-white" />
-                      )}
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Үндсэн зураг</label>
+                    <div className="mb-3 flex items-start gap-2 text-xs text-blue-800 bg-blue-50 border border-blue-100 rounded-lg p-3">
+                      <Image size={14} className="mt-0.5 shrink-0" />
+                      <span>
+                        Хамгийн тохиромжтой хэмжээ: <strong>1200 × 675px</strong> (16:9 харьцаа).
+                        Доод тал нь 800px өргөнтэй, JPG/PNG, 1MB-аас бага байвал зохимжтой.
+                      </span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-start gap-4">
+                      {activeNews.image ? (
+                        <div className="shrink-0">
+                          <p className="text-xs text-gray-500 mb-1">Голлуулах хэсгийг зураг дээр дарж сонгоно уу</p>
+                          <div
+                            className="relative w-64 h-36 rounded-lg border border-gray-200 bg-white overflow-hidden cursor-crosshair select-none"
+                            onClick={(e) => {
+                              const r = e.currentTarget.getBoundingClientRect();
+                              const x = Math.round(((e.clientX - r.left) / r.width) * 100);
+                              const y = Math.round(((e.clientY - r.top) / r.height) * 100);
+                              updateNews(activeNews.id, 'imagePosition', `${x}% ${y}%`);
+                            }}
+                            title="Дарж голлуулах цэгийг сонгох"
+                          >
+                            <img
+                              src={activeNews.image}
+                              alt="preview"
+                              className="w-full h-full object-cover pointer-events-none"
+                              style={{ objectPosition: activeNews.imagePosition || '50% 50%' }}
+                            />
+                            {(() => {
+                              const pos = (activeNews.imagePosition || '50% 50%').split(' ');
+                              return (
+                                <div
+                                  className="absolute w-5 h-5 -ml-2.5 -mt-2.5 rounded-full border-2 border-white bg-red-500/80 shadow pointer-events-none"
+                                  style={{ left: pos[0], top: pos[1] }}
+                                />
+                              );
+                            })()}
+                          </div>
+                          <p className="text-[11px] text-gray-400 mt-1">Голлуулах цэг: {activeNews.imagePosition || '50% 50%'}</p>
+                        </div>
+                      ) : null}
                       <div className="flex-1 space-y-2">
                         <input type="text" value={activeNews.image} onChange={e => updateNews(activeNews.id, 'image', e.target.value)} placeholder="https://..." className="w-full border border-gray-300 rounded-lg px-4 py-2" />
                         <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-200 text-sm font-medium">
@@ -824,6 +860,11 @@ export const AdminPanel: React.FC = () => {
                             }}
                           />
                         </label>
+                        {activeNews.imagePosition && activeNews.imagePosition !== '50% 50%' && (
+                          <button onClick={() => updateNews(activeNews.id, 'imagePosition', '50% 50%')} className="block text-xs text-gray-500 hover:text-red-600 underline">
+                            Голлуулах цэгийг голд буцаах
+                          </button>
+                        )}
                         {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
                       </div>
                     </div>

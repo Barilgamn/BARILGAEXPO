@@ -74,6 +74,7 @@ export const NewsSection: React.FC = () => {
                     loading="lazy"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    style={{ objectPosition: news.imagePosition || '50% 50%' }}
                   />
                 )}
               </div>
@@ -125,6 +126,7 @@ export const NewsSection: React.FC = () => {
                     alt={localizedSelected.title}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
+                    style={{ objectPosition: selectedNews.imagePosition || '50% 50%' }}
                   />
                 </div>
               )}

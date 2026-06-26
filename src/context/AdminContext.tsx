@@ -58,6 +58,7 @@ export interface NewsItem {
   image: string;
   link: string;
   images?: string[];
+  imagePosition?: string; // object-position утга, ж: "50% 30%"
 }
 
 export interface SiteData {
