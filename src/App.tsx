@@ -11,6 +11,7 @@ import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
+import { NewsPopup } from './components/NewsPopup';
 import { VideoBackground } from './components/VideoBackground';
 import { trackVisit } from './utils/analytics';
 
@@ -951,6 +952,9 @@ export default function App() {
 
       {/* AI Chat Widget */}
       {!isAdminRoute && <ChatWidget />}
+
+      {/* Сүүлийн мэдээний popup (нэг удаа) */}
+      {!isAdminRoute && <NewsPopup />}
     </div>
   );
 }
