@@ -70,6 +70,7 @@ export interface SiteData {
   gallery: string[];
   program: ProgramDay[];
   news: NewsItem[];
+  boothBookedPercent?: number; // Талбайн захиалгын дүүргэлтийн хувь (0-100)
 }
 
 const defaultContact = {
@@ -128,6 +129,7 @@ const defaultData: SiteData = {
   gallery: defaultGallery,
   program: defaultProgram,
   news: initialNews,
+  boothBookedPercent: 50,
 };
 
 interface AdminContextType {

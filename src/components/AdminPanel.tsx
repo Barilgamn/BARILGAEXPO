@@ -625,6 +625,41 @@ export const AdminPanel: React.FC = () => {
               <div className="p-4 bg-gray-100 rounded-xl inline-block mt-4">
                 <img src={data.logoUrl} alt="Logo Preview" className="h-16 object-contain" />
               </div>
+
+              {/* Талбайн захиалгын дүүргэлтийн хувь */}
+              <div className="pt-6 mt-6 border-t border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Талбайн захиалгын дүүргэлт (%)</label>
+                <p className="text-xs text-gray-500 mb-3">Нүүр хуудасны хугацаа тоологчийн доор харагдах захиалгын дүүргэлтийн хувь. 0–100 хооронд.</p>
+                <div className="flex items-center gap-4 max-w-md">
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={Number(data.boothBookedPercent ?? 50)}
+                    onChange={e => updateData({ boothBookedPercent: Number(e.target.value) })}
+                    className="flex-1 accent-red-600"
+                  />
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={Number(data.boothBookedPercent ?? 50)}
+                      onChange={e => {
+                        const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                        updateData({ boothBookedPercent: v });
+                      }}
+                      className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center font-bold"
+                    />
+                    <span className="text-gray-500 font-bold">%</span>
+                  </div>
+                </div>
+                <div className="mt-3 max-w-md">
+                  <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all" style={{ width: `${Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 50)))}%` }} />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

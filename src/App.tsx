@@ -444,9 +444,23 @@ export default function App() {
                 </div>
                 
                 <div className="mt-6 pt-6 border-t border-blue-400/20 text-center relative z-10">
-                  <p className="text-sm text-blue-200/80 font-medium mb-4">
-                    {t('space_open')}
-                  </p>
+                  {(() => {
+                    const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 50)));
+                    return (
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs text-blue-200/80 font-medium">{t('space_booked')}</span>
+                          <span className="text-sm font-black text-white">{pct}%</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-blue-950/60 rounded-full overflow-hidden border border-blue-400/20">
+                          <div
+                            className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all duration-700"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <Link to="/booking" className="bg-red-500 hover:bg-red-600 text-white px-8 py-3.5 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:shadow-red-500/25 active:scale-95 flex items-center justify-center gap-2 group border-b-4 border-red-700 active:border-b-0 active:translate-y-[4px] w-full">
                     {t('book_booth')}
                     <CheckCircle2 className="h-5 w-5 opacity-80" />
