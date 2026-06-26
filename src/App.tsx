@@ -12,7 +12,7 @@ import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
 import { NewsPopup } from './components/NewsPopup';
-import { VideoBackground } from './components/VideoBackground';
+import { CityTimelapse } from './components/CityTimelapse';
 import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
@@ -339,12 +339,8 @@ export default function App() {
           <div className="absolute inset-0 bg-blueprint z-10 opacity-60" />
           <div className="absolute inset-0 bg-gradient-to-br from-blue-950/50 via-blue-900/35 to-blue-900/10 mix-blend-multiply z-10" />
           <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-blue-950/80 to-transparent z-10" />
-          {/* Дэвсгэр видео — удаашруулж, дуугүй, давталттай тоглоно */}
-          <VideoBackground
-            src="/hero-timelapse.mp4"
-            rate={0.15}
-            className="w-full h-full scale-105 opacity-90"
-          />
+          {/* Дэвсгэр — Улаанбаатарын зургийг timelapse мэт удаан хөдөлгөөнтэй болгосон */}
+          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-90" />
           {/* Текст уншигдахуйц байхын тулд зүүн талд харанхуй давхарга (баруун тал ил тод) */}
           <div className="absolute inset-0 z-[15] bg-gradient-to-r from-blue-950/85 via-blue-950/40 to-transparent" />
         </div>
