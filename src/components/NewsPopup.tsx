@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, ArrowRight, Calendar } from 'lucide-react';
+import { X, ArrowRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { useTranslation } from '../i18n';
 import { newsTranslations, NewsTranslationLang } from '../data/newsTranslations';
@@ -73,30 +73,14 @@ export const NewsPopup: React.FC = () => {
         </button>
 
         <button onClick={openNews} className="block w-full text-left">
-          {latest.image && (
-            <div className="h-32 w-full bg-gray-100">
-              <img
-                src={latest.image}
-                alt={localized.title}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-                style={{ objectPosition: latest.imagePosition || '50% 50%' }}
-              />
-            </div>
-          )}
-          <div className="p-4">
-            <div className="flex items-center gap-1.5 text-red-600 text-[11px] font-semibold mb-1.5">
-              <span className="bg-red-600 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">{t('news_pre')}</span>
-              <Calendar className="w-3.5 h-3.5 ml-1" />
-              {latest.date}
-            </div>
-            <h4 className="font-heading font-bold text-gray-900 text-sm leading-snug mb-1 line-clamp-2">
+          <div className="p-5 pr-9">
+            <h4 className="font-heading font-bold text-gray-900 text-[15px] leading-snug mb-2">
               {localized.title}
             </h4>
-            <p className="text-gray-500 text-xs leading-relaxed line-clamp-2">
-              {strip(localized.description)}
+            <p className="text-gray-500 text-xs leading-relaxed mb-3">
+              {strip(localized.description, 200)}
             </p>
-            <span className="inline-flex items-center gap-1 mt-2 text-red-600 font-bold text-xs hover:text-red-700">
+            <span className="inline-flex items-center gap-1 text-red-600 font-bold text-xs hover:text-red-700">
               {t('news_more')} <ArrowRight className="w-3.5 h-3.5" />
             </span>
           </div>
