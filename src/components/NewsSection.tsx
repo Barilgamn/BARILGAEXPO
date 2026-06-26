@@ -3,7 +3,7 @@ import { ArrowRight, Calendar, X } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin } from '../context/AdminContext';
 import { newsTranslations, NewsTranslationLang } from '../data/newsTranslations';
-import MDEditor from '@uiw/react-md-editor';
+import ReactMarkdown from 'react-markdown';
 import { ImageSlider } from './ImageSlider';
 
 export const NewsSection: React.FC = () => {
@@ -117,53 +117,40 @@ export const NewsSection: React.FC = () => {
             </button>
 
             <div className="overflow-y-auto w-full flex-grow relative pb-10">
+              {/* Мэдээний зураг — банер (гарчигтай давхцахгүй) */}
               {selectedNews.image && (
-                <div className="w-full min-h-[16rem] h-64 sm:h-80 md:h-96 relative flex items-end">
-                  <div className="absolute inset-0">
-                    <img
-                      src={selectedNews.image}
-                      alt={localizedSelected.title}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-transparent"></div>
-                  </div>
-                  <div className="relative z-10 p-5 sm:p-8 md:p-10 w-full pb-6 sm:pb-8">
-                    <div className="text-white bg-black/20 p-5 sm:p-6 rounded-2xl backdrop-blur-lg border border-white/10 max-w-3xl shadow-xl">
-                      <div className="flex items-center gap-2 text-red-400 mb-2 sm:mb-3 text-xs sm:text-sm font-medium">
-                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        {selectedNews.date}
-                      </div>
-                      <h2 className="text-base sm:text-xl lg:text-2xl font-bold font-heading leading-tight max-h-[4.5rem] sm:max-h-none overflow-hidden text-ellipsis line-clamp-2 sm:line-clamp-none">
-                        {localizedSelected.title}
-                      </h2>
-                    </div>
-                  </div>
+                <div className="w-full h-56 sm:h-72 md:h-80 bg-gray-100">
+                  <img
+                    src={selectedNews.image}
+                    alt={localizedSelected.title}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               )}
 
-              <div className="p-6 md:p-10 max-w-3xl mx-auto space-y-6">
-                {!selectedNews.image && (
-                  <div className="bg-red-50 p-6 md:p-8 rounded-2xl border border-red-100">
-                    <div className="flex items-center gap-2 text-red-600 mb-3 text-sm font-medium">
-                      <Calendar className="w-4 h-4" />
-                      {selectedNews.date}
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 leading-tight">
-                      {localizedSelected.title}
-                    </h2>
-                  </div>
-                )}
+              <div className="p-6 md:p-10 max-w-3xl mx-auto">
+                {/* Огноо + гарчиг — зургийн доор тусдаа */}
+                <div className="flex items-center gap-2 text-red-600 mb-3 text-sm font-medium">
+                  <Calendar className="w-4 h-4" />
+                  {selectedNews.date}
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 leading-tight break-words">
+                  {localizedSelected.title}
+                </h2>
 
-                <div className="space-y-6 sm:space-y-8 mt-8 md:mt-10 text-gray-700" data-color-mode="light">
-                  {/(^|\s)<[a-z!/]/i.test((localizedSelected.content || '').trim().slice(0, 40)) ? (
-                    <div
-                      className="news-content max-w-none leading-relaxed [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-blue-900 [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-blue-900 [&_h3]:mt-5 [&_h3]:mb-2 [&_p]:mb-4 [&_a]:text-red-600 [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_blockquote]:border-l-4 [&_blockquote]:border-red-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-xl [&_img]:my-4"
-                      dangerouslySetInnerHTML={{ __html: localizedSelected.content || '' }}
-                    />
-                  ) : (
-                    <MDEditor.Markdown source={localizedSelected.content} />
-                  )}
+                <div className="mt-6 border-t border-gray-100 pt-6 text-gray-700 overflow-x-hidden leading-relaxed [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-blue-900 [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-blue-900 [&_h3]:mt-5 [&_h3]:mb-2 [&_p]:mb-4 [&_a]:text-red-600 [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_li]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-red-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-xl [&_img]:my-4 [&_strong]:font-bold">
+                  {(() => {
+                    // Хуучин агуулгад жирийн зайны оронд non-breaking space (U+00A0/&nbsp;)
+                    // ашиглагдсанаас мөр таслахгүй байсныг хэвийн зай болгож засна.
+                    const normalized = (localizedSelected.content || '')
+                      .replace(/[\u00a0\u2007\u202f]/g, ' ')
+                      .replace(/&nbsp;/gi, ' ');
+                    const isHtml = /(^|\s)<[a-z!/]/i.test(normalized.trim().slice(0, 40));
+                    return isHtml
+                      ? <div dangerouslySetInnerHTML={{ __html: normalized }} />
+                      : <ReactMarkdown>{normalized}</ReactMarkdown>;
+                  })()}
                 </div>
 
                 {selectedNews.images && selectedNews.images.length > 0 && (
