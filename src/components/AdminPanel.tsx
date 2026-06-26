@@ -5,7 +5,7 @@ import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
 import { AdminUsersTab } from './AdminUsersTab';
-import MDEditor from '@uiw/react-md-editor';
+import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '../supabase';
 import { optimizeImage } from '../utils/image';
 
@@ -332,6 +332,33 @@ export const AdminPanel: React.FC = () => {
     } finally {
       setUploadingImage(false);
     }
+  };
+
+  const [uploadingNewsImages, setUploadingNewsImages] = useState(false);
+
+  const uploadNewsImages = async (files: FileList, newsId: number) => {
+    setUploadError('');
+    setUploadingNewsImages(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadFileToMedia(file, 'news', `${newsId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`);
+        urls.push(url);
+      }
+      updateData(prev => ({
+        news: prev.news.map(n => n.id === newsId ? { ...n, images: [...(n.images || []), ...urls] } : n),
+      }));
+    } catch (err: any) {
+      setUploadError(err.message || 'Зураг байршуулахад алдаа гарлаа');
+    } finally {
+      setUploadingNewsImages(false);
+    }
+  };
+
+  const removeNewsImage = (newsId: number, idx: number) => {
+    updateData(prev => ({
+      news: prev.news.map(n => n.id === newsId ? { ...n, images: (n.images || []).filter((_, i) => i !== idx) } : n),
+    }));
   };
 
   const [uploadingSponsorId, setUploadingSponsorId] = useState<string | null>(null);
@@ -806,14 +833,46 @@ export const AdminPanel: React.FC = () => {
                     <textarea value={activeNews.description} onChange={e => updateNews(activeNews.id, 'description', e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2 h-20" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Detailed Content (Markdown with support for images via URL)</label>
-                    <div data-color-mode="light">
-                      <MDEditor
-                        value={activeNews.content}
-                        onChange={(val) => updateNews(activeNews.id, 'content', val || '')}
-                        height={400}
-                      />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Дэлгэрэнгүй агуулга</label>
+                    <RichTextEditor
+                      value={activeNews.content || ''}
+                      onChange={(html) => updateNews(activeNews.id, 'content', html)}
+                      placeholder="Мэдээний агуулгыг бичнэ үү..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Нэмэлт зургууд (slider-ээр харагдана)</label>
+                    <div className="flex flex-wrap gap-3 mb-3">
+                      {(activeNews.images || []).map((img, i) => (
+                        <div key={i} className="relative group">
+                          <img src={img} alt="" className="w-28 h-20 object-cover rounded-lg border border-gray-200 bg-white" />
+                          <button
+                            onClick={() => removeNewsImage(activeNews.id, i)}
+                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow opacity-90"
+                            title="Устгах"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
+                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-200 text-sm font-medium">
+                      {uploadingNewsImages ? <Loader2 size={16} className="animate-spin" /> : <Image size={16} />}
+                      {uploadingNewsImages ? 'Байршуулж байна...' : 'Олон зураг оруулах'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        disabled={uploadingNewsImages}
+                        onChange={e => {
+                          const files = e.target.files;
+                          if (files && files.length) uploadNewsImages(files, activeNews.id);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
                   </div>
                 </div>
               )}

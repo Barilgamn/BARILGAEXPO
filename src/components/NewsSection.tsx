@@ -4,6 +4,7 @@ import { useTranslation } from '../i18n';
 import { useAdmin } from '../context/AdminContext';
 import { newsTranslations, NewsTranslationLang } from '../data/newsTranslations';
 import MDEditor from '@uiw/react-md-editor';
+import { ImageSlider } from './ImageSlider';
 
 export const NewsSection: React.FC = () => {
   const { data } = useAdmin();
@@ -155,8 +156,21 @@ export const NewsSection: React.FC = () => {
                 )}
 
                 <div className="space-y-6 sm:space-y-8 mt-8 md:mt-10 text-gray-700" data-color-mode="light">
-                  <MDEditor.Markdown source={localizedSelected.content} />
+                  {/(^|\s)<[a-z!/]/i.test((localizedSelected.content || '').trim().slice(0, 40)) ? (
+                    <div
+                      className="news-content max-w-none leading-relaxed [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-blue-900 [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-blue-900 [&_h3]:mt-5 [&_h3]:mb-2 [&_p]:mb-4 [&_a]:text-red-600 [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_blockquote]:border-l-4 [&_blockquote]:border-red-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-xl [&_img]:my-4"
+                      dangerouslySetInnerHTML={{ __html: localizedSelected.content || '' }}
+                    />
+                  ) : (
+                    <MDEditor.Markdown source={localizedSelected.content} />
+                  )}
                 </div>
+
+                {selectedNews.images && selectedNews.images.length > 0 && (
+                  <div className="mt-8">
+                    <ImageSlider images={selectedNews.images} />
+                  </div>
+                )}
               </div>
             </div>
           </div>

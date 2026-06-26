@@ -57,6 +57,7 @@ export interface NewsItem {
   date: string;
   image: string;
   link: string;
+  images?: string[];
 }
 
 export interface SiteData {
