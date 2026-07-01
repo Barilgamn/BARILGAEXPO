@@ -30,10 +30,24 @@ const daysSinceMonthStart = () => {
   return days;
 };
 
-// Энэ сараас эхлэх сарын (YYYY-MM) жагсаалт (одоогоор зөвхөн энэ сар)
-const monthsSinceThisMonth = () => {
+// Сүүлийн N сарын (YYYY-MM) жагсаалт — хуучнаас шинэ рүү
+const lastNMonths = (n = 6) => {
+  const months: string[] = [];
+  const now = new Date();
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return months;
+};
+
+// N сарын өмнөөс эхлэх огноо
+const nMonthsAgoStart = (n = 6) => {
   const d = new Date();
-  return [`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`];
+  d.setMonth(d.getMonth() - n + 1);
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  return d;
 };
 
 const formatDayLabel = (day: string) => {
@@ -86,7 +100,7 @@ const StatCard: React.FC<{
   const [period, setPeriod] = useState<'day' | 'month'>('day');
 
   const days = daysSinceMonthStart();
-  const months = monthsSinceThisMonth();
+  const months = lastNMonths(6);
 
   const dayCounts = aggregate(rows, days, (iso) => iso.slice(0, 10));
   const monthCounts = aggregate(rows, months, (iso) => iso.slice(0, 7));
@@ -149,7 +163,7 @@ export const AnalyticsTab: React.FC = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const since = monthStart().toISOString();
+      const since = nMonthsAgoStart(6).toISOString();
       const [{ data: v, error: ev }, { data: c, error: ec }] = await Promise.all([
         supabase.from('site_visits').select('created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(5000),
         supabase.from('chat_sessions').select('created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(5000),
@@ -212,7 +226,7 @@ export const AnalyticsTab: React.FC = () => {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
-          Энэ сараас хойшхи мэдээлэл: сайтад хандсан хэрэглэгчийн тоо (session тус бүрт өдөрт 1 удаа тоологдоно) ба AI чат ашигласан хэрэглэгчийн тоо.
+          Сүүлийн 6 сарын мэдээлэл: сайтад хандсан хэрэглэгчийн тоо (session тус бүрт өдөрт 1 удаа тоологдоно) ба AI чат ашигласан хэрэглэгчийн тоо.
         </p>
         <button
           onClick={fetchData}
