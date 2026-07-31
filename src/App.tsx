@@ -525,9 +525,9 @@ export default function App() {
         <section className="bg-white pb-16 pt-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
             {([
-              { type: 'main' as const, label: t('spon_main'), size: 'h-20 lg:h-24' },
-              { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20' },
-              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-20 lg:h-24' },
+              { type: 'main' as const, label: t('spon_main'), size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56' },
+              { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40' },
+              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36' },
             ]).map(group => {
               const items = data.sponsors.filter(s => s.type === group.type && s.logo);
               if (items.length === 0) return null;
@@ -539,8 +539,8 @@ export default function App() {
                       const Tag: any = s.url ? 'a' : 'div';
                       const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
                       return (
-                        <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 w-36 text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
-                          <div className={`${group.size} flex items-center justify-center`}>
+                        <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
+                          <div className={`${group.size} w-full flex items-center justify-center`}>
                             <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                           </div>
                           <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
