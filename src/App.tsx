@@ -48,6 +48,13 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Meta Pixel — хуудас солигдох бүрт PageView дуудах
+  useEffect(() => {
+    if (!isAdminRoute && typeof (window as any).fbq === 'function') {
+      (window as any).fbq('track', 'PageView');
+    }
+  }, [location.pathname]);
   const { lang, setLang, t } = useTranslation();
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
