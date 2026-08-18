@@ -186,12 +186,13 @@ export const IsometricFloorPlan: React.FC = () => {
             const d = boothDims[l.t];
             const a = AREA[l.t];
             return (
-              <g key={l.t} textAnchor="middle" style={{ pointerEvents: 'none' }}>
-                <text x={p[0]} y={p[1]} fontSize="6.5" fontWeight="800" fill="#1e293b"
-                  stroke="#ffffff" strokeWidth="1.6" paintOrder="stroke">{l.t}</text>
+              <g key={l.t} textAnchor="middle" dominantBaseline="central" opacity={0.5}
+                style={{ pointerEvents: 'none' }}>
+                <text x={p[0]} y={p[1] - 2.4} fontSize="6" fontWeight="700" fill="#475569"
+                  stroke="#ffffff" strokeWidth="1.2" paintOrder="stroke">{l.t}</text>
                 {(d || a) && (
-                  <text x={p[0]} y={p[1] + 6} fontSize="4.6" fontWeight="600" fill="#475569"
-                    stroke="#ffffff" strokeWidth="1.3" paintOrder="stroke">
+                  <text x={p[0]} y={p[1] + 3.6} fontSize="4.2" fontWeight="500" fill="#64748b"
+                    stroke="#ffffff" strokeWidth="1" paintOrder="stroke">
                     {d ? `${d[0]}X${d[1]}` : ''}{d && a ? ' · ' : ''}{a ? `${a}м²` : ''}
                   </text>
                 )}
