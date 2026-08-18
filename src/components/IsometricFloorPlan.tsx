@@ -24,8 +24,9 @@ const A_COEF = C + SN;
 const B_COEF = C - SN;
 const EPS = 1e-6;
 
-const BOOTH_DEPTH = 9;
-const STAGE_DEPTH = 14;
+/* Стандарт стенд ханын өндөр 2.4 м — талбай бүр адилхан. 1 нэгж = 0.1 м. */
+const BOOTH_DEPTH = 24;
+const STAGE_DEPTH = 8;
 
 type Palette = { top: string; light: string; dark: string };
 
