@@ -1,282 +1,372 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
-import { booths, Booth, BoothStatus, STATUS_LABELS, getBoothPrice, CATEGORY_LABELS } from '../data/booths';
+import { RotateCcw, RotateCw, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { booths } from '../data/booths';
 import {
   floorPlanLayout,
-  FLOORPLAN_VIEWBOX,
+  BoothRect,
   FLOORPLAN_STAGE,
   FLOORPLAN_GATE,
 } from '../data/floorPlanLayout';
 
-type Section = 'A' | 'B' | 'G';
-
-interface Props {
-  statusOf?: (b: Booth) => BoothStatus;
-}
-
-/* Изометрик проекц: дэлгэцийн координат руу хөрвүүлнэ */
+/** Изометрик проекцын хэвтээ агшилт (30°) */
 const COS = 0.866;
-const SIN = 0.5;
-const iso = (x: number, y: number, z = 0): [number, number] => [(x - y) * COS, (x + y) * SIN - z];
+
+/** Бүх талбайг багтаах бодит хүрээ — зураглалыг төвлөрүүлж, чанга харуулна */
+const BOUNDS = (() => {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const key of Object.keys(floorPlanLayout)) {
+    const r = floorPlanLayout[key];
+    x0 = Math.min(x0, r.x);
+    y0 = Math.min(y0, r.y);
+    x1 = Math.max(x1, r.x + r.w);
+    y1 = Math.max(y1, r.y + r.h);
+  }
+  return { x0, y0, x1, y1 };
+})();
+
+const CX = (BOUNDS.x0 + BOUNDS.x1) / 2;
+const CY = (BOUNDS.y0 + BOUNDS.y1) / 2;
+
+const BOOTH_DEPTH = 22;
+const STAGE_DEPTH = 34;
+
+type Palette = { top: string; light: string; dark: string };
+
+/* Бүх талбай ижил саарал — зөвхөн гэрэл сүүдрээр ялгарна */
+const BOOTH: Palette = { top: '#cbd5e1', light: '#93a1b2', dark: '#6d7a8c' };
+const BOOTH_HOVER: Palette = { top: '#f1f5f9', light: '#b8c4d2', dark: '#8d99a9' };
+const STAGE: Palette = { top: '#e05a4f', light: '#b3453c', dark: '#8f352e' };
+const GATE: Palette = { top: '#e2e8f0', light: '#b6c0cc', dark: '#95a1b0' };
+
 const pts = (arr: [number, number][]) => arr.map(p => p.join(',')).join(' ');
 
-/* Секц тус бүрийн өнгө (дээд тал / гэрэлтэй тал / сүүдэртэй тал) */
-const SECTION_FILL: Record<Section, { top: string; left: string; right: string }> = {
-  A: { top: '#16a34a', left: '#15803d', right: '#166534' },
-  B: { top: '#f59e0b', left: '#d97706', right: '#b45309' },
-  G: { top: '#0ea5e9', left: '#0284c7', right: '#0369a1' },
+/** Хэвтээ эргэлт (rot) ба хазайлт (tilt)-аас хамаарсан проекц + гүний коэффициент */
+const makeView = (rot: number, tilt: number) => {
+  const c = Math.cos(rot);
+  const s = Math.sin(rot);
+  const P = (dx: number, dy: number, z: number): [number, number] => {
+    const rx = dx * c - dy * s;
+    const ry = dx * s + dy * c;
+    return [(rx - ry) * COS, (rx + ry) * tilt - z];
+  };
+  /* Гүн = rx + ry = dx*(c+s) + dy*(c−s). Их байх тусам харагчид ойр. */
+  return { P, a: c + s, b: c - s, c, s };
 };
-const OCCUPIED_FILL = { top: '#cbd5e1', left: '#94a3b8', right: '#64748b' };
-const RESERVED_FILL = { top: '#fbbf24', left: '#f59e0b', right: '#d97706' };
 
-const SECTION_META: { key: Section; label: string; desc: string }[] = [
-  { key: 'A', label: 'A танхим', desc: 'Үндсэн танхим' },
-  { key: 'B', label: 'B танхим', desc: '2-р давхар' },
-  { key: 'G', label: 'Гадаа талбай', desc: 'Гадна зогсоол' },
-];
+type View = ReturnType<typeof makeView>;
 
-const BOOTH_DEPTH = 26;
+/** Тэгш өнцөгтийн хамгийн ХОЛ булангийн гүн */
+const farDepth = (r: BoothRect, view: View) => {
+  const dx = view.a > 0 ? r.x - CX : r.x + r.w - CX;
+  const dy = view.b > 0 ? r.y - CY : r.y + r.h - CY;
+  return view.a * dx + view.b * dy;
+};
 
-export const IsometricFloorPlan: React.FC<Props> = ({ statusOf }) => {
+/** Хайрцгийн дэлгэц дээрх хүрээ (extrusion-ыг оруулж) */
+const screenBBox = (r: BoothRect, depth: number, view: View): [number, number, number, number] => {
+  const pxs: number[] = [];
+  const pys: number[] = [];
+  const cs: [number, number][] = [
+    [r.x, r.y], [r.x + r.w, r.y], [r.x + r.w, r.y + r.h], [r.x, r.y + r.h],
+  ];
+  for (const [px, py] of cs) {
+    for (const z of [0, depth]) {
+      const [sx, sy] = view.P(px - CX, py - CY, z);
+      pxs.push(sx);
+      pys.push(sy);
+    }
+  }
+  return [Math.min(...pxs), Math.min(...pys), Math.max(...pxs), Math.max(...pys)];
+};
+
+/**
+ * Painter's algorithm-ийн зөв дараалал.
+ * Дэлгэц дээр давхцаж буй хос бүрт "аль нь ард" гэдгийг тэнхлэгийн тусгаарлалтаар
+ * тодорхойлж граф үүсгээд топологи эрэмбэлнэ. Ингэснээр аль ч өнцгөөс эргүүлэхэд
+ * талбайнууд бие бие рүүгээ давхцахгүй.
+ */
+const depthSort = <T extends { r: BoothRect; depth: number }>(nodes: T[], view: View): T[] => {
+  const n = nodes.length;
+  const { a, b } = view;
+  const bb = nodes.map(nd => screenBBox(nd.r, nd.depth, view));
+  const d = nodes.map(nd => farDepth(nd.r, view));
+  const adj: number[][] = Array.from({ length: n }, () => []);
+  const indeg = new Array(n).fill(0);
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      /* Дэлгэц дээр огт давхцахгүй бол дараалал хамаагүй */
+      if (bb[i][2] <= bb[j][0] || bb[j][2] <= bb[i][0] || bb[i][3] <= bb[j][1] || bb[j][3] <= bb[i][1]) continue;
+      const A = nodes[i].r;
+      const B = nodes[j].r;
+      let behind: number | null = null;
+      if (A.x + A.w <= B.x) behind = a > 0 ? i : j;
+      else if (B.x + B.w <= A.x) behind = a > 0 ? j : i;
+      else if (A.y + A.h <= B.y) behind = b > 0 ? i : j;
+      else if (B.y + B.h <= A.y) behind = b > 0 ? j : i;
+      if (behind === null) continue;
+      const front = behind === i ? j : i;
+      adj[behind].push(front);
+      indeg[front]++;
+    }
+  }
+
+  /* Kahn — сонголт бүрт хамгийн хол (ард) байгаагаас нь эхэлнэ */
+  const out: T[] = [];
+  const used = new Array(n).fill(false);
+  for (let k = 0; k < n; k++) {
+    let best = -1;
+    for (let i = 0; i < n; i++) {
+      if (!used[i] && indeg[i] === 0 && (best < 0 || d[i] < d[best])) best = i;
+    }
+    if (best < 0) {
+      /* Мөчлөг тохиолдвол гүнээр нь сонгож үргэлжлүүлнэ */
+      for (let i = 0; i < n; i++) if (!used[i] && (best < 0 || d[i] < d[best])) best = i;
+    }
+    used[best] = true;
+    out.push(nodes[best]);
+    for (const v of adj[best]) indeg[v]--;
+  }
+  return out;
+};
+
+interface BoxProps {
+  r: BoothRect;
+  depth: number;
+  palette: Palette;
+  view: View;
+  label?: string;
+  labelFill?: string;
+  labelWeight?: number;
+  onEnter?: () => void;
+  onLeave?: () => void;
+}
+
+/** Нэг тэгш өнцөгтийг 3D хайрцаг болгон зурна */
+const Box: React.FC<BoxProps> = ({
+  r, depth, palette, view, label, labelFill = '#3f4a5a', labelWeight = 800, onEnter, onLeave,
+}) => {
+  const { P, a, b, c, s } = view;
+  const dx0 = r.x - CX;
+  const dx1 = r.x + r.w - CX;
+  const dy0 = r.y - CY;
+  const dy1 = r.y + r.h - CY;
+
+  /* Булангууд: 0=NW 1=NE 2=SE 3=SW */
+  const corners: [number, number][] = [[dx0, dy0], [dx1, dy0], [dx1, dy1], [dx0, dy1]];
+  const top = corners.map(([x, y]) => P(x, y, depth));
+  const bottom = corners.map(([x, y]) => P(x, y, 0));
+
+  /* Тал бүрийн гадагш чиглэсэн нормаль: N, E, S, W */
+  const normals: [number, number][] = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+
+  const sides = normals.map((n, i) => {
+    /* Зөвхөн харагчид эргэсэн талыг зурна */
+    if (n[0] * a + n[1] * b <= 0) return null;
+    const j = (i + 1) % 4;
+    /* Дэлгэц дээр зүүн/баруун аль тийш харсныг тодорхойлж гэрэлтүүлнэ */
+    const nrx = n[0] * c - n[1] * s;
+    const nry = n[0] * s + n[1] * c;
+    const facesRight = (nrx - nry) * COS > 0;
+    return (
+      <polygon
+        key={i}
+        points={pts([top[i], top[j], bottom[j], bottom[i]])}
+        fill={facesRight ? palette.dark : palette.light}
+      />
+    );
+  });
+
+  const cx = (top[0][0] + top[2][0]) / 2;
+  const cy = (top[0][1] + top[2][1]) / 2;
+  const fontSize = Math.min(15, Math.max(8.5, Math.min(r.w, r.h) / 3.4));
+
+  return (
+    <g onMouseEnter={onEnter} onMouseLeave={onLeave} style={{ cursor: onEnter ? 'pointer' : 'default' }}>
+      {sides}
+      <polygon points={pts(top)} fill={palette.top} stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
+      {label && (
+        <text
+          x={cx} y={cy}
+          textAnchor="middle" dominantBaseline="central"
+          fontSize={fontSize} fontWeight={labelWeight} fill={labelFill}
+          style={{ pointerEvents: 'none' }}
+        >
+          {label}
+        </text>
+      )}
+    </g>
+  );
+};
+
+type Item = { kind: 'booth' | 'stage' | 'gate'; id: string; r: BoothRect; depth: number };
+
+export const IsometricFloorPlan: React.FC = () => {
+  const [rot, setRot] = useState(0);
+  const [tilt, setTilt] = useState(0.5);
   const [scale, setScale] = useState(1);
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
-  const [activeSection, setActiveSection] = useState<Section | null>(null);
-  const [selected, setSelected] = useState<Booth | null>(null);
-  const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
+  const [hover, setHover] = useState<string | null>(null);
 
-  const eff = (b: Booth) => (statusOf ? statusOf(b) : b.status);
+  const dragRef = useRef<
+    { mode: 'rotate' | 'pan'; x: number; y: number; rot: number; tilt: number; tx: number; ty: number } | null
+  >(null);
 
-  /* Проекц хийсний дараах хүрээ (viewBox) — бүх цэгийг багтаана */
-  const vb = useMemo(() => {
-    const { w, h } = FLOORPLAN_VIEWBOX;
-    const corners = [iso(0, 0), iso(w, 0), iso(0, h + 80), iso(w, h + 80)];
-    const xs = corners.map(c => c[0]);
-    const ys = corners.map(c => c[1]);
-    const minX = Math.min(...xs) - 40;
-    const minY = Math.min(...ys) - 90;
-    return { minX, minY, w: Math.max(...xs) - minX + 80, h: Math.max(...ys) - minY + 130 };
-  }, []);
+  const view = useMemo(() => makeView(rot, tilt), [rot, tilt]);
 
-  /* Талбайг зурах дараалал: арынхаас урагшаа (x+y өсөхөөр) */
-  const ordered = useMemo(() => {
-    return booths
+  /* Бүх биетийг арынхаас урагш зөв дараалалд оруулна */
+  const items = useMemo<Item[]>(() => {
+    const list: Item[] = booths
       .filter(b => floorPlanLayout[b.id])
-      .slice()
-      .sort((a, bb) => {
-        const ra = floorPlanLayout[a.id];
-        const rb = floorPlanLayout[bb.id];
-        return (ra.x + ra.y + ra.w + ra.h) - (rb.x + rb.y + rb.w + rb.h);
-      });
-  }, []);
+      .map(b => ({ kind: 'booth' as const, id: b.id, r: floorPlanLayout[b.id], depth: BOOTH_DEPTH }));
+    list.push({ kind: 'stage', id: '__stage', r: FLOORPLAN_STAGE, depth: STAGE_DEPTH });
+    list.push({ kind: 'gate', id: '__gate', r: FLOORPLAN_GATE, depth: 5 });
+    return depthSort(list, view);
+  }, [view]);
 
-  const stats = useMemo(() => {
-    const bySec: Record<Section, { total: number; free: number }> = {
-      A: { total: 0, free: 0 }, B: { total: 0, free: 0 }, G: { total: 0, free: 0 },
+  /* Эргэлтэнд тохирсон хүрээ — зураглал үргэлж дүүрэн харагдана */
+  const { vb, floorPoly, innerPoly } = useMemo(() => {
+    const { P } = view;
+    const m = 60;
+    const outer: [number, number][] = [
+      [BOUNDS.x0 - m - CX, BOUNDS.y0 - m - CY],
+      [BOUNDS.x1 + m - CX, BOUNDS.y0 - m - CY],
+      [BOUNDS.x1 + m - CX, BOUNDS.y1 + m - CY],
+      [BOUNDS.x0 - m - CX, BOUNDS.y1 + m - CY],
+    ];
+    const projected = outer.map(([x, y]) => P(x, y, 0));
+    const xs = projected.map(p => p[0]);
+    const ys = projected.map(p => p[1]);
+    const minX = Math.min(...xs) - 20;
+    const minY = Math.min(...ys) - 70;
+    return {
+      vb: { minX, minY, w: Math.max(...xs) - minX + 20, h: Math.max(...ys) - minY + 60 },
+      floorPoly: pts(projected),
+      innerPoly: pts([
+        P(340 - CX, 350 - CY, 0),
+        P(1670 - CX, 350 - CY, 0),
+        P(1670 - CX, 1160 - CY, 0),
+        P(340 - CX, 1160 - CY, 0),
+      ]),
     };
-    booths.forEach(b => {
-      bySec[b.section].total += 1;
-      if (eff(b) === 'available') bySec[b.section].free += 1;
-    });
-    return bySec;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusOf]);
+  }, [view]);
 
-  const clampScale = (s: number) => Math.min(6, Math.max(0.6, s));
+  const clampScale = (s: number) => Math.min(6, Math.max(0.55, s));
   const zoom = (f: number) => setScale(s => clampScale(s * f));
-  const reset = () => { setScale(1); setTx(0); setTy(0); };
+  const spin = (d: number) => setRot(r => r + d);
+  const reset = () => { setRot(0); setTilt(0.5); setScale(1); setTx(0); setTy(0); };
 
-  const onWheel: React.WheelEventHandler = (e) => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.12 : 0.89); };
+  const onWheel: React.WheelEventHandler = (e) => {
+    e.preventDefault();
+    zoom(e.deltaY < 0 ? 1.12 : 0.89);
+  };
+
   const onPointerDown: React.PointerEventHandler = (e) => {
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-    dragRef.current = { x: e.clientX, y: e.clientY, tx, ty };
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    dragRef.current = {
+      mode: e.shiftKey || e.button === 1 ? 'pan' : 'rotate',
+      x: e.clientX, y: e.clientY, rot, tilt, tx, ty,
+    };
   };
+
   const onPointerMove: React.PointerEventHandler = (e) => {
-    if (!dragRef.current) return;
-    setTx(dragRef.current.tx + (e.clientX - dragRef.current.x));
-    setTy(dragRef.current.ty + (e.clientY - dragRef.current.y));
+    const d = dragRef.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (d.mode === 'pan') {
+      setTx(d.tx + dx);
+      setTy(d.ty + dy);
+    } else {
+      setRot(d.rot + dx * 0.0055);
+      setTilt(Math.min(0.92, Math.max(0.16, d.tilt + dy * 0.0016)));
+    }
   };
+
   const onPointerUp = () => { dragRef.current = null; };
 
-  /* Нэг талбайг 3D хайрцаг маягаар зурах */
-  const renderBooth = (b: Booth) => {
-    const r = floorPlanLayout[b.id];
-    const st = eff(b);
-    const dim = activeSection !== null && b.section !== activeSection;
-    const isSel = selected?.id === b.id;
-    const depth = isSel ? BOOTH_DEPTH + 14 : BOOTH_DEPTH;
-
-    const fills = st === 'occupied' ? OCCUPIED_FILL : st === 'reserved' ? RESERVED_FILL : SECTION_FILL[b.section];
-
-    /* Дөрвөн булан (дээд гадаргуу — z=depth, суурь — z=0) */
-    const tNW = iso(r.x, r.y, depth);
-    const tNE = iso(r.x + r.w, r.y, depth);
-    const tSE = iso(r.x + r.w, r.y + r.h, depth);
-    const tSW = iso(r.x, r.y + r.h, depth);
-    const bSE = iso(r.x + r.w, r.y + r.h, 0);
-    const bSW = iso(r.x, r.y + r.h, 0);
-    const bNE = iso(r.x + r.w, r.y, 0);
-
-    const center = iso(r.x + r.w / 2, r.y + r.h / 2, depth);
-    const fontSize = Math.min(15, Math.max(9, Math.min(r.w, r.h) / 3.4));
-
-    return (
-      <g
-        key={b.id}
-        onClick={(e) => { e.stopPropagation(); setSelected(b); }}
-        style={{ cursor: 'pointer', opacity: dim ? 0.13 : 1, transition: 'opacity 0.15s' }}
-      >
-        {/* Зүүн урд тал (сүүдэртэй) */}
-        <polygon points={pts([tSW, tSE, bSE, bSW])} fill={fills.left} />
-        {/* Баруун урд тал */}
-        <polygon points={pts([tSE, tNE, bNE, bSE])} fill={fills.right} />
-        {/* Дээд тал */}
-        <polygon
-          points={pts([tNW, tNE, tSE, tSW])}
-          fill={fills.top}
-          stroke={isSel ? '#1d4ed8' : 'rgba(255,255,255,0.55)'}
-          strokeWidth={isSel ? 3 : 1}
-        />
-        <text
-          x={center[0]} y={center[1]}
-          textAnchor="middle" dominantBaseline="central"
-          fontSize={fontSize} fontWeight="800"
-          fill={st === 'occupied' ? '#475569' : '#ffffff'}
-          style={{ pointerEvents: 'none' }}
-        >
-          {b.id}
-        </text>
-      </g>
-    );
-  };
-
-  const { w: FW, h: FH } = FLOORPLAN_VIEWBOX;
+  const btn = 'p-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 transition-colors';
 
   return (
     <div className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden bg-white">
-      {/* Секц сонголтын табууд */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-gray-100 bg-gray-50/60">
-        <div className="flex flex-wrap gap-2">
-          {SECTION_META.map(s => {
-            const on = activeSection === s.key;
-            return (
-              <button
-                key={s.key}
-                onClick={() => setActiveSection(on ? null : s.key)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-left transition-all ${on ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
-              >
-                <span className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: SECTION_FILL[s.key].top }} />
-                <span>
-                  <span className={`block text-xs font-bold ${on ? 'text-blue-700' : 'text-gray-800'}`}>{s.label}</span>
-                  <span className="block text-[10px] text-gray-500">{s.desc} · Сул {stats[s.key].free}/{stats[s.key].total}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <div className="flex items-center gap-1.5">
-          <button onClick={() => zoom(1.25)} className="p-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 text-gray-600" title="Томруулах"><ZoomIn size={16} /></button>
-          <button onClick={() => zoom(0.8)} className="p-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 text-gray-600" title="Жижигрүүлэх"><ZoomOut size={16} /></button>
-          <button onClick={reset} className="p-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 text-gray-600" title="Хэвд оруулах"><Maximize2 size={16} /></button>
-        </div>
-      </div>
-
-      {/* Изометрик зураглал */}
       <div
-        className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
-        style={{ height: 560, touchAction: 'none', background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}
+        className="relative overflow-hidden select-none cursor-grab active:cursor-grabbing"
+        style={{
+          height: 600,
+          touchAction: 'none',
+          background: 'radial-gradient(120% 100% at 50% 0%, #1e293b 0%, #0f172a 60%, #090f1c 100%)',
+        }}
         onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
-        onClick={() => setSelected(null)}
       >
         <svg
           viewBox={`${vb.minX} ${vb.minY} ${vb.w} ${vb.h}`}
           className="w-full h-full"
-          style={{ transform: `translate(${tx}px, ${ty}px) scale(${scale})`, transformOrigin: 'center center', transition: dragRef.current ? 'none' : 'transform 0.12s ease-out' }}
+          style={{
+            transform: `translate(${tx}px, ${ty}px) scale(${scale})`,
+            transformOrigin: 'center center',
+            transition: dragRef.current ? 'none' : 'transform 0.14s ease-out',
+          }}
         >
-          {/* Шал */}
-          <polygon points={pts([iso(-60, -60), iso(FW + 60, -60), iso(FW + 60, FH + 90), iso(-60, FH + 90)])} fill="#334155" opacity="0.6" />
-          <polygon points={pts([iso(340, 350), iso(1670, 350), iso(1670, 1160), iso(340, 1160)])} fill="#475569" opacity="0.8" />
+          <polygon points={floorPoly} fill="#1c2739" />
+          <polygon points={innerPoly} fill="#28344a" />
 
-          {/* Хаалга */}
-          <polygon
-            points={pts([iso(FLOORPLAN_GATE.x, FLOORPLAN_GATE.y, 4), iso(FLOORPLAN_GATE.x + FLOORPLAN_GATE.w, FLOORPLAN_GATE.y, 4), iso(FLOORPLAN_GATE.x + FLOORPLAN_GATE.w, FLOORPLAN_GATE.y + FLOORPLAN_GATE.h, 4), iso(FLOORPLAN_GATE.x, FLOORPLAN_GATE.y + FLOORPLAN_GATE.h, 4)])}
-            fill="#e2e8f0"
-          />
-          <text {...(() => { const c = iso(FLOORPLAN_GATE.x + FLOORPLAN_GATE.w / 2, FLOORPLAN_GATE.y - 30, 4); return { x: c[0], y: c[1] }; })()} textAnchor="middle" fill="#94a3b8" fontSize="20" fontWeight="700">ENTRANCE</text>
-
-          {/* Стэйж */}
-          {(() => {
-            const s = FLOORPLAN_STAGE;
-            const d = 34;
-            const tNW = iso(s.x, s.y, d); const tNE = iso(s.x + s.w, s.y, d);
-            const tSE = iso(s.x + s.w, s.y + s.h, d); const tSW = iso(s.x, s.y + s.h, d);
-            const bSE = iso(s.x + s.w, s.y + s.h, 0); const bSW = iso(s.x, s.y + s.h, 0); const bNE = iso(s.x + s.w, s.y, 0);
-            const c = iso(s.x + s.w / 2, s.y + s.h / 2, d);
+          {items.map(it => {
+            if (it.kind === 'stage') {
+              return (
+                <Box key={it.id} r={it.r} depth={it.depth} palette={STAGE} view={view}
+                  label="STAGE" labelFill="#ffffff" labelWeight={900} />
+              );
+            }
+            if (it.kind === 'gate') {
+              return <Box key={it.id} r={it.r} depth={it.depth} palette={GATE} view={view} />;
+            }
             return (
-              <g>
-                <polygon points={pts([tSW, tSE, bSE, bSW])} fill="#b91c1c" />
-                <polygon points={pts([tSE, tNE, bNE, bSE])} fill="#991b1b" />
-                <polygon points={pts([tNW, tNE, tSE, tSW])} fill="#ef4444" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
-                <text x={c[0]} y={c[1]} textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="20" fontWeight="800" style={{ pointerEvents: 'none' }}>STAGE</text>
-              </g>
+              <Box
+                key={it.id}
+                r={it.r}
+                depth={it.depth}
+                palette={hover === it.id ? BOOTH_HOVER : BOOTH}
+                view={view}
+                label={it.id}
+                onEnter={() => setHover(it.id)}
+                onLeave={() => setHover(null)}
+              />
+            );
+          })}
+
+          {(() => {
+            const p = view.P(FLOORPLAN_GATE.x + FLOORPLAN_GATE.w / 2 - CX, FLOORPLAN_GATE.y - 48 - CY, 5);
+            return (
+              <text x={p[0]} y={p[1]} textAnchor="middle" fill="#8fa0b6" fontSize="22" fontWeight="700"
+                style={{ pointerEvents: 'none' }}>
+                ENTRANCE
+              </text>
             );
           })()}
-
-          {/* Талбайнууд */}
-          {ordered.map(renderBooth)}
         </svg>
 
-        {/* Сонгосон талбайн мэдээлэл */}
-        {selected && (
-          <div
-            className="absolute left-3 bottom-3 bg-white rounded-xl shadow-xl border border-gray-100 p-3.5 text-sm max-w-[270px]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between gap-3 mb-1">
-              <span className="font-extrabold text-gray-900 text-base">{selected.id}</span>
-              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-700 text-xs">✕</button>
-            </div>
-            <div className="text-gray-600">{CATEGORY_LABELS[selected.category]}</div>
-            {selected.area > 0 && <div className="text-gray-600">{selected.area} м² · {selected.pricePerM2.toLocaleString()}₮/м²</div>}
-            <div className="text-gray-900 font-semibold">{getBoothPrice(selected).toLocaleString()}₮</div>
-            <div className="mt-1.5 flex items-center gap-2">
-              <span
-                className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-full ${eff(selected) === 'available' ? 'text-emerald-700 bg-emerald-50' : eff(selected) === 'reserved' ? 'text-amber-700 bg-amber-50' : 'text-red-700 bg-red-50'}`}
-              >
-                {STATUS_LABELS[eff(selected)]}
-              </span>
-            </div>
-            {selected.company && <div className="text-gray-500 text-xs mt-1">{selected.company}</div>}
-            {eff(selected) === 'available' && (
-              <Link
-                to="/booking"
-                className="mt-2.5 block text-center bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors"
-              >
-                Энэ талбайг захиалах →
-              </Link>
-            )}
+        <div className="absolute right-3 top-3 flex items-center gap-1.5">
+          <button onClick={() => spin(-0.28)} className={btn} title="Зүүн эргүүлэх"><RotateCcw size={16} /></button>
+          <button onClick={() => spin(0.28)} className={btn} title="Баруун эргүүлэх"><RotateCw size={16} /></button>
+          <button onClick={() => zoom(1.25)} className={btn} title="Томруулах"><ZoomIn size={16} /></button>
+          <button onClick={() => zoom(0.8)} className={btn} title="Жижигрүүлэх"><ZoomOut size={16} /></button>
+          <button onClick={reset} className={btn} title="Хэвд оруулах"><Maximize2 size={16} /></button>
+        </div>
+
+        <div className="absolute left-3 bottom-3 text-[11px] text-slate-400 bg-slate-900/60 backdrop-blur px-3 py-1.5 rounded-lg">
+          Чирж эргүүлэх · Shift + чирж зөөх · Дугуй эргүүлж томруулах
+        </div>
+
+        {hover && (
+          <div className="absolute right-3 bottom-3 bg-white/95 backdrop-blur rounded-lg px-3 py-1.5 shadow-lg">
+            <span className="font-extrabold text-gray-900 text-sm">{hover}</span>
           </div>
         )}
-
-        {/* Төлвийн тайлбар */}
-        <div className="absolute right-3 top-3 bg-slate-900/70 backdrop-blur rounded-xl px-3 py-2.5 space-y-1.5">
-          {[
-            { c: '#16a34a', l: 'Сул (A танхим)' },
-            { c: '#f59e0b', l: 'Сул (B танхим)' },
-            { c: '#0ea5e9', l: 'Сул (Гадаа)' },
-            { c: '#cbd5e1', l: 'Захиалагдсан' },
-          ].map(i => (
-            <div key={i.l} className="flex items-center gap-2 text-[11px] text-slate-200">
-              <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: i.c }} />
-              {i.l}
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
