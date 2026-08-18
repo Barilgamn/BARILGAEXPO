@@ -17,6 +17,23 @@ const getOrCreateId = (key: string) => {
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+/**
+ * Real-time хандалт: идэвхтэй session-ий сүүлийн үйл хөдлөлийн мөчийг бүртгэнэ.
+ * site_visits нь өдөрт нэг мөр бичдэг тул "сүүлийн 60 минут"-ыг үүгээр тооцно.
+ * session_id нь primary key тул хүснэгт хэрэглэгч тутамд нэг мөрөөс хэтрэхгүй.
+ */
+export const trackPresence = async (path: string) => {
+  try {
+    const sessionId = getOrCreateId('barilga_session_id');
+    await supabase
+      .from('site_presence')
+      .upsert({ session_id: sessionId, last_seen: new Date().toISOString(), path },
+              { onConflict: 'session_id' });
+  } catch {
+    /* бүртгэл амжилтгүй болсон ч сайт хэвийн ажиллана */
+  }
+};
+
 // Өдөрт нэг удаа (session тус бүрээр) хандалт бүртгэнэ
 export const trackVisit = async (path: string) => {
   try {

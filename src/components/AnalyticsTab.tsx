@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, Users, MessageCircle, RefreshCw, TrendingUp } from 'lucide-react';
+import { Loader2, Users, MessageCircle, RefreshCw, TrendingUp, Radio } from 'lucide-react';
 import { supabase } from '../supabase';
 
 type Row = { created_at: string };
@@ -153,6 +153,84 @@ const StatCard: React.FC<{
   );
 };
 
+/**
+ * Real-time хандалт — сүүлийн 60 минутад идэвхтэй байсан хэрэглэгчийн тоо.
+ * site_presence хүснэгт session тус бүрийн сүүлийн дохиог хадгалдаг тул
+ * тухайн хугацаанд идэвхтэй байсан хүний тоог шууд өгнө.
+ */
+const LivePanel: React.FC = () => {
+  const [last60, setLast60] = useState<number | null>(null);
+  const [last5, setLast5] = useState<number | null>(null);
+  const [err, setErr] = useState('');
+  const [at, setAt] = useState<Date | null>(null);
+
+  const load = async () => {
+    const since = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
+    const q = (min: number) =>
+      supabase.from('site_presence').select('session_id', { count: 'exact', head: true })
+        .gte('last_seen', since(min));
+    const [a, b] = await Promise.all([q(60), q(5)]);
+    /* Хүснэгт байхгүй үед head-query алдаа өгөлгүй count-г null-аар буцаадаг
+       тул зөвхөн error-т найдалгүй count-г ч шалгана. */
+    if (a.error || b.error || a.count === null) {
+      setErr((a.error || b.error)?.message || 'site_presence хүснэгт олдсонгүй');
+      return;
+    }
+    setErr('');
+    setLast60(a.count ?? 0);
+    setLast5(b.count ?? 0);
+    setAt(new Date());
+  };
+
+  useEffect(() => {
+    load();
+    const id = window.setInterval(load, 30_000);   // 30 секунд тутам сэргээнэ
+    return () => window.clearInterval(id);
+  }, []);
+
+  const Num: React.FC<{ v: number | null }> = ({ v }) =>
+    <span>{v === null ? '—' : v}</span>;
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+          </span>
+          <h3 className="font-bold text-gray-900">Одоогийн хандалт</h3>
+        </div>
+        <span className="text-[11px] text-gray-400">
+          {at ? `${at.toLocaleTimeString('mn-MN')}-д шинэчлэгдсэн` : 'Ачаалж байна…'}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl p-4 text-center bg-emerald-50 border border-emerald-100">
+          <p className="text-3xl font-black text-emerald-700"><Num v={last60} /></p>
+          <p className="text-[11px] text-emerald-700/80 mt-1 font-semibold">Сүүлийн 60 минут</p>
+        </div>
+        <div className="rounded-xl p-4 text-center bg-gray-50 border border-gray-100">
+          <p className="text-3xl font-black text-gray-900"><Num v={last5} /></p>
+          <p className="text-[11px] text-gray-500 mt-1 font-semibold flex items-center justify-center gap-1">
+            <Radio className="w-3 h-3" /> Сүүлийн 5 минут
+          </p>
+        </div>
+      </div>
+
+      {err && (
+        <p className="mt-3 text-xs text-red-600">
+          Алдаа: {err}. "supabase-presence.sql" скриптийг Supabase дээр ажиллуулсан эсэхээ шалгаарай.
+        </p>
+      )}
+      <p className="mt-3 text-[11px] text-gray-400">
+        Сайт нээлттэй байгаа хэрэглэгч минут тутам дохио илгээнэ. 30 секунд тутам автоматаар шинэчлэгдэнэ.
+      </p>
+    </div>
+  );
+};
+
 export const AnalyticsTab: React.FC = () => {
   const [visits, setVisits] = useState<Row[]>([]);
   const [chats, setChats] = useState<Row[]>([]);
@@ -223,6 +301,8 @@ export const AnalyticsTab: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <LivePanel />
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
