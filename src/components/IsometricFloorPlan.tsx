@@ -3,6 +3,7 @@ import { ZoomIn, ZoomOut, Maximize2, Minimize2, Crosshair } from 'lucide-react';
 import { booths } from '../data/booths';
 import {
   floorPlanLayout,
+  boothDims,
   BoothRect,
   FLOORPLAN_STAGE,
   FLOORPLAN_GATE,
@@ -114,11 +115,17 @@ const depthSort = <T extends { r: BoothRect; depth: number }>(nodes: T[]): T[] =
   return out;
 };
 
+/** Албан ёсны бүртгэл дэх талбайн м² (булангийн талбай тэгш өнцөгтөөс бага байж болно) */
+const AREA: Record<string, number> = Object.fromEntries(booths.map(b => [b.id, b.area]));
+
 interface BoxProps {
   r: BoothRect;
   depth: number;
   palette: Palette;
   label?: string;
+  /** [өргөн, гүн] метрээр — дугаарын доор хэмжээ, м² харуулна */
+  dims?: [number, number];
+  area?: number;
   labelFill?: string;
   labelWeight?: number;
   onEnter?: () => void;
@@ -126,7 +133,7 @@ interface BoxProps {
 }
 
 const Box: React.FC<BoxProps> = ({
-  r, depth, palette, label, labelFill = '#3f4a5a', labelWeight = 700, onEnter, onLeave,
+  r, depth, palette, label, dims, area, labelFill = '#33404f', labelWeight = 700, onEnter, onLeave,
 }) => {
   const dx0 = r.x - CX, dx1 = r.x + r.w - CX;
   const dy0 = r.y - CY, dy1 = r.y + r.h - CY;
@@ -152,17 +159,41 @@ const Box: React.FC<BoxProps> = ({
 
   const cx = (top[0][0] + top[2][0]) / 2;
   const cy = (top[0][1] + top[2][1]) / 2;
-  const fontSize = Math.min(15, Math.max(7, Math.min(r.w, r.h * 1.4) / 2.6));
+
+  /* Энэ өнцөгт дээд тал дэлгэцэн дээр яг тэгш өнцөгт болно (хоёр тэнхлэг ижил масштабтай) */
+  const K = COS * Math.SQRT2;
+  const sw = r.w * K;
+  const sh = r.h * K;
+
+  const fs = Math.min(14, Math.max(3.4, Math.min(sw * 0.27, sh * 0.34)));
+  const fs2 = fs * 0.66;
+  const lineH = fs2 * 1.2;
+  const rows = (dims ? 1 : 0) + (area ? 1 : 0);
+  const showDims = rows > 0 && fs2 >= 2.9 && sh > fs + lineH * rows;
+  const blockTop = cy - (showDims ? (fs + lineH * rows) / 2 : fs / 2);
 
   return (
     <g onMouseEnter={onEnter} onMouseLeave={onLeave} style={{ cursor: onEnter ? 'pointer' : 'default' }}>
       {sides}
       <polygon points={pts(top)} fill={palette.top} stroke="rgba(255,255,255,0.55)" strokeWidth="0.8" />
       {label && (
-        <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
-          fontSize={fontSize} fontWeight={labelWeight} fill={labelFill} style={{ pointerEvents: 'none' }}>
-          {label}
-        </text>
+        <g style={{ pointerEvents: 'none' }} textAnchor="middle" dominantBaseline="central" fill={labelFill}>
+          <text x={cx} y={blockTop + fs / 2} fontSize={fs} fontWeight={labelWeight}>{label}</text>
+          {showDims && (
+            <>
+              {dims && (
+                <text x={cx} y={blockTop + fs + lineH * 0.5} fontSize={fs2} fontWeight={600} opacity={0.78}>
+                  {dims[0]}Х{dims[1]}
+                </text>
+              )}
+              {!!area && (
+                <text x={cx} y={blockTop + fs + lineH * (dims ? 1.5 : 0.5)} fontSize={fs2} fontWeight={500} opacity={0.62}>
+                  {area}м²
+                </text>
+              )}
+            </>
+          )}
+        </g>
       )}
     </g>
   );
@@ -288,6 +319,8 @@ export const IsometricFloorPlan: React.FC = () => {
                 depth={it.depth}
                 palette={hover === it.id ? BOOTH_HOVER : BOOTH}
                 label={it.id}
+                dims={boothDims[it.id]}
+                area={AREA[it.id]}
                 onEnter={() => setHover(it.id)}
                 onLeave={() => setHover(null)}
               />
@@ -319,8 +352,13 @@ export const IsometricFloorPlan: React.FC = () => {
         </div>
 
         {hover && (
-          <div className="absolute right-3 bottom-3 bg-white/95 backdrop-blur rounded-lg px-3 py-1.5 shadow-lg">
-            <span className="font-extrabold text-gray-900 text-sm">{hover}</span>
+          <div className="absolute right-3 bottom-3 bg-white/95 backdrop-blur rounded-lg px-3.5 py-2 shadow-lg text-center">
+            <span className="block font-extrabold text-gray-900 text-base leading-tight">{hover}</span>
+            <span className="block text-[11px] text-gray-500 font-semibold mt-0.5">
+              {boothDims[hover] && `${boothDims[hover][0]}Х${boothDims[hover][1]}`}
+              {boothDims[hover] && AREA[hover] ? ' · ' : ''}
+              {AREA[hover] ? `${AREA[hover]}м²` : ''}
+            </span>
           </div>
         )}
       </div>
