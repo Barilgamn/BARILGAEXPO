@@ -20,6 +20,7 @@ const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({
 const NewsSection = lazy(() => import('./components/NewsSection').then(m => ({ default: m.NewsSection })));
 const ProgramSection = lazy(() => import('./components/ProgramSection').then(m => ({ default: m.ProgramSection })));
 const GallerySection = lazy(() => import('./components/GallerySection').then(m => ({ default: m.GallerySection })));
+const IsometricFloorPlan = lazy(() => import('./components/IsometricFloorPlan').then(m => ({ default: m.IsometricFloorPlan })));
 const GuidePage = lazy(() => import('./components/GuidePage').then(m => ({ default: m.GuidePage })));
 const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({ default: m.BoothBooking })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -665,6 +666,36 @@ export default function App() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Талбайн сонголт — изометрик зураглал */}
+      <section id="floorplan" className="py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12 px-4">
+            <h3 className="text-red-500 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 mb-3">
+              <span className="w-8 h-px bg-red-500"></span>
+              BARILGA EXPO 2026
+              <span className="w-8 h-px bg-red-500"></span>
+            </h3>
+            <h2 className="font-heading text-3xl md:text-5xl font-black text-blue-950 mb-4 tracking-tight">
+              Талбайн сонголт
+            </h2>
+            <p className="text-gray-500 text-sm md:text-base">
+              A танхим — үндсэн танхим, B танхим — 2-р давхар, G — гадаа талбай. Талбай дээр дарж дэлгэрэнгүй мэдээлэл харна уу.
+            </p>
+          </div>
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <IsometricFloorPlan />
+          </Suspense>
+          <div className="text-center mt-8">
+            <Link
+              to="/booking"
+              className="inline-block bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-900/20"
+            >
+              Талбай захиалах →
+            </Link>
           </div>
         </div>
       </section>
