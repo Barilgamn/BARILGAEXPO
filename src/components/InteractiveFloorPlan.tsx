@@ -5,7 +5,6 @@ import {
   floorPlanLayout,
   FLOORPLAN_VIEWBOX,
   FLOORPLAN_STAGE,
-  FLOORPLAN_PHOTOBOOTH,
   FLOORPLAN_GATE,
 } from '../data/floorPlanLayout';
 
@@ -83,25 +82,18 @@ export const InteractiveFloorPlan: React.FC<Props> = ({ statusOf }) => {
           className="w-full h-full"
           style={{ transform: `translate(${tx}px, ${ty}px) scale(${scale})`, transformOrigin: 'center center', transition: dragRef.current ? 'none' : 'transform 0.12s ease-out' }}
         >
-          {/* hall outline (stadium) */}
-          <rect x="150" y="6" width="1700" height="1320" rx="260" fill="#ffffff" stroke="#cbd5e1" strokeWidth="3" />
-          {/* inner exhibitor floor */}
-          <rect x="360" y="370" width="1290" height="770" rx="14" fill="#fafafa" stroke="#e5e7eb" strokeWidth="2" />
-          {/* gate (Хаалга) */}
+          {/* танхимын шал */}
+          <rect
+            x={4} y={4}
+            width={FLOORPLAN_VIEWBOX.w - 8} height={FLOORPLAN_VIEWBOX.h - 8}
+            rx="18" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2"
+          />
+          {/* хаалга */}
           <rect x={FLOORPLAN_GATE.x} y={FLOORPLAN_GATE.y} width={FLOORPLAN_GATE.w} height={FLOORPLAN_GATE.h} rx="3" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="1.5" />
-          <text x={FLOORPLAN_GATE.x + FLOORPLAN_GATE.w / 2} y={FLOORPLAN_GATE.y + FLOORPLAN_GATE.h / 2} textAnchor="middle" dominantBaseline="central" fill="#64748b" fontSize="16">Хаалга</text>
-          {/* seating dots in front of stage */}
-          {Array.from({ length: 4 }).flatMap((_, r) =>
-            Array.from({ length: 7 }).map((__, c) => (
-              <circle key={`d${r}-${c}`} cx={918 + c * 22} cy={965 + r * 22} r="5" fill="#e2e8f0" />
-            ))
-          )}
-          {/* stage */}
-          <rect x={FLOORPLAN_STAGE.x} y={FLOORPLAN_STAGE.y} width={FLOORPLAN_STAGE.w} height={FLOORPLAN_STAGE.h} rx="6" fill="#ef4444" />
-          <text x={FLOORPLAN_STAGE.x + FLOORPLAN_STAGE.w / 2} y={FLOORPLAN_STAGE.y + FLOORPLAN_STAGE.h / 2} textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="22" fontWeight="700">STAGE 8×5</text>
-          {/* photo booth */}
-          <rect x={FLOORPLAN_PHOTOBOOTH.x} y={FLOORPLAN_PHOTOBOOTH.y} width={FLOORPLAN_PHOTOBOOTH.w} height={FLOORPLAN_PHOTOBOOTH.h} rx="4" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="1.5" />
-          <text x={FLOORPLAN_PHOTOBOOTH.x + FLOORPLAN_PHOTOBOOTH.w / 2} y={FLOORPLAN_PHOTOBOOTH.y + FLOORPLAN_PHOTOBOOTH.h / 2} textAnchor="middle" dominantBaseline="central" fill="#64748b" fontSize="16">Photo Booth</text>
+          <text x={FLOORPLAN_GATE.x + FLOORPLAN_GATE.w / 2} y={FLOORPLAN_GATE.y + FLOORPLAN_GATE.h + 14} textAnchor="middle" dominantBaseline="central" fill="#64748b" fontSize="12">Хаалга</text>
+          {/* тайз */}
+          <rect x={FLOORPLAN_STAGE.x} y={FLOORPLAN_STAGE.y} width={FLOORPLAN_STAGE.w} height={FLOORPLAN_STAGE.h} rx="4" fill="#ef4444" />
+          <text x={FLOORPLAN_STAGE.x + FLOORPLAN_STAGE.w / 2} y={FLOORPLAN_STAGE.y + FLOORPLAN_STAGE.h / 2} textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="13" fontWeight="700">STAGE</text>
 
           {/* booths */}
           {booths.map(b => {
