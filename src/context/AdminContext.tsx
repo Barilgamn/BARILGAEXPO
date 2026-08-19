@@ -71,6 +71,7 @@ export interface SiteData {
   program: ProgramDay[];
   news: NewsItem[];
   boothBookedPercent?: number; // Талбайн захиалгын дүүргэлтийн хувь (0-100)
+  showFloorPlan?: boolean;     // "Талбайн сонголт" хэсгийг нүүрэнд харуулах эсэх
 }
 
 const defaultContact = {
@@ -130,6 +131,7 @@ const defaultData: SiteData = {
   program: defaultProgram,
   news: initialNews,
   boothBookedPercent: 50,
+  showFloorPlan: false,
 };
 
 interface AdminContextType {
