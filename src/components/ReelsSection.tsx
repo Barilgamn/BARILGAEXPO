@@ -9,16 +9,19 @@ import type { Reel } from '../context/AdminContext';
  * шаардлагагүй. Картын iframe нь дарагдахгүй (pointer-events: none) тул
  * дарахад дэлгэц дүүрэн тоглуулагч нээгдэнэ.
  */
-const embed = (url: string, opts: { autoplay: boolean; width: number }) =>
+const embed = (url: string, opts: { autoplay: boolean; width: number; muted: boolean }) =>
   `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url.trim())}` +
-  `&show_text=false&width=${opts.width}&autoplay=${opts.autoplay}&muted=1&allowfullscreen=true`;
+  `&show_text=false&width=${opts.width}&autoplay=${opts.autoplay}` +
+  `&muted=${opts.muted ? 1 : 0}&allowfullscreen=true`;
 
-const CARD_W = 176;   // картын өргөн (9:16 харьцаа)
+const CARD_W = 212;   // картын өргөн (9:16 харьцаа)
 
 export const ReelsSection: React.FC = () => {
   const { data } = useAdmin();
   const reels = (data.reels ?? []).filter(r => r.url.trim());
-  const [active, setActive] = useState<Reel | null>(null);
+  /** Модалд харагдаж буй reel-ийн индекс (null бол хаалттай) */
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const active = activeIdx === null ? null : reels[activeIdx] ?? null;
   const [visible, setVisible] = useState(false);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
@@ -54,14 +57,38 @@ export const ReelsSection: React.FC = () => {
     return () => { el.removeEventListener('scroll', sync); window.removeEventListener('resize', sync); };
   }, [reels.length]);
 
+  /** Дараагийн / өмнөх reel рүү (жагсаалтын төгсгөлд эргэлдэнэ) */
+  const step = (dir: 1 | -1) =>
+    setActiveIdx(i => (i === null ? i : (i + dir + reels.length) % reels.length));
+
   useEffect(() => {
     if (!active) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setActive(null); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveIdx(null);
+      else if (e.key === 'ArrowDown') step(1);
+      else if (e.key === 'ArrowUp') step(-1);
+    };
     document.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
-  }, [active]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, reels.length]);
+
+  /* Босоо чиглэлд чирэхэд reel солино. Доош чирвэл дараагийнх. */
+  const swipeRef = useRef<{ y: number; moved: boolean } | null>(null);
+  const onSwipeDown: React.PointerEventHandler = (e) => {
+    swipeRef.current = { y: e.clientY, moved: false };
+  };
+  const onSwipeMove: React.PointerEventHandler = (e) => {
+    const sw = swipeRef.current;
+    if (!sw || sw.moved) return;
+    const dy = e.clientY - sw.y;
+    if (Math.abs(dy) < 60) return;
+    sw.moved = true;
+    step(dy > 0 ? 1 : -1);
+  };
+  const onSwipeEnd = () => { swipeRef.current = null; };
 
   const scrollByCard = (dir: 1 | -1) => {
     trackRef.current?.scrollBy({ left: dir * (CARD_W + 16) * 2, behavior: 'smooth' });
@@ -93,10 +120,10 @@ export const ReelsSection: React.FC = () => {
           className="flex gap-4 overflow-x-auto pb-1 snap-x
                      [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
-          {reels.map(reel => (
+          {reels.map((reel, i) => (
             <button
               key={reel.id}
-              onClick={() => setActive(reel)}
+              onClick={() => setActiveIdx(i)}
               title={reel.title}
               className="snap-start shrink-0 relative rounded-xl overflow-hidden bg-black
                          ring-1 ring-white/10 hover:ring-white/40 transition-all group"
@@ -105,7 +132,7 @@ export const ReelsSection: React.FC = () => {
               {/* Facebook-ийн нүүр кадр */}
               {visible && (
                 <iframe
-                  src={embed(reel.url, { autoplay: false, width: CARD_W })}
+                  src={embed(reel.url, { autoplay: false, width: CARD_W, muted: true })}
                   title={reel.title}
                   loading="lazy"
                   scrolling="no"
@@ -136,10 +163,10 @@ export const ReelsSection: React.FC = () => {
       {active && (
         <div
           className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setActive(null)}
+          onClick={() => setActiveIdx(null)}
         >
           <button
-            onClick={() => setActive(null)} aria-label="Хаах"
+            onClick={() => setActiveIdx(null)} aria-label="Хаах"
             className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
           ><X size={22} /></button>
 
@@ -147,7 +174,7 @@ export const ReelsSection: React.FC = () => {
             <div className="relative w-full rounded-2xl overflow-hidden bg-black shadow-2xl" style={{ aspectRatio: '9 / 16' }}>
               <iframe
                 key={active.id}
-                src={embed(active.url, { autoplay: true, width: 420 })}
+                src={embed(active.url, { autoplay: true, width: 420, muted: false })}
                 title={active.title}
                 className="absolute inset-0 w-full h-full"
                 style={{ border: 'none' }}
@@ -155,7 +182,30 @@ export const ReelsSection: React.FC = () => {
                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                 allowFullScreen
               />
+
+              {/* Чирэх давхарга — доод 60px-ийг Facebook-ийн удирдлагад үлдээнэ */}
+              <div
+                className="absolute inset-x-0 top-0 bottom-[60px] cursor-grab active:cursor-grabbing"
+                style={{ touchAction: 'none' }}
+                onPointerDown={onSwipeDown}
+                onPointerMove={onSwipeMove}
+                onPointerUp={onSwipeEnd}
+                onPointerLeave={onSwipeEnd}
+              />
+
+              {reels.length > 1 && (
+                <span className="absolute top-3 left-1/2 -translate-x-1/2 text-[11px] font-semibold
+                                 text-white/80 bg-black/40 px-2.5 py-1 rounded-full pointer-events-none">
+                  {(activeIdx ?? 0) + 1} / {reels.length}
+                </span>
+              )}
             </div>
+
+            {reels.length > 1 && (
+              <p className="text-white/50 text-[11px] text-center mt-2">
+                Доош чирж дараагийн бичлэг рүү шилжинэ
+              </p>
+            )}
             {active.title && <p className="text-white/90 text-sm font-semibold text-center mt-3">{active.title}</p>}
             <a href={active.url} target="_blank" rel="noopener noreferrer"
               className="block text-center text-white/60 hover:text-white text-xs mt-1 underline">
