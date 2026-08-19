@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ZoomIn, ZoomOut, Maximize2, Minimize2, Crosshair, RotateCcw, RotateCw } from 'lucide-react';
+import { Maximize2, Minimize2, Crosshair, RotateCcw, RotateCw } from 'lucide-react';
 import { HALL, WALL_H, floors, walls, boothLabels } from '../data/hallGeometry';
 import { boothDims } from '../data/floorPlanLayout';
 import { booths } from '../data/booths';
@@ -37,16 +37,11 @@ const pts = (a: [number, number][]) => a.map(p => `${p[0].toFixed(1)},${p[1].toF
 export const IsometricFloorPlan: React.FC = () => {
   const [rot, setRot] = useState(0);
   const [tilt, setTilt] = useState(0.5);
-  const [scale, setScale] = useState(1);
-  const [tx, setTx] = useState(0);
-  const [ty, setTy] = useState(0);
   const [isFs, setIsFs] = useState(false);
   const [overlay, setOverlay] = useState(false);
 
   const wrapRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<
-    { mode: 'rotate' | 'pan'; x: number; y: number; rot: number; tilt: number; tx: number; ty: number } | null
-  >(null);
+  const dragRef = useRef<{ x: number; y: number; rot: number; tilt: number } | null>(null);
 
   useEffect(() => {
     const onChange = () => setIsFs(document.fullscreenElement === wrapRef.current);
@@ -94,33 +89,23 @@ export const IsometricFloorPlan: React.FC = () => {
       c.push(P(x, y, 0), P(x, y, WALL_H));
     }
     const xs = c.map(p => p[0]), ys = c.map(p => p[1]);
-    const m = 26;
+    const m = 12;
     const minX = Math.min(...xs) - m, minY = Math.min(...ys) - m;
     return { minX, minY, w: Math.max(...xs) - minX + m, h: Math.max(...ys) - minY + m };
   }, [view]);
 
-  const zoom = (f: number) => setScale(s => Math.min(12, Math.max(0.5, s * f)));
   const spin = (d: number) => setRot(r => r + d);
-  const reset = () => { setRot(0); setTilt(0.5); setScale(1); setTx(0); setTy(0); };
-
-  const onWheel: React.WheelEventHandler = (e) => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.15 : 0.87); };
+  const reset = () => { setRot(0); setTilt(0.5); };
   const onPointerDown: React.PointerEventHandler = (e) => {
     if ((e.target as HTMLElement).closest('[data-controls]')) return;
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
-    dragRef.current = {
-      mode: e.shiftKey || e.button === 1 ? 'pan' : 'rotate',
-      x: e.clientX, y: e.clientY, rot, tilt, tx, ty,
-    };
+    dragRef.current = { x: e.clientX, y: e.clientY, rot, tilt };
   };
   const onPointerMove: React.PointerEventHandler = (e) => {
     const d = dragRef.current;
     if (!d) return;
-    const dx = e.clientX - d.x, dy = e.clientY - d.y;
-    if (d.mode === 'pan') { setTx(d.tx + dx); setTy(d.ty + dy); }
-    else {
-      setRot(d.rot + dx * 0.006);
-      setTilt(Math.min(0.95, Math.max(0.16, d.tilt + dy * 0.0016)));
-    }
+    setRot(d.rot + (e.clientX - d.x) * 0.006);
+    setTilt(Math.min(0.95, Math.max(0.16, d.tilt + (e.clientY - d.y) * 0.0016)));
   };
   const onPointerUp = () => { dragRef.current = null; };
 
@@ -128,17 +113,17 @@ export const IsometricFloorPlan: React.FC = () => {
   const { P, c, s } = view;
 
   return (
-    <div className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden bg-white">
+    <div className="border-y border-gray-100 bg-white">
       <div
         ref={wrapRef}
         className={`${overlay ? 'fixed inset-0 z-[9999]' : 'relative'} overflow-hidden select-none cursor-grab active:cursor-grabbing`}
         style={{
-          height: expanded ? '100vh' : 620,
+          /* Өргөнөө дүүргэхийн тулд аль болох өндөр — зураглалын харьцаа хадгалагдана */
+          height: expanded ? '100vh' : 'min(calc(100vw / 1.75), 88vh, 900px)',
           width: overlay ? '100vw' : undefined,
-          touchAction: 'none',
+          touchAction: 'pan-y',
           background: 'linear-gradient(180deg, #eef2f7 0%, #dfe6ef 100%)',
         }}
-        onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -147,11 +132,6 @@ export const IsometricFloorPlan: React.FC = () => {
         <svg
           viewBox={`${vb.minX} ${vb.minY} ${vb.w} ${vb.h}`}
           className="w-full h-full"
-          style={{
-            transform: `translate(${tx}px, ${ty}px) scale(${scale})`,
-            transformOrigin: 'center center',
-            transition: dragRef.current ? 'none' : 'transform 0.14s ease-out',
-          }}
         >
           <polygon
             points={pts([P(-8, -8), P(HALL.w + 8, -8), P(HALL.w + 8, HALL.h + 8), P(-8, HALL.h + 8)])}
@@ -204,8 +184,6 @@ export const IsometricFloorPlan: React.FC = () => {
         <div data-controls className="absolute right-3 top-3 flex items-center gap-1.5 z-10">
           <button onClick={() => spin(-0.3)} className={btn} title="Зүүн эргүүлэх"><RotateCcw size={16} /></button>
           <button onClick={() => spin(0.3)} className={btn} title="Баруун эргүүлэх"><RotateCw size={16} /></button>
-          <button onClick={() => zoom(1.35)} className={btn} title="Томруулах"><ZoomIn size={16} /></button>
-          <button onClick={() => zoom(0.74)} className={btn} title="Жижигрүүлэх"><ZoomOut size={16} /></button>
           <button onClick={reset} className={btn} title="Хэвд оруулах"><Crosshair size={16} /></button>
           <button onClick={toggleFullscreen} className={btn} title={expanded ? 'Бүтэн дэлгэцээс гарах' : 'Бүтэн дэлгэц'}>
             {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -213,7 +191,7 @@ export const IsometricFloorPlan: React.FC = () => {
         </div>
 
         <div className="absolute left-3 bottom-3 text-[11px] text-gray-600 bg-white/85 backdrop-blur px-3 py-1.5 rounded-lg border border-gray-200">
-          Чирж эргүүлэх · Shift + чирж зөөх · Дугуй эргүүлж томруулах
+          Чирж эргүүлэх
         </div>
       </div>
     </div>

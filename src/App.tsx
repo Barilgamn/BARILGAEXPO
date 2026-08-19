@@ -683,12 +683,17 @@ export default function App() {
               Талбайн сонголт
             </h2>
             <p className="text-gray-500 text-sm md:text-base">
-              Албан ёсны танхимын зураглал. Чирж зөөх, дугуй эргүүлж томруулан талбайгаа сонгоно уу.
+              Албан ёсны танхимын зураглал. Чирж эргүүлэн олон талаас нь харна уу.
             </p>
           </div>
-          <Suspense fallback={<LoadingPlaceHolder />}>
-            <IsometricFloorPlan />
-          </Suspense>
+        </div>
+
+        {/* Зураглал — дэлгэцийн бүтэн өргөнд */}
+        <Suspense fallback={<LoadingPlaceHolder />}>
+          <IsometricFloorPlan />
+        </Suspense>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mt-8">
             <Link
               to="/booking"
