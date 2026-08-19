@@ -20,6 +20,7 @@ const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({
 const NewsSection = lazy(() => import('./components/NewsSection').then(m => ({ default: m.NewsSection })));
 const ProgramSection = lazy(() => import('./components/ProgramSection').then(m => ({ default: m.ProgramSection })));
 const GallerySection = lazy(() => import('./components/GallerySection').then(m => ({ default: m.GallerySection })));
+const TestimonialsSection = lazy(() => import('./components/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
 const IsometricFloorPlan = lazy(() => import('./components/IsometricFloorPlan').then(m => ({ default: m.IsometricFloorPlan })));
 const GuidePage = lazy(() => import('./components/GuidePage').then(m => ({ default: m.GuidePage })));
 const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({ default: m.BoothBooking })));
@@ -720,6 +721,11 @@ export default function App() {
       {/* Program Section */}
       <Suspense fallback={<LoadingPlaceHolder />}>
         <ProgramSection />
+      </Suspense>
+
+      {/* Оролцогчдын сэтгэгдэл */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <TestimonialsSection />
       </Suspense>
           </>
         } />
