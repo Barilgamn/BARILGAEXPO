@@ -829,7 +829,7 @@ export default function App() {
             </div>
 
             {/* OpenStreetMap Location */}
-            <div className="lg:col-span-2 h-64 md:h-full min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-white/10">
+            <div className="relative lg:col-span-2 h-64 md:h-full min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-white/10">
               <iframe
                 src="https://www.openstreetmap.org/export/embed.html?bbox=106.779966%2C47.851937%2C106.789966%2C47.856937&layer=mapnik&marker=47.854437%2C106.784966"
                 width="100%"
@@ -838,6 +838,14 @@ export default function App() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
+              <a
+                href="https://www.openstreetmap.org/?mlat=47.854437&mlon=106.784966#map=19/47.854437/106.784966"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-3 right-3 bg-white hover:bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-2 rounded-lg shadow-md transition-colors"
+              >
+                OpenStreetMap дээр харах
+              </a>
             </div>
           </div>
           
