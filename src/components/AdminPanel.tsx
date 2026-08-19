@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
@@ -8,6 +8,7 @@ import { AdminUsersTab } from './AdminUsersTab';
 import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '../supabase';
 import { compressVideo } from '../utils/compressVideo';
+import { defaultTestimonials } from '../data/testimonials';
 import { optimizeImage } from '../utils/image';
 
 export const AdminPanel: React.FC = () => {
@@ -197,6 +198,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'organizers', label: 'Organizers', icon: <Users size={18} /> },
     { id: 'sponsors', label: 'Sponsors', icon: <Star size={18} /> },
     { id: 'reels', label: 'Reel бичлэг', icon: <Video size={18} /> },
+    { id: 'testimonials', label: 'Сэтгэгдэл', icon: <Quote size={18} /> },
     { id: 'news', label: 'News', icon: <FileText size={18} /> },
     { id: 'gallery', label: 'Gallery', icon: <Image size={18} /> },
     { id: 'program', label: 'Program', icon: <Calendar size={18} /> },
@@ -384,6 +386,54 @@ export const AdminPanel: React.FC = () => {
   const removeReel = (id: string) => {
     updateData(prev => ({ reels: (prev.reels ?? []).filter(r => r.id !== id) }));
   };
+  /* ---- Оролцогчдын сэтгэгдэл ---- */
+  const testimonials = data.testimonials ?? defaultTestimonials;
+  const LANGS: { code: 'en' | 'zh' | 'ru' | 'ko'; label: string }[] = [
+    { code: 'en', label: 'English' }, { code: 'zh', label: '中文' },
+    { code: 'ru', label: 'Русский' }, { code: 'ko', label: '한국어' },
+  ];
+  const [openTesti, setOpenTesti] = useState<string | null>(null);
+
+  const addTestimonial = () => {
+    updateData(prev => ({
+      testimonials: [...(prev.testimonials ?? defaultTestimonials),
+        { id: Date.now().toString(), text: '', name: '', role: '', org: '' }],
+    }));
+  };
+  const updateTestimonial = (id: string, field: 'text' | 'name' | 'role' | 'org', value: string) => {
+    updateData(prev => ({
+      testimonials: (prev.testimonials ?? defaultTestimonials)
+        .map(x => x.id === id ? { ...x, [field]: value } : x),
+    }));
+  };
+  const updateTestimonialI18n = (
+    id: string, lang: 'en' | 'zh' | 'ru' | 'ko',
+    field: 'text' | 'name' | 'role' | 'org', value: string,
+  ) => {
+    updateData(prev => ({
+      testimonials: (prev.testimonials ?? defaultTestimonials).map(x => {
+        if (x.id !== id) return x;
+        const cur = x.i18n?.[lang] ?? { text: '', name: '', role: '', org: '' };
+        return { ...x, i18n: { ...x.i18n, [lang]: { ...cur, [field]: value } } };
+      }),
+    }));
+  };
+  const removeTestimonial = (id: string) => {
+    updateData(prev => ({
+      testimonials: (prev.testimonials ?? defaultTestimonials).filter(x => x.id !== id),
+    }));
+  };
+  const moveTestimonial = (id: string, dir: -1 | 1) => {
+    updateData(prev => {
+      const list = [...(prev.testimonials ?? defaultTestimonials)];
+      const i = list.findIndex(x => x.id === id);
+      const j = i + dir;
+      if (i === -1 || j < 0 || j >= list.length) return {};
+      [list[i], list[j]] = [list[j], list[i]];
+      return { testimonials: list };
+    });
+  };
+
   const [uploadingReelId, setUploadingReelId] = useState<string | null>(null);
   const [reelStage, setReelStage] = useState('');
 
@@ -943,6 +993,89 @@ export const AdminPanel: React.FC = () => {
                 {reels.length === 0 && (
                   <p className="text-sm text-gray-400 italic">Reel алга. "Reel нэмэх" дарж эхлүүлнэ үү.</p>
                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'testimonials' && (
+            <div>
+              <p className="text-sm text-gray-500 mb-4">
+                Нүүр хуудасны хөтөлбөрийн доор хажуу тийш гүйлгэж харагдана. Үндсэн бичвэрийг монголоор
+                бөглөнө; бусад хэлний орчуулгыг сонголтоор нэмнэ (хоосон бол монгол хувилбар харагдана).
+              </p>
+              <button onClick={addTestimonial} className="mb-6 flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <Plus size={18} /> Сэтгэгдэл нэмэх
+              </button>
+
+              <div className="space-y-4">
+                {testimonials.map(item => (
+                  <div key={item.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div className="flex gap-4">
+                      <div className="flex-1 space-y-2">
+                        <textarea
+                          value={item.text}
+                          onChange={e => updateTestimonial(item.id, 'text', e.target.value)}
+                          placeholder="Сэтгэгдлийн бичвэр"
+                          rows={4}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <input type="text" value={item.name} placeholder="Нэр"
+                            onChange={e => updateTestimonial(item.id, 'name', e.target.value)}
+                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                          <input type="text" value={item.role} placeholder="Албан тушаал"
+                            onChange={e => updateTestimonial(item.id, 'role', e.target.value)}
+                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                          <input type="text" value={item.org} placeholder="Байгууллага"
+                            onChange={e => updateTestimonial(item.id, 'org', e.target.value)}
+                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm font-semibold" />
+                        </div>
+                        <button
+                          onClick={() => setOpenTesti(openTesti === item.id ? null : item.id)}
+                          className="text-xs font-semibold text-blue-700 hover:text-blue-900"
+                        >
+                          {openTesti === item.id ? '▾ Орчуулгыг хаах' : '▸ Орчуулга (EN / 中文 / RU / KO)'}
+                        </button>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <button onClick={() => moveTestimonial(item.id, -1)} title="Дээш зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronUp size={18} /></button>
+                        <button onClick={() => moveTestimonial(item.id, 1)} title="Доош зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronDown size={18} /></button>
+                        <button onClick={() => removeTestimonial(item.id)} title="Устгах" className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"><Trash2 size={18} /></button>
+                      </div>
+                    </div>
+
+                    {openTesti === item.id && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+                        {LANGS.map(l => (
+                          <div key={l.code}>
+                            <p className="text-xs font-bold text-gray-600 mb-1.5">{l.label}</p>
+                            <textarea
+                              value={item.i18n?.[l.code]?.text ?? ''}
+                              onChange={e => updateTestimonialI18n(item.id, l.code, 'text', e.target.value)}
+                              placeholder="Сэтгэгдлийн бичвэр"
+                              rows={3}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2"
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              <input type="text" placeholder="Нэр"
+                                value={item.i18n?.[l.code]?.name ?? ''}
+                                onChange={e => updateTestimonialI18n(item.id, l.code, 'name', e.target.value)}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                              <input type="text" placeholder="Албан тушаал"
+                                value={item.i18n?.[l.code]?.role ?? ''}
+                                onChange={e => updateTestimonialI18n(item.id, l.code, 'role', e.target.value)}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                              <input type="text" placeholder="Байгууллага"
+                                value={item.i18n?.[l.code]?.org ?? ''}
+                                onChange={e => updateTestimonialI18n(item.id, l.code, 'org', e.target.value)}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}

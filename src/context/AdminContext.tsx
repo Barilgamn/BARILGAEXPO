@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { newsItems as initialNews } from '../data/newsItems';
 import { supabase, createIsolatedSupabaseClient } from '../supabase';
+import { defaultTestimonials, Testimonial } from '../data/testimonials';
+export type { Testimonial };
 
 export interface Organizer {
   id: string;
@@ -81,6 +83,7 @@ export interface SiteData {
   boothBookedPercent?: number; // Талбайн захиалгын дүүргэлтийн хувь (0-100)
   showFloorPlan?: boolean;     // "Талбайн сонголт" хэсгийг нүүрэнд харуулах эсэх
   reels?: Reel[];              // Нүүрэнд story маягаар харагдах Facebook reel-үүд
+  testimonials?: Testimonial[]; // Оролцогчдын сэтгэгдэл
 }
 
 const defaultContact = {
@@ -142,6 +145,7 @@ const defaultData: SiteData = {
   boothBookedPercent: 50,
   showFloorPlan: false,
   reels: [],
+  testimonials: defaultTestimonials,
 };
 
 interface AdminContextType {
