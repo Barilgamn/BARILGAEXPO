@@ -6,7 +6,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User, Mail, ArrowUp, ChevronDown,
-  Home, PencilRuler, Handshake, Briefcase, Package, Paintbrush, Zap, Droplets, Sofa, Trees, Cog, Layers, Caravan } from 'lucide-react';
+  Home, PencilRuler, Handshake, Briefcase, Package, Paintbrush, Zap, Droplets, Sofa, Trees, Cog, Layers, Caravan, Car } from 'lucide-react';
 import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
@@ -751,6 +751,51 @@ export default function App() {
       {!isAdminRoute && (
         <footer id="contact" className="bg-blue-900 text-white pt-16 pb-10 border-t-4 border-red-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Venue Highlight */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 items-stretch">
+            <div className="rounded-2xl overflow-hidden shadow-lg border border-white/10">
+              <img
+                src="/venue-hall.jpeg"
+                alt={t('venue_title')}
+                loading="lazy"
+                className="w-full h-full object-cover min-h-[220px]"
+              />
+            </div>
+            <div className="bg-white/5 rounded-2xl border border-white/10 p-6 sm:p-8 flex flex-col justify-center gap-5">
+              <div>
+                <h3 className="text-red-400 font-bold uppercase tracking-widest text-xs mb-2">
+                  {t('venue_title')}
+                </h3>
+                <p className="text-xl sm:text-2xl font-extrabold text-white leading-snug">
+                  {t('venue_subtitle')}
+                </p>
+              </div>
+              <div className="space-y-3.5 pt-1">
+                <div className="flex items-center gap-3">
+                  <span className="shrink-0 w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center">
+                    <Calendar className="h-4.5 w-4.5 text-red-400" />
+                  </span>
+                  <div className="text-sm">
+                    <p className="text-white font-semibold">{t('venue_dates')}</p>
+                    <p className="text-blue-200">{t('venue_hours')}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="shrink-0 w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center">
+                    <MapPin className="h-4.5 w-4.5 text-red-400" />
+                  </span>
+                  <p className="text-sm text-white font-semibold">{t('venue_location')}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="shrink-0 w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center">
+                    <Car className="h-4.5 w-4.5 text-red-400" />
+                  </span>
+                  <p className="text-sm text-white font-semibold">{t('venue_parking')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12">
             {/* Contact Info */}
             <div className="space-y-6">
