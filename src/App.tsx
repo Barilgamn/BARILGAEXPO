@@ -13,7 +13,7 @@ import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
 import { NewsPopup } from './components/NewsPopup';
 import { CityTimelapse } from './components/CityTimelapse';
-import { trackVisit, trackPresence } from './utils/analytics';
+import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
@@ -49,22 +49,6 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Real-time хандалт — идэвхтэй байхад тогтмол дохио илгээнэ
-  useEffect(() => {
-    if (isAdminRoute) return;
-    const ping = () => {
-      if (document.visibilityState === 'visible') trackPresence(location.pathname);
-    };
-    ping();
-    const id = window.setInterval(ping, 60_000);
-    document.addEventListener('visibilitychange', ping);
-    return () => {
-      window.clearInterval(id);
-      document.removeEventListener('visibilitychange', ping);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdminRoute, location.pathname]);
 
   // Meta Pixel — хуудас солигдох бүрт PageView дуудах
   useEffect(() => {
