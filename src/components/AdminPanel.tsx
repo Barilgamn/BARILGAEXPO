@@ -7,6 +7,7 @@ import { AnalyticsTab } from './AnalyticsTab';
 import { AdminUsersTab } from './AdminUsersTab';
 import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '../supabase';
+import { compressVideo } from '../utils/compressVideo';
 import { optimizeImage } from '../utils/image';
 
 export const AdminPanel: React.FC = () => {
@@ -375,16 +376,30 @@ export const AdminPanel: React.FC = () => {
     updateData({ reels: reels.filter(r => r.id !== id) });
   };
   const [uploadingReelId, setUploadingReelId] = useState<string | null>(null);
+  const [reelStage, setReelStage] = useState('');
+
   const uploadReelVideo = async (file: File, reelId: string) => {
     setUploadError('');
     setUploadingReelId(reelId);
     try {
-      const url = await uploadFileToMedia(file, 'reels', reelId);
+      // Эхлээд браузер дээр шахна — 720p хүртэл жижигрүүлж, битрэйтийг тааруулна
+      setReelStage('Шахаж байна… 0%');
+      const small = await compressVideo(file, p =>
+        setReelStage(`Шахаж байна… ${Math.round(p.ratio * 100)}%`),
+      );
+      const saved = file.size - small.size;
+      setReelStage(
+        saved > 0
+          ? `Байршуулж байна… (${(file.size / 1048576).toFixed(1)}МБ → ${(small.size / 1048576).toFixed(1)}МБ)`
+          : 'Байршуулж байна…',
+      );
+      const url = await uploadFileToMedia(small, 'reels', reelId);
       updateReel(reelId, 'url', url);
     } catch (err: any) {
       setUploadError(err.message || 'Бичлэг байршуулахад алдаа гарлаа');
     } finally {
       setUploadingReelId(null);
+      setReelStage('');
     }
   };
 
@@ -893,7 +908,7 @@ export const AdminPanel: React.FC = () => {
                                           hover:bg-blue-700 px-3 py-2 rounded-lg cursor-pointer transition-colors">
                           <Upload size={14} />
                           {uploadingReelId === reel.id
-                            ? 'Байршуулж байна…'
+                            ? (reelStage || 'Байршуулж байна…')
                             : reel.url ? 'Бичлэг солих' : 'Бичлэг оруулах'}
                           <input type="file" accept="video/*" className="hidden"
                             onChange={e => { const f = e.target.files?.[0]; if (f) uploadReelVideo(f, reel.id); e.target.value = ''; }} />
