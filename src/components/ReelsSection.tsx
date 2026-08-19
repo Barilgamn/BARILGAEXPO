@@ -1,22 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import { Play, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import type { Reel } from '../context/AdminContext';
 
 /**
- * Facebook reel-ийг албан ёсны video plugin-аар тусгана.
- * Reel-ийн холбоосыг шууд iframe-д тавьж болохгүй тул plugin руу дамжуулна.
+ * Facebook reel-ийг албан ёсны video plugin-аар тусгана. Картад мөн plugin-ийг
+ * ашигладаг тул нүүр зургийг Facebook өөрөө өгнө — тусад нь зураг оруулах
+ * шаардлагагүй. Картын iframe нь дарагдахгүй (pointer-events: none) тул
+ * дарахад дэлгэц дүүрэн тоглуулагч нээгдэнэ.
  */
-const embedSrc = (url: string) =>
+const embed = (url: string, opts: { autoplay: boolean; width: number }) =>
   `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url.trim())}` +
-  '&show_text=false&autoplay=true&allowfullscreen=true';
+  `&show_text=false&width=${opts.width}&autoplay=${opts.autoplay}&muted=1&allowfullscreen=true`;
+
+const CARD_W = 176;   // картын өргөн (9:16 харьцаа)
 
 export const ReelsSection: React.FC = () => {
   const { data } = useAdmin();
   const reels = (data.reels ?? []).filter(r => r.url.trim());
   const [active, setActive] = useState<Reel | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
 
-  /* Модал нээлттэй үед хуудас гүйлгэгдэхгүй, Escape-ээр хаана */
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  /* Хэсэг дэлгэцэнд ойртсон үед л iframe-үүдийг ачаална */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || visible) return;
+    const io = new IntersectionObserver(
+      entries => { if (entries.some(e => e.isIntersecting)) { setVisible(true); io.disconnect(); } },
+      { rootMargin: '300px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible]);
+
+  const sync = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 8);
+    setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 8);
+  };
+
+  useEffect(() => {
+    sync();
+    const el = trackRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    return () => { el.removeEventListener('scroll', sync); window.removeEventListener('resize', sync); };
+  }, [reels.length]);
+
   useEffect(() => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setActive(null); };
@@ -26,65 +63,91 @@ export const ReelsSection: React.FC = () => {
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
   }, [active]);
 
+  const scrollByCard = (dir: 1 | -1) => {
+    trackRef.current?.scrollBy({ left: dir * (CARD_W + 16) * 2, behavior: 'smooth' });
+  };
+
   if (reels.length === 0) return null;
 
+  const navBtn = 'w-9 h-9 rounded-full border flex items-center justify-center transition-colors';
+
   return (
-    <section className="bg-white border-b border-gray-100">
+    <section ref={sectionRef} className="bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-white font-bold text-sm tracking-wide uppercase">Reel бичлэгүүд</h2>
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={() => scrollByCard(-1)} disabled={atStart} aria-label="Өмнөх"
+              className={`${navBtn} ${atStart ? 'border-white/15 text-white/25' : 'border-white/30 text-white hover:bg-white/15'}`}
+            ><ChevronLeft size={18} /></button>
+            <button
+              onClick={() => scrollByCard(1)} disabled={atEnd} aria-label="Дараах"
+              className={`${navBtn} ${atEnd ? 'border-white/15 text-white/25' : 'border-white/30 text-white hover:bg-white/15'}`}
+            ><ChevronRight size={18} /></button>
+          </div>
+        </div>
+
         <div
-          className="flex gap-5 overflow-x-auto pb-1
+          ref={trackRef}
+          className="flex gap-4 overflow-x-auto pb-1 snap-x
                      [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {reels.map(reel => (
             <button
               key={reel.id}
               onClick={() => setActive(reel)}
-              className="shrink-0 flex flex-col items-center gap-2 w-[76px] group"
               title={reel.title}
+              className="snap-start shrink-0 relative rounded-xl overflow-hidden bg-black
+                         ring-1 ring-white/10 hover:ring-white/40 transition-all group"
+              style={{ width: CARD_W, aspectRatio: '9 / 16' }}
             >
-              {/* Story маягийн градиент цагираг */}
-              <span className="p-[3px] rounded-full bg-gradient-to-tr from-red-500 via-red-400 to-blue-600 group-hover:scale-105 transition-transform">
-                <span className="block p-[2px] bg-white rounded-full">
-                  <span className="relative block w-[62px] h-[62px] rounded-full overflow-hidden bg-blue-950">
-                    {reel.cover ? (
-                      <img src={reel.cover} alt={reel.title} loading="lazy"
-                        className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="w-full h-full flex items-center justify-center">
-                        <Play className="w-6 h-6 text-white" fill="currentColor" />
-                      </span>
-                    )}
-                  </span>
+              {/* Facebook-ийн нүүр кадр */}
+              {visible && (
+                <iframe
+                  src={embed(reel.url, { autoplay: false, width: CARD_W })}
+                  title={reel.title}
+                  loading="lazy"
+                  scrolling="no"
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  style={{ border: 'none' }}
+                />
+              )}
+
+              {/* Дарах давхарга — гарчиг ба тоглуулах дүрс */}
+              <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="w-11 h-11 rounded-full bg-white/25 backdrop-blur flex items-center justify-center">
+                  <Play className="w-5 h-5 text-white" fill="currentColor" />
                 </span>
               </span>
-              <span className="text-[11px] text-gray-600 font-semibold leading-tight text-center line-clamp-2 w-full">
-                {reel.title}
-              </span>
+              {reel.title && (
+                <span className="absolute left-2.5 right-2.5 bottom-2.5 text-white text-[11px] font-semibold
+                                 leading-tight text-left line-clamp-2 drop-shadow">
+                  {reel.title}
+                </span>
+              )}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Томруулж үзэх модал */}
+      {/* Томруулж үзэх */}
       {active && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setActive(null)}
         >
           <button
-            onClick={() => setActive(null)}
-            aria-label="Хаах"
+            onClick={() => setActive(null)} aria-label="Хаах"
             className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
-          >
-            <X size={22} />
-          </button>
+          ><X size={22} /></button>
 
           <div className="w-full max-w-[420px]" onClick={e => e.stopPropagation()}>
-            {/* Reel босоо 9:16 харьцаатай */}
             <div className="relative w-full rounded-2xl overflow-hidden bg-black shadow-2xl" style={{ aspectRatio: '9 / 16' }}>
               <iframe
                 key={active.id}
-                src={embedSrc(active.url)}
+                src={embed(active.url, { autoplay: true, width: 420 })}
                 title={active.title}
                 className="absolute inset-0 w-full h-full"
                 style={{ border: 'none' }}
@@ -93,13 +156,9 @@ export const ReelsSection: React.FC = () => {
                 allowFullScreen
               />
             </div>
-            <p className="text-white/90 text-sm font-semibold text-center mt-3">{active.title}</p>
-            <a
-              href={active.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block text-center text-white/60 hover:text-white text-xs mt-1 underline"
-            >
+            {active.title && <p className="text-white/90 text-sm font-semibold text-center mt-3">{active.title}</p>}
+            <a href={active.url} target="_blank" rel="noopener noreferrer"
+              className="block text-center text-white/60 hover:text-white text-xs mt-1 underline">
               Facebook дээр үзэх
             </a>
           </div>

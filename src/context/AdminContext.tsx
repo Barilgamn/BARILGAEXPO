@@ -17,12 +17,12 @@ export interface Sponsor {
   url?: string;
 }
 
-/** Facebook reel бичлэг — нүүрэнд story маягаар харагдана */
+/** Facebook reel бичлэг — нүүрэнд босоо карт болж харагдана.
+ *  Нүүр зургийг Facebook-ийн plugin өөрөө өгдөг тул тусад нь хадгалахгүй. */
 export interface Reel {
   id: string;
-  url: string;    // Facebook reel-ийн холбоос
-  title: string;  // Дугуйн доор харагдах богино нэр
-  cover?: string; // Дугуйд харагдах зураг (заавал биш)
+  url: string;   // Facebook reel-ийн холбоос
+  title: string; // Карт дээр харагдах богино нэр (заавал биш)
 }
 
 export interface ProgramEvent {

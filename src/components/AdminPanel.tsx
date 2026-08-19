@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
@@ -368,7 +368,7 @@ export const AdminPanel: React.FC = () => {
   const addReel = () => {
     updateData({ reels: [...reels, { id: Date.now().toString(), url: '', title: 'Reel' }] });
   };
-  const updateReel = (id: string, field: 'url' | 'title' | 'cover', value: string) => {
+  const updateReel = (id: string, field: 'url' | 'title', value: string) => {
     updateData({ reels: reels.map(r => r.id === id ? { ...r, [field]: value } : r) });
   };
   const removeReel = (id: string) => {
@@ -381,20 +381,6 @@ export const AdminPanel: React.FC = () => {
     if (i === -1 || j < 0 || j >= list.length) return;
     [list[i], list[j]] = [list[j], list[i]];
     updateData({ reels: list });
-  };
-
-  const [uploadingReelId, setUploadingReelId] = useState<string | null>(null);
-  const uploadReelCover = async (file: File, reelId: string) => {
-    setUploadError('');
-    setUploadingReelId(reelId);
-    try {
-      const url = await uploadFileToMedia(file, 'reels', reelId);
-      updateReel(reelId, 'cover', url);
-    } catch (err: any) {
-      setUploadError(err.message || 'Зураг байршуулахад алдаа гарлаа');
-    } finally {
-      setUploadingReelId(null);
-    }
   };
 
   const [uploadingSponsorId, setUploadingSponsorId] = useState<string | null>(null);
@@ -864,7 +850,7 @@ export const AdminPanel: React.FC = () => {
             <div>
               <p className="text-sm text-gray-500 mb-4">
                 Нүүр хуудасны дээд зурагны доор Facebook story маягаар харагдана. Дээр нь дарахад бичлэг томроод тоглоно.
-                Facebook reel-ийн холбоосыг (ж: https://www.facebook.com/reel/1234567890) хуулж тавина.
+                Facebook reel-ийн холбоосыг (ж: https://www.facebook.com/reel/1234567890) хуулж тавина. Нүүр зургийг Facebook өөрөө өгнө.
               </p>
               <button onClick={addReel} className="mb-6 flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 <Plus size={18} /> Reel нэмэх
@@ -872,13 +858,9 @@ export const AdminPanel: React.FC = () => {
               <div className="space-y-4">
                 {reels.map(reel => (
                   <div key={reel.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {reel.cover ? (
-                      <img src={reel.cover} alt="reel" className="w-14 h-20 object-cover rounded-lg border border-gray-200" />
-                    ) : (
-                      <div className="w-14 h-20 flex items-center justify-center bg-gray-100 border border-dashed border-gray-300 rounded-lg text-gray-400">
-                        <Video size={20} />
-                      </div>
-                    )}
+                    <div className="w-14 h-20 flex items-center justify-center bg-slate-900 rounded-lg text-white/70 shrink-0">
+                      <Video size={20} />
+                    </div>
                     <div className="flex-1 space-y-2">
                       <input
                         type="text"
@@ -894,12 +876,6 @@ export const AdminPanel: React.FC = () => {
                         placeholder="https://www.facebook.com/reel/..."
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                       />
-                      <label className="inline-flex items-center gap-2 text-xs font-semibold text-blue-700 cursor-pointer hover:text-blue-900">
-                        <Upload size={14} />
-                        {uploadingReelId === reel.id ? 'Байршуулж байна…' : 'Нүүр зураг сонгох'}
-                        <input type="file" accept="image/*" className="hidden"
-                          onChange={e => { const f = e.target.files?.[0]; if (f) uploadReelCover(f, reel.id); e.target.value = ''; }} />
-                      </label>
                     </div>
                     <div className="flex flex-col gap-1">
                       <button onClick={() => moveReel(reel.id, -1)} title="Дээш зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronUp size={18} /></button>
