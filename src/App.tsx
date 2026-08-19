@@ -688,10 +688,10 @@ export default function App() {
               <span className="w-8 h-px bg-red-500"></span>
             </h3>
             <h2 className="font-heading text-3xl md:text-5xl font-black text-blue-950 mb-4 tracking-tight">
-              Талбайн сонголт
+              {t('plan_title')}
             </h2>
             <p className="text-gray-500 text-sm md:text-base">
-              Албан ёсны танхимын зураглал. Чирж эргүүлэн олон талаас нь харна уу.
+              {t('plan_desc')}
             </p>
           </div>
         </div>
@@ -707,7 +707,7 @@ export default function App() {
               to="/booking"
               className="inline-block bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-900/20"
             >
-              Талбай захиалах →
+              {t('plan_cta')} →
             </Link>
           </div>
         </div>

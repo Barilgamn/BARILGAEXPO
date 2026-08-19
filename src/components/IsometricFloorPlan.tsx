@@ -3,6 +3,7 @@ import { Maximize2, Minimize2, Crosshair, RotateCcw, RotateCw } from 'lucide-rea
 import { HALL, WALL_H, floors, walls, boothLabels, doors, halls } from '../data/hallGeometry';
 import { boothDims } from '../data/floorPlanLayout';
 import { booths } from '../data/booths';
+import { useTranslation } from '../i18n';
 
 /**
  * Албан ёсны зураглалын геометрийг (шал + цэнхэр шугамаар тэмдэглэсэн хана)
@@ -35,6 +36,7 @@ const makeView = (rot: number, tilt: number) => {
 const pts = (a: [number, number][]) => a.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
 
 export const IsometricFloorPlan: React.FC = () => {
+  const { t } = useTranslation();
   /** Сонгосон заал — тухайн бүлгийн талбайнууд тодорно */
   const [section, setSection] = useState<'A' | 'B' | null>(null);
   const [rot, setRot] = useState(0);
@@ -209,7 +211,7 @@ export const IsometricFloorPlan: React.FC = () => {
                 <circle cx={p[0]} cy={p[1]} r="7" fill="#dc2626" fillOpacity={0.9} />
                 <path d={`M ${p[0] - 3} ${p[1]} l 3 -3 v 1.6 h 3 v 2.8 h -3 v 1.6 z`} fill="#ffffff" />
                 <text x={p[0]} y={p[1] + 14} fontSize="6" fontWeight="800" fill="#b91c1c"
-                  stroke="#ffffff" strokeWidth="1.4" paintOrder="stroke">{d.t}</text>
+                  stroke="#ffffff" strokeWidth="1.4" paintOrder="stroke">{t('plan_door')}</text>
               </g>
             );
           })}
@@ -224,23 +226,23 @@ export const IsometricFloorPlan: React.FC = () => {
                 <rect x={p[0] - 30} y={p[1] - 11} width="60" height="22" rx="11"
                   fill={on ? '#1d4ed8' : '#ffffff'} stroke={on ? '#1d4ed8' : '#94a3b8'} strokeWidth="1.2" />
                 <text x={p[0]} y={p[1]} dominantBaseline="central" fontSize="10" fontWeight="800"
-                  fill={on ? '#ffffff' : '#334155'}>{h.t}</text>
+                  fill={on ? '#ffffff' : '#334155'}>{t(h.id === 'A' ? 'plan_hall_a' : 'plan_hall_b')}</text>
               </g>
             );
           })}
         </svg>
 
         <div data-controls className="absolute right-3 top-3 flex items-center gap-1.5 z-10">
-          <button onClick={() => spin(-0.3)} className={btn} title="Зүүн эргүүлэх"><RotateCcw size={16} /></button>
-          <button onClick={() => spin(0.3)} className={btn} title="Баруун эргүүлэх"><RotateCw size={16} /></button>
-          <button onClick={reset} className={btn} title="Хэвд оруулах"><Crosshair size={16} /></button>
-          <button onClick={toggleFullscreen} className={btn} title={expanded ? 'Бүтэн дэлгэцээс гарах' : 'Бүтэн дэлгэц'}>
+          <button onClick={() => spin(-0.3)} className={btn} title={t('plan_rot_left')}><RotateCcw size={16} /></button>
+          <button onClick={() => spin(0.3)} className={btn} title={t('plan_rot_right')}><RotateCw size={16} /></button>
+          <button onClick={reset} className={btn} title={t('plan_reset')}><Crosshair size={16} /></button>
+          <button onClick={toggleFullscreen} className={btn} title={expanded ? t('plan_exit_full') : t('plan_full')}>
             {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
         </div>
 
         <div className="absolute left-3 bottom-3 text-[11px] text-gray-600 bg-white/85 backdrop-blur px-3 py-1.5 rounded-lg border border-gray-200">
-          Чирж эргүүлэх
+          {t('plan_hint')}
         </div>
       </div>
     </div>

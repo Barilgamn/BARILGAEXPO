@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
+import { useTranslation } from '../i18n';
 import type { Reel } from '../context/AdminContext';
 
 /**
@@ -21,6 +22,7 @@ const CARD_W = 212;   // картын өргөн (9:16 харьцаа)
 
 export const ReelsSection: React.FC = () => {
   const { data } = useAdmin();
+  const { t } = useTranslation();
   const reels = (data.reels ?? []).filter(r => r.url.trim());
   /** Модалд харагдаж буй reel-ийн индекс (null бол хаалттай) */
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
@@ -91,14 +93,14 @@ export const ReelsSection: React.FC = () => {
     <section className="bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white font-bold text-sm tracking-wide uppercase">Reel бичлэгүүд</h2>
+          <h2 className="text-white font-bold text-sm tracking-wide uppercase">{t('reels_title')}</h2>
           <div className="hidden md:flex items-center gap-2">
             <button
-              onClick={() => scrollByCard(-1)} disabled={atStart} aria-label="Өмнөх"
+              onClick={() => scrollByCard(-1)} disabled={atStart} aria-label={t('reels_prev')}
               className={`${navBtn} ${atStart ? 'border-white/15 text-white/25' : 'border-white/30 text-white hover:bg-white/15'}`}
             ><ChevronLeft size={18} /></button>
             <button
-              onClick={() => scrollByCard(1)} disabled={atEnd} aria-label="Дараах"
+              onClick={() => scrollByCard(1)} disabled={atEnd} aria-label={t('reels_next')}
               className={`${navBtn} ${atEnd ? 'border-white/15 text-white/25' : 'border-white/30 text-white hover:bg-white/15'}`}
             ><ChevronRight size={18} /></button>
           </div>
@@ -163,7 +165,7 @@ export const ReelsSection: React.FC = () => {
           onClick={() => setActiveIdx(null)}
         >
           <button
-            onClick={() => setActiveIdx(null)} aria-label="Хаах"
+            onClick={() => setActiveIdx(null)} aria-label={t('reels_close')}
             className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
           ><X size={22} /></button>
 
@@ -172,14 +174,14 @@ export const ReelsSection: React.FC = () => {
             <>
               <button
                 onClick={e => { e.stopPropagation(); step(-1); }}
-                aria-label="Өмнөх бичлэг"
+                aria-label={t('reels_prev')}
                 className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full
                            bg-white/15 hover:bg-white/30 text-white flex items-center justify-center
                            transition-colors z-10"
               ><ChevronLeft size={26} /></button>
               <button
                 onClick={e => { e.stopPropagation(); step(1); }}
-                aria-label="Дараагийн бичлэг"
+                aria-label={t('reels_next')}
                 className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full
                            bg-white/15 hover:bg-white/30 text-white flex items-center justify-center
                            transition-colors z-10"
@@ -235,7 +237,7 @@ export const ReelsSection: React.FC = () => {
 
             {reels.length > 1 && (
               <p className="text-white/40 text-[11px] text-center mt-2">
-                Хажуугийн сумаар эсвэл чирж дараагийн бичлэг рүү шилжинэ
+                {t('reels_hint')}
               </p>
             )}
             {active.title && <p className="text-white/90 text-sm font-semibold text-center mt-3">{active.title}</p>}
