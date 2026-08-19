@@ -828,15 +828,14 @@ export default function App() {
               </div>
             </div>
 
-            {/* Google Maps Location */}
+            {/* OpenStreetMap Location */}
             <div className="lg:col-span-2 h-64 md:h-full min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-white/10">
-              <iframe 
-                src="https://maps.google.com/maps?q=Barilga%20MN%20%D0%91%D0%B0%D1%80%D0%B8%D0%BB%D0%B3%D0%B0%20%D0%9C%D0%9D&t=&z=16&ie=UTF8&iwloc=&output=embed"
-                width="100%" 
-                height="100%" 
-                style={{ border: 0 }} 
-                allowFullScreen={true} 
-                loading="lazy" 
+              <iframe
+                src="https://www.openstreetmap.org/export/embed.html?bbox=106.779966%2C47.851937%2C106.789966%2C47.856937&layer=mapnik&marker=47.854437%2C106.784966"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
             </div>
