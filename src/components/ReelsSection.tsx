@@ -54,8 +54,8 @@ export const ReelsSection: React.FC = () => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setActiveIdx(null);
-      else if (e.key === 'ArrowDown') step(1);
-      else if (e.key === 'ArrowUp') step(-1);
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') step(1);
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') step(-1);
     };
     document.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
@@ -167,6 +167,26 @@ export const ReelsSection: React.FC = () => {
             className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
           ><X size={22} /></button>
 
+          {/* Хажуу тийш шилжих сум — дэлгэцийн хоёр талд */}
+          {reels.length > 1 && (
+            <>
+              <button
+                onClick={e => { e.stopPropagation(); step(-1); }}
+                aria-label="Өмнөх бичлэг"
+                className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full
+                           bg-white/15 hover:bg-white/30 text-white flex items-center justify-center
+                           transition-colors z-10"
+              ><ChevronLeft size={26} /></button>
+              <button
+                onClick={e => { e.stopPropagation(); step(1); }}
+                aria-label="Дараагийн бичлэг"
+                className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full
+                           bg-white/15 hover:bg-white/30 text-white flex items-center justify-center
+                           transition-colors z-10"
+              ><ChevronRight size={26} /></button>
+            </>
+          )}
+
           <div className="w-full max-w-[420px]" onClick={e => e.stopPropagation()}>
             <div className="relative w-full rounded-2xl overflow-hidden bg-black shadow-2xl" style={{ aspectRatio: '9 / 16' }}>
               {isFacebook(active.url) ? (
@@ -214,15 +234,11 @@ export const ReelsSection: React.FC = () => {
             </div>
 
             {reels.length > 1 && (
-              <p className="text-white/50 text-[11px] text-center mt-2">
-                Доош чирж дараагийн бичлэг рүү шилжинэ
+              <p className="text-white/40 text-[11px] text-center mt-2">
+                Хажуугийн сумаар эсвэл чирж дараагийн бичлэг рүү шилжинэ
               </p>
             )}
             {active.title && <p className="text-white/90 text-sm font-semibold text-center mt-3">{active.title}</p>}
-            <a href={active.url} target="_blank" rel="noopener noreferrer"
-              className="block text-center text-white/60 hover:text-white text-xs mt-1 underline">
-              Facebook дээр үзэх
-            </a>
           </div>
         </div>
       )}
