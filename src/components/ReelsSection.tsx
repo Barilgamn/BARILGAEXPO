@@ -129,23 +129,22 @@ export const ReelsSection: React.FC = () => {
                          ring-1 ring-white/10 hover:ring-white/40 transition-all group"
               style={{ width: CARD_W, aspectRatio: '9 / 16' }}
             >
-              {/* Facebook-ийн нүүр кадр */}
+              {/* Facebook-ийн жинхэнэ нүүр зураг (сервер талаас) */}
               {visible && (
-                <iframe
-                  src={embed(reel.url, { autoplay: false, width: CARD_W, muted: true })}
-                  title={reel.title}
+                <img
+                  src={`/api/fb-thumb?url=${encodeURIComponent(reel.url)}`}
+                  alt={reel.title}
                   loading="lazy"
-                  scrolling="no"
-                  className="absolute inset-0 w-full h-full pointer-events-none"
-                  style={{ border: 'none' }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                 />
               )}
 
-              {/* Дарах давхарга — гарчиг ба тоглуулах дүрс */}
-              <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="w-11 h-11 rounded-full bg-white/25 backdrop-blur flex items-center justify-center">
-                  <Play className="w-5 h-5 text-white" fill="currentColor" />
+              <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="w-12 h-12 rounded-full bg-black/35 backdrop-blur-sm ring-1 ring-white/40
+                                 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Play className="w-5 h-5 text-white translate-x-[1px]" fill="currentColor" />
                 </span>
               </span>
               {reel.title && (
