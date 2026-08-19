@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Maximize2, Minimize2, Crosshair, RotateCcw, RotateCw } from 'lucide-react';
-import { HALL, WALL_H, floors, walls, boothLabels } from '../data/hallGeometry';
+import { HALL, WALL_H, floors, walls, boothLabels, doors, halls } from '../data/hallGeometry';
 import { boothDims } from '../data/floorPlanLayout';
 import { booths } from '../data/booths';
 
@@ -35,6 +35,8 @@ const makeView = (rot: number, tilt: number) => {
 const pts = (a: [number, number][]) => a.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
 
 export const IsometricFloorPlan: React.FC = () => {
+  /** Сонгосон заал — тухайн бүлгийн талбайнууд тодорно */
+  const [section, setSection] = useState<'A' | 'B' | null>(null);
   const [rot, setRot] = useState(0);
   const [tilt, setTilt] = useState(0.5);
   const [isFs, setIsFs] = useState(false);
@@ -88,8 +90,11 @@ export const IsometricFloorPlan: React.FC = () => {
     for (const [x, y] of [[0, 0], [HALL.w, 0], [HALL.w, HALL.h], [0, HALL.h]] as [number, number][]) {
       c.push(P(x, y, 0), P(x, y, WALL_H));
     }
+    /* Заалын нэр танхимын гадна ч байж болох тул хүрээнд заавал багтаана */
+    for (const h of halls) c.push(P(h.x, h.y, WALL_H + 30));
+    for (const d of doors) c.push(P(d.x, d.y, 0));
     const xs = c.map(p => p[0]), ys = c.map(p => p[1]);
-    const m = 12;
+    const m = 22;
     const minX = Math.min(...xs) - m, minY = Math.min(...ys) - m;
     return { minX, minY, w: Math.max(...xs) - minX + m, h: Math.max(...ys) - minY + m };
   }, [view]);
@@ -97,7 +102,7 @@ export const IsometricFloorPlan: React.FC = () => {
   const spin = (d: number) => setRot(r => r + d);
   const reset = () => { setRot(0); setTilt(0.5); };
   const onPointerDown: React.PointerEventHandler = (e) => {
-    if ((e.target as HTMLElement).closest('[data-controls]')) return;
+    if ((e.target as HTMLElement).closest('[data-controls], [data-hall]')) return;
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
     dragRef.current = { x: e.clientX, y: e.clientY, rot, tilt };
   };
@@ -143,6 +148,22 @@ export const IsometricFloorPlan: React.FC = () => {
             <polygon key={i} points={pts(f.p.map(p => P(p[0], p[1])))} fill={f.c} fillOpacity={0.22} />
           ))}
 
+          {/* Сонгосон заалын талбайнуудыг тодруулах */}
+          {section && boothLabels.filter(l => l.t[0] === section).map(l => {
+            const hw = l.w * 5, hh = l.h * 5;   // 1 нэгж = 0.1 м
+            return (
+              <polygon
+                key={`hl-${l.t}`}
+                points={pts([
+                  P(l.x - hw, l.y - hh), P(l.x + hw, l.y - hh),
+                  P(l.x + hw, l.y + hh), P(l.x - hw, l.y + hh),
+                ])}
+                fill="#2563eb" fillOpacity={0.3} stroke="#1d4ed8" strokeWidth="1"
+                style={{ pointerEvents: 'none' }}
+              />
+            );
+          })}
+
           {/* Хана — арынхаас урагш */}
           {ordered.map(({ w }, i) => {
             const [x1, y1, x2, y2] = w;
@@ -166,7 +187,8 @@ export const IsometricFloorPlan: React.FC = () => {
             const d = boothDims[l.t];
             const a = AREA[l.t];
             return (
-              <g key={l.t} textAnchor="middle" dominantBaseline="central" opacity={0.5}
+              <g key={l.t} textAnchor="middle" dominantBaseline="central"
+                opacity={section ? (l.t[0] === section ? 1 : 0.18) : 0.5}
                 style={{ pointerEvents: 'none' }}>
                 <text x={p[0]} y={p[1] - 2.4} fontSize="6" fontWeight="700" fill="#475569"
                   stroke="#ffffff" strokeWidth="1.2" paintOrder="stroke">{l.t}</text>
@@ -176,6 +198,33 @@ export const IsometricFloorPlan: React.FC = () => {
                     {d ? `${d[0]}X${d[1]}` : ''}{d && a ? ' · ' : ''}{a ? `${a}м²` : ''}
                   </text>
                 )}
+              </g>
+            );
+          })}
+          {/* Орц гарц */}
+          {doors.map((d, i) => {
+            const p = P(d.x, d.y, 0);
+            return (
+              <g key={`door-${i}`} textAnchor="middle" style={{ pointerEvents: 'none' }}>
+                <circle cx={p[0]} cy={p[1]} r="7" fill="#dc2626" fillOpacity={0.9} />
+                <path d={`M ${p[0] - 3} ${p[1]} l 3 -3 v 1.6 h 3 v 2.8 h -3 v 1.6 z`} fill="#ffffff" />
+                <text x={p[0]} y={p[1] + 14} fontSize="6" fontWeight="800" fill="#b91c1c"
+                  stroke="#ffffff" strokeWidth="1.4" paintOrder="stroke">{d.t}</text>
+              </g>
+            );
+          })}
+
+          {/* Заалын нэр — дарахад тухайн заалын талбайнууд тодорно */}
+          {halls.map(h => {
+            const p = P(h.x, h.y, WALL_H + 30);
+            const on = section === h.id;
+            return (
+              <g key={h.id} data-hall textAnchor="middle" style={{ cursor: 'pointer' }}
+                onClick={(e) => { e.stopPropagation(); setSection(on ? null : h.id); }}>
+                <rect x={p[0] - 30} y={p[1] - 11} width="60" height="22" rx="11"
+                  fill={on ? '#1d4ed8' : '#ffffff'} stroke={on ? '#1d4ed8' : '#94a3b8'} strokeWidth="1.2" />
+                <text x={p[0]} y={p[1]} dominantBaseline="central" fontSize="10" fontWeight="800"
+                  fill={on ? '#ffffff' : '#334155'}>{h.t}</text>
               </g>
             );
           })}
