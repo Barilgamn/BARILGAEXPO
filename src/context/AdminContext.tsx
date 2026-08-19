@@ -17,6 +17,14 @@ export interface Sponsor {
   url?: string;
 }
 
+/** Facebook reel бичлэг — нүүрэнд story маягаар харагдана */
+export interface Reel {
+  id: string;
+  url: string;    // Facebook reel-ийн холбоос
+  title: string;  // Дугуйн доор харагдах богино нэр
+  cover?: string; // Дугуйд харагдах зураг (заавал биш)
+}
+
 export interface ProgramEvent {
   time: string;
   title: string;
@@ -72,6 +80,7 @@ export interface SiteData {
   news: NewsItem[];
   boothBookedPercent?: number; // Талбайн захиалгын дүүргэлтийн хувь (0-100)
   showFloorPlan?: boolean;     // "Талбайн сонголт" хэсгийг нүүрэнд харуулах эсэх
+  reels?: Reel[];              // Нүүрэнд story маягаар харагдах Facebook reel-үүд
 }
 
 const defaultContact = {
@@ -132,6 +141,7 @@ const defaultData: SiteData = {
   news: initialNews,
   boothBookedPercent: 50,
   showFloorPlan: false,
+  reels: [],
 };
 
 interface AdminContextType {

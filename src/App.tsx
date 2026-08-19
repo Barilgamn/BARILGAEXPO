@@ -17,6 +17,7 @@ import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
+const ReelsSection = lazy(() => import('./components/ReelsSection').then(m => ({ default: m.ReelsSection })));
 const NewsSection = lazy(() => import('./components/NewsSection').then(m => ({ default: m.NewsSection })));
 const ProgramSection = lazy(() => import('./components/ProgramSection').then(m => ({ default: m.ProgramSection })));
 const GallerySection = lazy(() => import('./components/GallerySection').then(m => ({ default: m.GallerySection })));
@@ -476,6 +477,11 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* Reel бичлэгүүд — story маягаар */}
+      <Suspense fallback={null}>
+        <ReelsSection />
+      </Suspense>
 
       {/* Stats Counters Section */}
       <Suspense fallback={<LoadingPlaceHolder />}>

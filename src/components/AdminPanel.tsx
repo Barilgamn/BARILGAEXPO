@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
@@ -195,6 +195,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'menus', label: 'Menus', icon: <Menu size={18} /> },
     { id: 'organizers', label: 'Organizers', icon: <Users size={18} /> },
     { id: 'sponsors', label: 'Sponsors', icon: <Star size={18} /> },
+    { id: 'reels', label: 'Reel бичлэг', icon: <Video size={18} /> },
     { id: 'news', label: 'News', icon: <FileText size={18} /> },
     { id: 'gallery', label: 'Gallery', icon: <Image size={18} /> },
     { id: 'program', label: 'Program', icon: <Calendar size={18} /> },
@@ -359,6 +360,41 @@ export const AdminPanel: React.FC = () => {
     updateData(prev => ({
       news: prev.news.map(n => n.id === newsId ? { ...n, images: (n.images || []).filter((_, i) => i !== idx) } : n),
     }));
+  };
+
+  /* ---- Reel бичлэг ---- */
+  const reels = data.reels ?? [];
+
+  const addReel = () => {
+    updateData({ reels: [...reels, { id: Date.now().toString(), url: '', title: 'Reel' }] });
+  };
+  const updateReel = (id: string, field: 'url' | 'title' | 'cover', value: string) => {
+    updateData({ reels: reels.map(r => r.id === id ? { ...r, [field]: value } : r) });
+  };
+  const removeReel = (id: string) => {
+    updateData({ reels: reels.filter(r => r.id !== id) });
+  };
+  const moveReel = (id: string, dir: -1 | 1) => {
+    const list = [...reels];
+    const i = list.findIndex(r => r.id === id);
+    const j = i + dir;
+    if (i === -1 || j < 0 || j >= list.length) return;
+    [list[i], list[j]] = [list[j], list[i]];
+    updateData({ reels: list });
+  };
+
+  const [uploadingReelId, setUploadingReelId] = useState<string | null>(null);
+  const uploadReelCover = async (file: File, reelId: string) => {
+    setUploadError('');
+    setUploadingReelId(reelId);
+    try {
+      const url = await uploadFileToMedia(file, 'reels', reelId);
+      updateReel(reelId, 'cover', url);
+    } catch (err: any) {
+      setUploadError(err.message || 'Зураг байршуулахад алдаа гарлаа');
+    } finally {
+      setUploadingReelId(null);
+    }
   };
 
   const [uploadingSponsorId, setUploadingSponsorId] = useState<string | null>(null);
@@ -824,6 +860,61 @@ export const AdminPanel: React.FC = () => {
           )}
 
           {/* News Tab */}
+          {activeTab === 'reels' && (
+            <div>
+              <p className="text-sm text-gray-500 mb-4">
+                Нүүр хуудасны дээд зурагны доор Facebook story маягаар харагдана. Дээр нь дарахад бичлэг томроод тоглоно.
+                Facebook reel-ийн холбоосыг (ж: https://www.facebook.com/reel/1234567890) хуулж тавина.
+              </p>
+              <button onClick={addReel} className="mb-6 flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <Plus size={18} /> Reel нэмэх
+              </button>
+              <div className="space-y-4">
+                {reels.map(reel => (
+                  <div key={reel.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    {reel.cover ? (
+                      <img src={reel.cover} alt="reel" className="w-14 h-20 object-cover rounded-lg border border-gray-200" />
+                    ) : (
+                      <div className="w-14 h-20 flex items-center justify-center bg-gray-100 border border-dashed border-gray-300 rounded-lg text-gray-400">
+                        <Video size={20} />
+                      </div>
+                    )}
+                    <div className="flex-1 space-y-2">
+                      <input
+                        type="text"
+                        value={reel.title}
+                        onChange={e => updateReel(reel.id, 'title', e.target.value)}
+                        placeholder="Нэр (дугуйн доор харагдана)"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 font-semibold"
+                      />
+                      <input
+                        type="url"
+                        value={reel.url}
+                        onChange={e => updateReel(reel.id, 'url', e.target.value)}
+                        placeholder="https://www.facebook.com/reel/..."
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      />
+                      <label className="inline-flex items-center gap-2 text-xs font-semibold text-blue-700 cursor-pointer hover:text-blue-900">
+                        <Upload size={14} />
+                        {uploadingReelId === reel.id ? 'Байршуулж байна…' : 'Нүүр зураг сонгох'}
+                        <input type="file" accept="image/*" className="hidden"
+                          onChange={e => { const f = e.target.files?.[0]; if (f) uploadReelCover(f, reel.id); e.target.value = ''; }} />
+                      </label>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <button onClick={() => moveReel(reel.id, -1)} title="Дээш зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronUp size={18} /></button>
+                      <button onClick={() => moveReel(reel.id, 1)} title="Доош зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronDown size={18} /></button>
+                      <button onClick={() => removeReel(reel.id)} title="Устгах" className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"><Trash2 size={18} /></button>
+                    </div>
+                  </div>
+                ))}
+                {reels.length === 0 && (
+                  <p className="text-sm text-gray-400 italic">Reel алга. "Reel нэмэх" дарж эхлүүлнэ үү.</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'news' && (
             <div>
               {newsEditId === null ? (
