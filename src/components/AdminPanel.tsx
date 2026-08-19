@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
@@ -374,6 +374,20 @@ export const AdminPanel: React.FC = () => {
   const removeReel = (id: string) => {
     updateData({ reels: reels.filter(r => r.id !== id) });
   };
+  const [uploadingReelId, setUploadingReelId] = useState<string | null>(null);
+  const uploadReelVideo = async (file: File, reelId: string) => {
+    setUploadError('');
+    setUploadingReelId(reelId);
+    try {
+      const url = await uploadFileToMedia(file, 'reels', reelId);
+      updateReel(reelId, 'url', url);
+    } catch (err: any) {
+      setUploadError(err.message || 'Бичлэг байршуулахад алдаа гарлаа');
+    } finally {
+      setUploadingReelId(null);
+    }
+  };
+
   const moveReel = (id: string, dir: -1 | 1) => {
     const list = [...reels];
     const i = list.findIndex(r => r.id === id);
@@ -849,8 +863,8 @@ export const AdminPanel: React.FC = () => {
           {activeTab === 'reels' && (
             <div>
               <p className="text-sm text-gray-500 mb-4">
-                Нүүр хуудасны дээд зурагны доор Facebook story маягаар харагдана. Дээр нь дарахад бичлэг томроод тоглоно.
-                Facebook reel-ийн холбоосыг (ж: https://www.facebook.com/reel/1234567890) хуулж тавина. Нүүр зургийг Facebook өөрөө өгнө.
+                Нүүр хуудасны дээд зурагны доор story маягаар харагдана. Дээр нь дарахад бичлэг томроод дуутай тоглоно.
+                Босоо (9:16) бичлэг оруулбал хамгийн тохиромжтой. Нүүр зургийг бичлэгээс өөрөөс нь авна.
               </p>
               <button onClick={addReel} className="mb-6 flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 <Plus size={18} /> Reel нэмэх
@@ -858,9 +872,14 @@ export const AdminPanel: React.FC = () => {
               <div className="space-y-4">
                 {reels.map(reel => (
                   <div key={reel.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <div className="w-14 h-20 flex items-center justify-center bg-slate-900 rounded-lg text-white/70 shrink-0">
-                      <Video size={20} />
-                    </div>
+                    {reel.url ? (
+                      <video src={reel.url} muted playsInline preload="metadata"
+                        className="w-14 h-20 object-cover rounded-lg bg-slate-900 shrink-0" />
+                    ) : (
+                      <div className="w-14 h-20 flex items-center justify-center bg-slate-900 rounded-lg text-white/70 shrink-0">
+                        <Video size={20} />
+                      </div>
+                    )}
                     <div className="flex-1 space-y-2">
                       <input
                         type="text"
@@ -869,13 +888,24 @@ export const AdminPanel: React.FC = () => {
                         placeholder="Нэр (дугуйн доор харагдана)"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 font-semibold"
                       />
-                      <input
-                        type="url"
-                        value={reel.url}
-                        onChange={e => updateReel(reel.id, 'url', e.target.value)}
-                        placeholder="https://www.facebook.com/reel/..."
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                      />
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-blue-600
+                                          hover:bg-blue-700 px-3 py-2 rounded-lg cursor-pointer transition-colors">
+                          <Upload size={14} />
+                          {uploadingReelId === reel.id
+                            ? 'Байршуулж байна…'
+                            : reel.url ? 'Бичлэг солих' : 'Бичлэг оруулах'}
+                          <input type="file" accept="video/*" className="hidden"
+                            onChange={e => { const f = e.target.files?.[0]; if (f) uploadReelVideo(f, reel.id); e.target.value = ''; }} />
+                        </label>
+                        {reel.url && (
+                          <a href={reel.url} target="_blank" rel="noopener noreferrer"
+                            className="text-xs text-gray-500 hover:text-blue-700 underline truncate max-w-[240px]">
+                            Оруулсан бичлэгийг үзэх
+                          </a>
+                        )}
+                        {!reel.url && <span className="text-xs text-red-500">Бичлэг оруулаагүй</span>}
+                      </div>
                     </div>
                     <div className="flex flex-col gap-1">
                       <button onClick={() => moveReel(reel.id, -1)} title="Дээш зөөх" className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronUp size={18} /></button>

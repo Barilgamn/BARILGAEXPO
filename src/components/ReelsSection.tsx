@@ -9,6 +9,9 @@ import type { Reel } from '../context/AdminContext';
  * шаардлагагүй. Картын iframe нь дарагдахгүй (pointer-events: none) тул
  * дарахад дэлгэц дүүрэн тоглуулагч нээгдэнэ.
  */
+/** Хуучин өгөгдөлд үлдсэн Facebook холбоос мөн үү */
+const isFacebook = (url: string) => /(^|\/\/)(www\.|web\.|m\.)?facebook\.com\//i.test(url.trim());
+
 const embed = (url: string, opts: { autoplay: boolean; width: number; muted: boolean }) =>
   `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url.trim())}` +
   `&show_text=false&width=${opts.width}&autoplay=${opts.autoplay}` +
@@ -22,24 +25,10 @@ export const ReelsSection: React.FC = () => {
   /** Модалд харагдаж буй reel-ийн индекс (null бол хаалттай) */
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const active = activeIdx === null ? null : reels[activeIdx] ?? null;
-  const [visible, setVisible] = useState(false);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
 
-  const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-
-  /* Хэсэг дэлгэцэнд ойртсон үед л iframe-үүдийг ачаална */
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el || visible) return;
-    const io = new IntersectionObserver(
-      entries => { if (entries.some(e => e.isIntersecting)) { setVisible(true); io.disconnect(); } },
-      { rootMargin: '300px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [visible]);
 
   const sync = () => {
     const el = trackRef.current;
@@ -99,7 +88,7 @@ export const ReelsSection: React.FC = () => {
   const navBtn = 'w-9 h-9 rounded-full border flex items-center justify-center transition-colors';
 
   return (
-    <section ref={sectionRef} className="bg-slate-900">
+    <section className="bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-white font-bold text-sm tracking-wide uppercase">Reel бичлэгүүд</h2>
@@ -129,14 +118,23 @@ export const ReelsSection: React.FC = () => {
                          ring-1 ring-white/10 hover:ring-white/40 transition-all group"
               style={{ width: CARD_W, aspectRatio: '9 / 16' }}
             >
-              {/* Facebook-ийн жинхэнэ нүүр зураг (сервер талаас) */}
-              {visible && (
+              {/* Нүүр кадр: байршуулсан бичлэгээс, хуучин FB холбоос бол сервер талаас.
+                  Ачаалалтыг браузерын өөрийн lazy / preload=metadata зохицуулна. */}
+              {isFacebook(reel.url) ? (
                 <img
                   src={`/api/fb-thumb?url=${encodeURIComponent(reel.url)}`}
                   alt={reel.title}
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
+              ) : (
+                <video
+                  src={`${reel.url}#t=0.1`}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                 />
               )}
 
@@ -171,20 +169,35 @@ export const ReelsSection: React.FC = () => {
 
           <div className="w-full max-w-[420px]" onClick={e => e.stopPropagation()}>
             <div className="relative w-full rounded-2xl overflow-hidden bg-black shadow-2xl" style={{ aspectRatio: '9 / 16' }}>
-              <iframe
-                key={active.id}
-                src={embed(active.url, { autoplay: true, width: 420, muted: false })}
-                title={active.title}
-                className="absolute inset-0 w-full h-full"
-                style={{ border: 'none' }}
-                scrolling="no"
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                allowFullScreen
-              />
+              {isFacebook(active.url) ? (
+                <iframe
+                  key={active.id}
+                  src={embed(active.url, { autoplay: true, width: 420, muted: false })}
+                  title={active.title}
+                  className="absolute inset-0 w-full h-full"
+                  style={{ border: 'none' }}
+                  scrolling="no"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                /* Өөрийн тоглуулагч — картыг дарсан нь хэрэглэгчийн үйлдэл тул
+                   дуутай автоматаар тоглоно. Дуусмагц дараагийн бичлэг рүү. */
+                <video
+                  key={active.id}
+                  src={active.url}
+                  className="absolute inset-0 w-full h-full object-contain bg-black"
+                  autoPlay
+                  playsInline
+                  controls
+                  onEnded={() => reels.length > 1 && step(1)}
+                />
+              )}
 
               {/* Чирэх давхарга — доод 60px-ийг Facebook-ийн удирдлагад үлдээнэ */}
               <div
-                className="absolute inset-x-0 top-0 bottom-[60px] cursor-grab active:cursor-grabbing"
+                className={`absolute inset-x-0 top-0 cursor-grab active:cursor-grabbing
+                            ${isFacebook(active.url) ? 'bottom-[60px]' : 'bottom-[52px]'}`}
                 style={{ touchAction: 'none' }}
                 onPointerDown={onSwipeDown}
                 onPointerMove={onSwipeMove}
