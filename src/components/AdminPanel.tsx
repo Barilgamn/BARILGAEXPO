@@ -246,8 +246,10 @@ export const AdminPanel: React.FC = () => {
   };
 
   const updateSponsor = (id: string, field: string, value: string) => {
-    const updated = data.sponsors.map(s => s.id === id ? { ...s, [field]: value } : s);
-    updateData({ sponsors: updated });
+    // Лого байршуулалт удаан тул сүүлийн төлөв дээр ажиллана
+    updateData(prev => ({
+      sponsors: prev.sponsors.map(s => s.id === id ? { ...s, [field]: value } : s),
+    }));
   };
 
   const removeSponsor = (id: string) => {
@@ -366,14 +368,21 @@ export const AdminPanel: React.FC = () => {
   /* ---- Reel бичлэг ---- */
   const reels = data.reels ?? [];
 
+  /* Бүх засварыг ХАМГИЙН СҮҮЛИЙН төлөв дээр хийнэ. Бичлэг байршуулах нь удаан
+     үйлдэл тул хуучин хуулбар дээр ажиллавал тэр хооронд устгасан reel буцаж
+     сэргэх, дарааллын өөрчлөлт алдагдах эрсдэлтэй. */
   const addReel = () => {
-    updateData({ reels: [...reels, { id: Date.now().toString(), url: '', title: 'Reel' }] });
+    updateData(prev => ({
+      reels: [...(prev.reels ?? []), { id: Date.now().toString(), url: '', title: 'Reel' }],
+    }));
   };
   const updateReel = (id: string, field: 'url' | 'title', value: string) => {
-    updateData({ reels: reels.map(r => r.id === id ? { ...r, [field]: value } : r) });
+    updateData(prev => ({
+      reels: (prev.reels ?? []).map(r => r.id === id ? { ...r, [field]: value } : r),
+    }));
   };
   const removeReel = (id: string) => {
-    updateData({ reels: reels.filter(r => r.id !== id) });
+    updateData(prev => ({ reels: (prev.reels ?? []).filter(r => r.id !== id) }));
   };
   const [uploadingReelId, setUploadingReelId] = useState<string | null>(null);
   const [reelStage, setReelStage] = useState('');
@@ -404,12 +413,14 @@ export const AdminPanel: React.FC = () => {
   };
 
   const moveReel = (id: string, dir: -1 | 1) => {
-    const list = [...reels];
-    const i = list.findIndex(r => r.id === id);
-    const j = i + dir;
-    if (i === -1 || j < 0 || j >= list.length) return;
-    [list[i], list[j]] = [list[j], list[i]];
-    updateData({ reels: list });
+    updateData(prev => {
+      const list = [...(prev.reels ?? [])];
+      const i = list.findIndex(r => r.id === id);
+      const j = i + dir;
+      if (i === -1 || j < 0 || j >= list.length) return {};
+      [list[i], list[j]] = [list[j], list[i]];
+      return { reels: list };
+    });
   };
 
   const [uploadingSponsorId, setUploadingSponsorId] = useState<string | null>(null);
