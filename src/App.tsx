@@ -61,6 +61,12 @@ export default function App() {
   const { lang, setLang, t } = useTranslation();
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Гар утасны цэс нээлттэй үед арын хуудас гүйлгэгдэхгүй байхаар түгжинэ
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isMenuOpen]);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isScrolled, setIsScrolled] = useState(false);
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
@@ -220,7 +226,7 @@ export default function App() {
     <div className="min-h-screen bg-white font-sans text-gray-800">
       {/* Navbar segment */}
       {!isAdminRoute && (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2' : 'bg-transparent py-4'}`}>
+        <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${isScrolled ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2' : 'bg-transparent py-4'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
@@ -310,7 +316,7 @@ export default function App() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden bg-blue-900/80 backdrop-blur-md border-t border-white/10 px-4 pt-2 pb-6 space-y-1 shadow-xl">
+          <div className="lg:hidden absolute inset-x-0 top-full max-h-[calc(100svh-4.5rem)] bg-blue-950 overflow-y-auto border-t border-white/10 px-4 pt-2 pb-6 space-y-1 shadow-xl">
             {data.menus.map(menu => (
               menu.path.startsWith('/') ? (
                 <Link key={menu.id} to={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
@@ -1053,12 +1059,12 @@ export default function App() {
       {!isAdminRoute && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className={`fixed right-6 bottom-24 z-50 p-3 rounded-full bg-blue-900/40 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-blue-900/60 transition-all duration-300 shadow-lg ${
+          className={`fixed right-4 sm:right-6 bottom-20 sm:bottom-24 z-50 p-2.5 sm:p-3 rounded-full bg-blue-900/40 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-blue-900/60 transition-all duration-300 shadow-lg ${
             isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
           }`}
           aria-label="Дээш гүйлгэх"
         >
-          <ArrowUp className="w-6 h-6" />
+          <ArrowUp className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       )}
 
