@@ -166,7 +166,9 @@ export const ReelsSection: React.FC = () => {
         >
           <button
             onClick={() => setActiveIdx(null)} aria-label={t('reels_close')}
-            className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+            className="absolute right-4 w-11 h-11 rounded-full bg-white/25 hover:bg-white/40 text-white
+                       flex items-center justify-center transition-colors z-20 shadow-lg backdrop-blur-sm"
+            style={{ top: 'max(1rem, env(safe-area-inset-top))' }}
           ><X size={22} /></button>
 
           {/* Хажуу тийш шилжих сум — дэлгэцийн хоёр талд */}
@@ -189,7 +191,11 @@ export const ReelsSection: React.FC = () => {
             </>
           )}
 
-          <div className="w-full max-w-[420px]" onClick={e => e.stopPropagation()}>
+          <div
+            className="w-full"
+            style={{ maxWidth: 'min(420px, calc((100svh - 11rem) * 9 / 16))' }}
+            onClick={e => e.stopPropagation()}
+          >
             <div className="relative w-full rounded-2xl overflow-hidden bg-black shadow-2xl" style={{ aspectRatio: '9 / 16' }}>
               {isFacebook(active.url) ? (
                 <iframe
