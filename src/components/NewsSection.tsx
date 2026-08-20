@@ -29,7 +29,10 @@ export const NewsSection: React.FC = () => {
 
   const getLocalizedNews = (news: typeof newsItems[0]) => {
     if (lang === 'mn') return news;
-    const translation = newsTranslations[news.id]?.[lang as NewsTranslationLang];
+    // Админаас үүсгэсэн орчуулга эхний ээлжинд, дараа нь бэлэн (static) орчуулга
+    const translation =
+      news.i18n?.[lang as NewsTranslationLang] ||
+      newsTranslations[news.id]?.[lang as NewsTranslationLang];
     if (!translation) return news;
     return { ...news, title: translation.title, description: translation.description, content: translation.content || news.content };
   };

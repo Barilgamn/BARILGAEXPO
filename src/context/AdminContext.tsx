@@ -69,6 +69,9 @@ export interface NewsItem {
   link: string;
   images?: string[];
   imagePosition?: string; // object-position утга, ж: "50% 30%"
+  // Админаас үүсгэсэн орчуулга. Байхгүй бол newsTranslations.ts-ийн бэлэн орчуулга,
+  // тэр ч байхгүй бол монгол эх хувилбар харагдана.
+  i18n?: Partial<Record<'en' | 'zh' | 'ru' | 'ko', { title: string; description: string; content: string }>>;
 }
 
 export interface SiteData {

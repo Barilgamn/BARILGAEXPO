@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote, Languages } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
@@ -312,6 +312,41 @@ export const AdminPanel: React.FC = () => {
   };
 
   const activeNews = data.news.find(n => n.id === newsEditId);
+
+  // --- Мэдээний автомат орчуулга (en/zh/ru/ko) ---
+  const [translatingNewsId, setTranslatingNewsId] = useState<number | null>(null);
+  const [translateMsg, setTranslateMsg] = useState('');
+
+  const translateNews = async (id: number) => {
+    const news = data.news.find(n => n.id === id);
+    if (!news) return;
+    setTranslatingNewsId(id);
+    setTranslateMsg('');
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: news.title,
+          description: news.description,
+          content: news.content || '',
+          langs: ['en', 'zh', 'ru', 'ko'],
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Орчуулга амжилтгүй боллоо.');
+      // Урт орчуулга дуусах хооронд өөр өөрчлөлт орсон байж болзошгүй тул
+      // хамгийн сүүлийн төлөвөөс (prev) шинэчилнэ.
+      updateData(prev => ({
+        news: prev.news.map(n => n.id === id ? { ...n, i18n: { ...(n.i18n || {}), ...json.translations } } : n),
+      }));
+      setTranslateMsg('Орчуулга бэлэн боллоо. Хадгалах товчийг дарна уу.');
+    } catch (e: any) {
+      setTranslateMsg(`Алдаа: ${e?.message || 'Орчуулга хийж чадсангүй.'}`);
+    } finally {
+      setTranslatingNewsId(null);
+    }
+  };
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -1227,6 +1262,44 @@ export const AdminPanel: React.FC = () => {
                         }}
                       />
                     </label>
+                  </div>
+
+                  {/* Автомат орчуулга */}
+                  <div className="border-t border-gray-200 pt-5">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Орчуулга (EN / 中文 / RU / KO)</label>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={() => translateNews(activeNews.id)}
+                        disabled={translatingNewsId === activeNews.id}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white rounded-lg text-sm font-medium"
+                      >
+                        {translatingNewsId === activeNews.id
+                          ? <Loader2 size={16} className="animate-spin" />
+                          : <Languages size={16} />}
+                        {translatingNewsId === activeNews.id ? 'Орчуулж байна...' : 'Орчуулга үүсгэх'}
+                      </button>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(['en', 'zh', 'ru', 'ko'] as const).map(l => {
+                          const ok = !!activeNews.i18n?.[l];
+                          return (
+                            <span
+                              key={l}
+                              className={`px-2 py-1 rounded-md text-[11px] font-bold uppercase ${ok ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}
+                            >
+                              {l}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    {translateMsg && (
+                      <p className={`text-xs mt-2 ${translateMsg.startsWith('Алдаа') ? 'text-red-600' : 'text-green-600'}`}>
+                        {translateMsg}
+                      </p>
+                    )}
+                    <p className="text-[11px] text-gray-400 mt-2">
+                      Гарчиг, товч тайлбар, дэлгэрэнгүй агуулгыг 4 хэл рүү орчуулна. Хэдэн секунд зарцуулагдана.
+                    </p>
                   </div>
                 </div>
               )}
