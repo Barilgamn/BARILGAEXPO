@@ -52,12 +52,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { stripped, uris } = stripDataUris(String(content));
     // Хэт урт HTML-ийг таслах (Gemini-ийн хязгаарт багтаах)
-    const contentForModel = stripped.slice(0, 60000);
+    const contentForModel = stripped.slice(0, 30000);
 
     const ai = new GoogleGenAI({ apiKey });
-    const result: Record<string, { title: string; description: string; content: string }> = {};
 
-    for (const lang of targets) {
+    // Хэл бүрийг ДАРААЛАН биш ЗЭРЭГ орчуулна — эс бөгөөс функц 60 сек-ийн
+    // хязгаараас хэтэрч, Vercel HTML алдааны хуудас буцаадаг.
+    const translateOne = async (lang: string) => {
       const prompt = [
         `Translate the following Mongolian news article into ${LANG_NAMES[lang]}.`,
         'Rules:',
@@ -72,10 +73,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const genPromise = ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { temperature: 0.2, responseMimeType: 'application/json' },
+        config: {
+          temperature: 0.2,
+          responseMimeType: 'application/json',
+          maxOutputTokens: 32000,
+          // "Бодох" төсөвт гарц идэгдэхээс сэргийлж унтраана — орчуулгад шаардлагагүй.
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       });
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 55000),
+        setTimeout(() => reject(new Error('хугацаа хэтэрлээ')), 45000),
       );
 
       const out: any = await Promise.race([genPromise, timeoutPromise]);
@@ -88,14 +95,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         throw new Error(`${lang}: орчуулгын хариуг уншиж чадсангүй.`);
       }
 
-      result[lang] = {
+      return {
         title: String(parsed.title || title),
         description: String(parsed.description || description),
         content: restoreDataUris(String(parsed.content || contentForModel), uris),
       };
+    };
+
+    const settled = await Promise.allSettled(targets.map(translateOne));
+    const result: Record<string, { title: string; description: string; content: string }> = {};
+    const failed: string[] = [];
+    settled.forEach((s, i) => {
+      if (s.status === 'fulfilled') result[targets[i]] = s.value;
+      else failed.push(`${targets[i]} (${s.reason?.message || 'алдаа'})`);
+    });
+
+    if (!Object.keys(result).length) {
+      res.status(500).json({ error: `Орчуулга амжилтгүй: ${failed.join(', ')}` });
+      return;
     }
 
-    res.status(200).json({ translations: result });
+    // Зарим хэл амжилтгүй болсон ч болсныг нь буцаана.
+    res.status(200).json({ translations: result, failed });
   } catch (err: any) {
     console.error('translate api error', err);
     res.status(500).json({ error: err?.message || 'Орчуулга хийхэд алдаа гарлаа.' });

@@ -333,14 +333,29 @@ export const AdminPanel: React.FC = () => {
           langs: ['en', 'zh', 'ru', 'ko'],
         }),
       });
-      const json = await res.json();
+      // Функц унавал Vercel HTML буцаадаг тул JSON.parse-ыг хамгаалж хийнэ.
+      const raw = await res.text();
+      let json: any = null;
+      try { json = JSON.parse(raw); } catch { /* JSON биш */ }
+      if (!json) {
+        throw new Error(
+          res.ok
+            ? 'Серверээс буруу хариу ирлээ.'
+            : `Сервер алдаа (${res.status}). Мэдээ хэт урт байж болзошгүй — дэлгэрэнгүй агуулгыг богиносгож үзнэ үү.`,
+        );
+      }
       if (!res.ok) throw new Error(json?.error || 'Орчуулга амжилтгүй боллоо.');
       // Урт орчуулга дуусах хооронд өөр өөрчлөлт орсон байж болзошгүй тул
       // хамгийн сүүлийн төлөвөөс (prev) шинэчилнэ.
       updateData(prev => ({
         news: prev.news.map(n => n.id === id ? { ...n, i18n: { ...(n.i18n || {}), ...json.translations } } : n),
       }));
-      setTranslateMsg('Орчуулга бэлэн боллоо. Хадгалах товчийг дарна уу.');
+      const failed: string[] = json.failed || [];
+      setTranslateMsg(
+        failed.length
+          ? `Орчуулга хэсэгчлэн бэлэн боллоо. Амжилтгүй: ${failed.join(', ')}. Хадгалах товчийг дарна уу.`
+          : 'Орчуулга бэлэн боллоо. Хадгалах товчийг дарна уу.',
+      );
     } catch (e: any) {
       setTranslateMsg(`Алдаа: ${e?.message || 'Орчуулга хийж чадсангүй.'}`);
     } finally {
