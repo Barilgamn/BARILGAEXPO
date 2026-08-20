@@ -489,88 +489,6 @@ export default function App() {
         <ReelsSection />
       </Suspense>
 
-      {/* Organizers Section */}
-      <section className="bg-white pt-16 pb-8 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gray-50 rounded-2xl p-8 lg:p-12 border border-gray-100 lg:flex lg:justify-between lg:items-center gap-8 shadow-sm">
-            <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
-              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_main')}</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain" />
-              </a>
-            </div>
-
-            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-200 my-8 lg:my-0"></div>
-
-            <div className="lg:w-2/3 flex flex-col items-center">
-              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_co')}</div>
-              <div className="flex flex-wrap justify-center gap-6 sm:gap-10 items-start">
-                {data.organizers.map(org => {
-                  const resolveOrgUrl = (o: typeof org): string | undefined => {
-                    if (o.url) return o.url;
-                    const n = (o.name || '').toLowerCase();
-                    if (n.includes('яам')) return 'https://mcud.gov.mn';
-                    if (n.includes('нийслэл') || n.includes('засаг')) return 'https://www.ulaanbaatar.mn';
-                    if (n.includes('хөгж')) return 'https://barilga.gov.mn';
-                    return undefined;
-                  };
-                  const url = resolveOrgUrl(org);
-                  return (
-                    <a
-                      key={org.id}
-                      href={url || '#'}
-                      {...(url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group"
-                      title={org.name}
-                    >
-                      <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
-                        <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
-                      </div>
-                      <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">{org.name}</span>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Sponsors Section */}
-      {data.sponsors && data.sponsors.length > 0 && (
-        <section className="bg-white pb-16 pt-4">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-            {([
-              { type: 'main' as const, label: t('spon_main'), size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56' },
-              { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40' },
-              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36' },
-            ]).map(group => {
-              const items = data.sponsors.filter(s => s.type === group.type && s.logo);
-              if (items.length === 0) return null;
-              return (
-                <div key={group.type} className="flex flex-col items-center">
-                  <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
-                  <div className="flex flex-wrap justify-center gap-8 sm:gap-12 items-center">
-                    {items.map(s => {
-                      const Tag: any = s.url ? 'a' : 'div';
-                      const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
-                      return (
-                        <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
-                          <div className={`${group.size} w-full flex items-center justify-center`}>
-                            <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
-                          </div>
-                          <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
-                        </Tag>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
       {/* Categories */}
       <section id="categories" className="py-16 md:py-24 bg-gray-50 relative overflow-hidden">
         {/* Subtle grid background */}
@@ -682,6 +600,88 @@ export default function App() {
       <Suspense fallback={<LoadingPlaceHolder />}>
         <StatsSection />
       </Suspense>
+
+      {/* Organizers Section */}
+      <section className="bg-white pt-16 pb-8 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gray-50 rounded-2xl p-8 lg:p-12 border border-gray-100 lg:flex lg:justify-between lg:items-center gap-8 shadow-sm">
+            <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
+              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_main')}</div>
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
+                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain" />
+              </a>
+            </div>
+
+            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-200 my-8 lg:my-0"></div>
+
+            <div className="lg:w-2/3 flex flex-col items-center">
+              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_co')}</div>
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-10 items-start">
+                {data.organizers.map(org => {
+                  const resolveOrgUrl = (o: typeof org): string | undefined => {
+                    if (o.url) return o.url;
+                    const n = (o.name || '').toLowerCase();
+                    if (n.includes('яам')) return 'https://mcud.gov.mn';
+                    if (n.includes('нийслэл') || n.includes('засаг')) return 'https://www.ulaanbaatar.mn';
+                    if (n.includes('хөгж')) return 'https://barilga.gov.mn';
+                    return undefined;
+                  };
+                  const url = resolveOrgUrl(org);
+                  return (
+                    <a
+                      key={org.id}
+                      href={url || '#'}
+                      {...(url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group"
+                      title={org.name}
+                    >
+                      <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
+                        <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                      </div>
+                      <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">{org.name}</span>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sponsors Section */}
+      {data.sponsors && data.sponsors.length > 0 && (
+        <section className="bg-white pb-16 pt-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            {([
+              { type: 'main' as const, label: t('spon_main'), size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56' },
+              { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40' },
+              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36' },
+            ]).map(group => {
+              const items = data.sponsors.filter(s => s.type === group.type && s.logo);
+              if (items.length === 0) return null;
+              return (
+                <div key={group.type} className="flex flex-col items-center">
+                  <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
+                  <div className="flex flex-wrap justify-center gap-8 sm:gap-12 items-center">
+                    {items.map(s => {
+                      const Tag: any = s.url ? 'a' : 'div';
+                      const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
+                      return (
+                        <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
+                          <div className={`${group.size} w-full flex items-center justify-center`}>
+                            <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                          </div>
+                          <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
+                        </Tag>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Талбайн сонголт — изометрик зураглал */}
       {data.showFloorPlan && (
