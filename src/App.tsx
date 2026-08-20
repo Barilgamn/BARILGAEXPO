@@ -5,8 +5,9 @@
 
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, Wrench, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User, Mail, ArrowUp, ChevronDown,
-  Home, PencilRuler, Handshake, Briefcase, Package, Paintbrush, Zap, Droplets, Sofa, Trees, Cog, Layers, Caravan, Car } from 'lucide-react';
+import { Building2, Truck, Calendar, MapPin, Phone, Menu, X, ArrowRight, CheckCircle2, Timer, User, Mail, ArrowUp, ChevronDown,
+  Building, House, HousePlus, DraftingCompass, KeyRound, HardHat, Blocks, PaintRoller, PlugZap, ShowerHead,
+  Sofa, Trees, Tractor, Drill, Layers, Caravan, Car } from 'lucide-react';
 import { useTranslation, Language } from './i18n';
 import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
@@ -519,22 +520,22 @@ export default function App() {
                 ring: 'group-hover:ring-blue-500/30',
                 items: [
                   { key: 'cat1_1', icon: Building2 },
-                  { key: 'cat1_2', icon: PencilRuler },
-                  { key: 'cat1_3', icon: Home },
-                  { key: 'cat1_4', icon: Handshake },
-                  { key: 'cat1_5', icon: Briefcase },
+                  { key: 'cat1_2', icon: DraftingCompass },
+                  { key: 'cat1_3', icon: House },
+                  { key: 'cat1_4', icon: KeyRound },
+                  { key: 'cat1_5', icon: Building },
                 ],
               },
               {
-                icon: Wrench,
+                icon: HardHat,
                 titleKey: 'cat2_title',
                 accent: 'from-red-500 to-rose-700',
                 ring: 'group-hover:ring-red-500/30',
                 items: [
-                  { key: 'cat2_1', icon: Package },
-                  { key: 'cat2_2', icon: Paintbrush },
-                  { key: 'cat2_3', icon: Zap },
-                  { key: 'cat2_4', icon: Droplets },
+                  { key: 'cat2_1', icon: Blocks },
+                  { key: 'cat2_2', icon: PaintRoller },
+                  { key: 'cat2_3', icon: PlugZap },
+                  { key: 'cat2_4', icon: ShowerHead },
                   { key: 'cat2_5', icon: Sofa },
                   { key: 'cat2_6', icon: Trees },
                 ],
@@ -545,11 +546,11 @@ export default function App() {
                 accent: 'from-emerald-500 to-teal-700',
                 ring: 'group-hover:ring-emerald-500/30',
                 items: [
-                  { key: 'cat3_1', icon: Cog },
-                  { key: 'cat3_2', icon: Wrench },
+                  { key: 'cat3_1', icon: Tractor },
+                  { key: 'cat3_2', icon: Drill },
                   { key: 'cat3_3', icon: Layers },
                   { key: 'cat3_4', icon: Caravan },
-                  { key: 'cat3_5', icon: Home },
+                  { key: 'cat3_5', icon: HousePlus },
                 ],
               },
             ] as const).map((cat) => {
