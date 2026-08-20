@@ -489,11 +489,6 @@ export default function App() {
         <ReelsSection />
       </Suspense>
 
-      {/* Stats Counters Section */}
-      <Suspense fallback={<LoadingPlaceHolder />}>
-        <StatsSection />
-      </Suspense>
-
       {/* Organizers Section */}
       <section className="bg-white pt-16 pb-8 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -682,6 +677,11 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* Stats Counters Section */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <StatsSection />
+      </Suspense>
 
       {/* Талбайн сонголт — изометрик зураглал */}
       {data.showFloorPlan && (
