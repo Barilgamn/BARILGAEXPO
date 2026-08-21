@@ -1,14 +1,28 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { useTranslation } from '../i18n';
 import { optimizeImage } from '../utils/image';
 
+/** Fisher-Yates — жагсаалтыг жигд санамсаргүйгээр холино (эх массивыг өөрчлөхгүй). */
+const shuffle = (arr: string[]) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
 /** Оролцогч байгууллагуудын лого — зөвхөн зураг, нэр болон холбоосгүй.
- *  Том дэлгэцэн дээр нэг эгнээнд 8 лого харагдана. Лого байхгүй бол хэсэг нуугдана. */
+ *  Том дэлгэцэн дээр нэг эгнээнд 8 лого харагдана. Лого байхгүй бол хэсэг нуугдана.
+ *  Аль нэг байгууллага байнга эхэнд гарахгүйн тулд хуудас ачаалах бүрт дарааллыг холино. */
 export const ParticipantsSection: React.FC = () => {
   const { data } = useAdmin();
   const { t } = useTranslation();
-  const logos = (data.participants || []).filter(Boolean);
+  // Хуудас ачаалах бүрт нэг л удаа холино — хажуугийн state өөрчлөгдөхөд
+  // (жишээ нь хэл солиход) лого үсрэхгүй.
+  const source = (data.participants || []).filter(Boolean);
+  const logos = useMemo(() => shuffle(source), [source.join('|')]);
 
   if (!logos.length) return null;
 
