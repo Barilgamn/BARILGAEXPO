@@ -87,6 +87,7 @@ export interface SiteData {
   showFloorPlan?: boolean;     // "Талбайн сонголт" хэсгийг нүүрэнд харуулах эсэх
   reels?: Reel[];              // Нүүрэнд story маягаар харагдах Facebook reel-үүд
   testimonials?: Testimonial[]; // Оролцогчдын сэтгэгдэл
+  participants?: string[];      // Оролцогч байгууллагуудын лого (зөвхөн зураг)
 }
 
 const defaultContact = {
@@ -149,6 +150,7 @@ const defaultData: SiteData = {
   showFloorPlan: false,
   reels: [],
   testimonials: defaultTestimonials,
+  participants: [],
 };
 
 interface AdminContextType {

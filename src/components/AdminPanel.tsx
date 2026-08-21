@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote, Languages } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote, Languages, Building2 } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
@@ -199,6 +199,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'sponsors', label: 'Sponsors', icon: <Star size={18} /> },
     { id: 'reels', label: 'Reel бичлэг', icon: <Video size={18} /> },
     { id: 'testimonials', label: 'Сэтгэгдэл', icon: <Quote size={18} /> },
+    { id: 'participants', label: 'Оролцогчид', icon: <Building2 size={18} /> },
     { id: 'news', label: 'News', icon: <FileText size={18} /> },
     { id: 'gallery', label: 'Gallery', icon: <Image size={18} /> },
     { id: 'program', label: 'Program', icon: <Calendar size={18} /> },
@@ -555,6 +556,41 @@ export const AdminPanel: React.FC = () => {
     } finally {
       setUploadingGallery(false);
     }
+  };
+
+  // --- Оролцогч байгууллагуудын лого (зөвхөн зураг) ---
+  const [uploadingParticipants, setUploadingParticipants] = useState(false);
+
+  const uploadParticipantLogos = async (files: FileList) => {
+    setUploadError('');
+    setUploadingParticipants(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        urls.push(await uploadFileToMedia(file, 'participants', Date.now()));
+      }
+      // Урт байршуулалтын хугацаанд өөр өөрчлөлт орсон байж болзошгүй тул
+      // хамгийн сүүлийн төлөвөөс (prev) шинэчилнэ.
+      updateData(prev => ({ participants: [...(prev.participants || []), ...urls] }));
+    } catch (err: any) {
+      setUploadError(err.message || 'Лого байршуулахад алдаа гарлаа');
+    } finally {
+      setUploadingParticipants(false);
+    }
+  };
+
+  const removeParticipant = (index: number) => {
+    updateData(prev => ({ participants: (prev.participants || []).filter((_, i) => i !== index) }));
+  };
+
+  const moveParticipant = (index: number, dir: -1 | 1) => {
+    updateData(prev => {
+      const list = [...(prev.participants || [])];
+      const j = index + dir;
+      if (j < 0 || j >= list.length) return {};
+      [list[index], list[j]] = [list[j], list[index]];
+      return { participants: list };
+    });
   };
 
   return (
@@ -1127,6 +1163,58 @@ export const AdminPanel: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'participants' && (
+            <div>
+              <p className="text-sm text-gray-500 mb-4">
+                Нүүр хуудсанд мэдээний хэсгийн дээр харагдана. Зөвхөн лого харагдана — нэр, холбоос
+                харуулахгүй. Том дэлгэцэн дээр нэг эгнээнд 8 лого багтана. Лого нэг ч байхгүй бол
+                тухайн хэсэг нүүрэнд огт харагдахгүй.
+              </p>
+
+              <label className="mb-6 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer">
+                {uploadingParticipants ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
+                {uploadingParticipants ? 'Байршуулж байна...' : 'Лого оруулах (олноор)'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  disabled={uploadingParticipants}
+                  onChange={e => {
+                    const files = e.target.files;
+                    if (files && files.length) uploadParticipantLogos(files);
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+
+              {!(data.participants || []).length ? (
+                <p className="text-sm text-gray-400">Одоогоор лого оруулаагүй байна.</p>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-400 mb-3">Нийт {(data.participants || []).length} лого</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {(data.participants || []).map((logo, i) => (
+                      <div key={`${logo}-${i}`} className="relative group bg-gray-50 border border-gray-200 rounded-lg p-2">
+                        <div className="aspect-[4/3] flex items-center justify-center bg-white rounded">
+                          <img src={logo} alt="" className="max-w-full max-h-full object-contain" />
+                        </div>
+                        <div className="flex justify-center gap-1 mt-2">
+                          <button onClick={() => moveParticipant(i, -1)} title="Өмнө зөөх"
+                            className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronUp size={16} /></button>
+                          <button onClick={() => moveParticipant(i, 1)} title="Ард зөөх"
+                            className="text-gray-500 hover:text-blue-600 p-1 hover:bg-gray-100 rounded"><ChevronDown size={16} /></button>
+                          <button onClick={() => removeParticipant(i)} title="Устгах"
+                            className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"><Trash2 size={16} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
