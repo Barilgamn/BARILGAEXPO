@@ -16,7 +16,7 @@ const shuffle = (arr: string[]) => {
 /** Оролцогч байгууллагуудын лого — зөвхөн зураг, нэр болон холбоосгүй.
  *  Том дэлгэцэн дээр нэг эгнээнд 8 лого харагдана. Лого байхгүй бол хэсэг нуугдана.
  *  Аль нэг байгууллага байнга эхэнд гарахгүйн тулд хуудас ачаалах бүрт дарааллыг холино.
- *  Хэсэг рүү гүйлгэж очиход логонууд ээлж дараалан томорч тодорно. */
+ *  Хэсэг рүү гүйлгэж очиход логонууд нэг нэгээрээ ээлжлэн томорч тодорно. */
 export const ParticipantsSection: React.FC = () => {
   const { data } = useAdmin();
   const { t } = useTranslation();
@@ -67,11 +67,14 @@ export const ParticipantsSection: React.FC = () => {
               key={`${logo}-${i}`}
               className={`aspect-[4/3] rounded-xl border border-gray-200 bg-white p-2 sm:p-3
                           flex items-center justify-center shadow-sm hover:shadow-md hover:border-blue-200
-                          hover:-translate-y-0.5
-                          transition-[opacity,scale,translate,box-shadow,border-color] duration-500 ease-out
-                          ${revealed ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
-              // Ээлжлэн гарах эффект — сүүлийн лого хүртэл нийт ~0.6 секундэд багтана.
-              style={{ transitionDelay: revealed ? `${Math.min(i * 45, 600)}ms` : '0ms' }}
+                          transition-[opacity,scale,translate,box-shadow,border-color] duration-700
+                          ${revealed ? 'opacity-100 scale-100 translate-y-0 hover:-translate-y-1' : 'opacity-0 scale-50 translate-y-4'}`}
+              style={{
+                // Лого бүр ээлжлэн, тод ялгаатайгаар гарна.
+                transitionDelay: revealed ? `${i * 90}ms` : '0ms',
+                // Төгсгөлдөө бага зэрэг хэтэрч буцах (back-out) — амьд мэдрэмж өгнө.
+                transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
             >
               <img
                 src={optimizeImage(logo, 240)}
