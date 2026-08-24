@@ -67,11 +67,12 @@ export const ParticipantsSection: React.FC = () => {
               key={`${logo}-${i}`}
               className={`aspect-[4/3] rounded-xl border border-gray-200 bg-white p-2 sm:p-3
                           flex items-center justify-center shadow-sm hover:shadow-md hover:border-blue-200
-                          transition-[opacity,scale,translate,box-shadow,border-color] duration-700
+                          transition-[opacity,scale,translate,box-shadow,border-color] duration-[380ms]
                           ${revealed ? 'opacity-100 scale-100 translate-y-0 hover:-translate-y-1' : 'opacity-0 scale-50 translate-y-4'}`}
               style={{
-                // Лого бүр ээлжлэн, тод ялгаатайгаар гарна.
-                transitionDelay: revealed ? `${i * 90}ms` : '0ms',
+                // Ээлжлэх нийт хугацааг логоны тооноос үл хамааран 520мс-д багтаана.
+                // (Тогтмол зай өгвөл 60+ лого дээр 2 секунд болж удааширдаг.)
+                transitionDelay: revealed ? `${Math.round((i / Math.max(logos.length - 1, 1)) * 520)}ms` : '0ms',
                 // Төгсгөлдөө бага зэрэг хэтэрч буцах (back-out) — амьд мэдрэмж өгнө.
                 transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
