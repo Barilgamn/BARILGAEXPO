@@ -835,11 +835,22 @@ export default function App() {
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-red-400 mt-1 shrink-0" />
-                  <p className="text-blue-100 text-sm">
-                    {data.contact.address}
-                  </p>
+                  <div className="text-blue-100 text-sm">
+                    <p className="text-white/60 text-xs uppercase tracking-wider mb-0.5">{t('contact_office_addr')}</p>
+                    <p>{data.contact.address}</p>
+                  </div>
                 </div>
-                
+
+                {data.contact.venueAddress && (
+                  <div className="flex items-start gap-3">
+                    <Building2 className="h-5 w-5 text-red-400 mt-1 shrink-0" />
+                    <div className="text-blue-100 text-sm">
+                      <p className="text-white/60 text-xs uppercase tracking-wider mb-0.5">{t('contact_venue_addr')}</p>
+                      <p>{data.contact.venueAddress}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-start gap-3">
                   <Calendar className="h-5 w-5 text-red-400 mt-1 shrink-0" />
                   <div className="text-blue-100 text-sm">

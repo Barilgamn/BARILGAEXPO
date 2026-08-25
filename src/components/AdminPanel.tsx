@@ -11,6 +11,19 @@ import { compressVideo } from '../utils/compressVideo';
 import { defaultTestimonials } from '../data/testimonials';
 import { optimizeImage } from '../utils/image';
 
+// Contact табын талбаруудын уншигдахуйц нэр
+const CONTACT_LABELS: Record<string, string> = {
+  phone1: 'Утас 1',
+  phone2: 'Утас 2',
+  phone3: 'Утас 3',
+  email: 'И-мэйл',
+  address: 'Оффисын хаяг',
+  venueAddress: 'Үзэсгэлэн болох газрын хаяг',
+  facebookUrl: 'Facebook хаяг',
+  instagramUrl: 'Instagram хаяг',
+  youtubeUrl: 'YouTube хаяг',
+};
+
 export const AdminPanel: React.FC = () => {
   const { data, updateData, saveDataToDb, isAuthenticated, userEmail, login, logout } = useAdmin();
   const [activeTab, setActiveTab] = useState('analytics');
@@ -887,8 +900,10 @@ export const AdminPanel: React.FC = () => {
           {activeTab === 'contact' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.keys(data.contact).map(key => (
-                <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">{key}</label>
+                <div key={key} className={key === 'address' || key === 'venueAddress' ? 'md:col-span-2' : ''}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {CONTACT_LABELS[key] || key}
+                  </label>
                   <input
                     type="text"
                     name={key}

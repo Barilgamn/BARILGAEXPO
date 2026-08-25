@@ -53,7 +53,8 @@ export interface ContactInfo {
   phone2: string;
   phone3: string;
   email: string;
-  address: string;
+  address: string;        // Оффисын хаяг
+  venueAddress?: string;  // Үзэсгэлэн болох газрын хаяг
   facebookUrl: string;
   instagramUrl: string;
   youtubeUrl: string;
@@ -96,6 +97,7 @@ const defaultContact = {
   phone3: '99907816',
   email: 'expo@barilga.mn',
   address: 'Улаанбаатар 13373, Баянзүрх дүүрэг, 6-р хороо, "BARILGA.MN" оффис',
+  venueAddress: 'Монгол улс, Улаанбаатар хот, Хан-Уул дүүрэг, 21-р хороо, "Буянт-Ухаа" ордон',
   facebookUrl: 'https://facebook.com/barilga.mn',
   instagramUrl: 'https://instagram.com/barilga.mn',
   youtubeUrl: 'https://www.youtube.com/barilgamn'
