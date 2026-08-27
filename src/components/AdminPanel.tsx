@@ -381,6 +381,18 @@ export const AdminPanel: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
+  /** Байршуулахын өмнө багасгана. Бүтэхгүй бол эх файлаар нь үргэлжлүүлнэ —
+   *  зураг оруулах үйлдэл багасгалтаас болж бүтэлгүйтэх ёсгүй. */
+  const asWebp = async (file: File, width: number): Promise<File> => {
+    try {
+      const small = await shrinkImage(file, width);
+      if (small.size >= file.size) return file;
+      return new File([small], `${Date.now()}.webp`, { type: 'image/webp' });
+    } catch {
+      return file;
+    }
+  };
+
   const uploadFileToMedia = async (file: File, folder: string, name: string | number) => {
     const ext = file.name.split('.').pop();
     const path = `${folder}/${name}-${Date.now()}.${ext}`;
@@ -396,7 +408,7 @@ export const AdminPanel: React.FC = () => {
     setUploadError('');
     setUploadingImage(true);
     try {
-      const url = await uploadFileToMedia(file, 'news', newsId);
+      const url = await uploadFileToMedia(await asWebp(file, 1200), 'news', newsId);
       updateNews(newsId, 'image', url);
     } catch (err: any) {
       setUploadError(err.message || 'Зураг байршуулахад алдаа гарлаа');
@@ -413,7 +425,7 @@ export const AdminPanel: React.FC = () => {
     try {
       const urls: string[] = [];
       for (const file of Array.from(files)) {
-        const url = await uploadFileToMedia(file, 'news', `${newsId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`);
+        const url = await uploadFileToMedia(await asWebp(file, 1200), 'news', `${newsId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`);
         urls.push(url);
       }
       updateData(prev => ({
@@ -582,7 +594,7 @@ export const AdminPanel: React.FC = () => {
     setUploadError('');
     setUploadingSponsorId(sponsorId);
     try {
-      const url = await uploadFileToMedia(file, 'sponsors', sponsorId);
+      const url = await uploadFileToMedia(await asWebp(file, 500), 'sponsors', sponsorId);
       updateSponsor(sponsorId, 'logo', url);
     } catch (err: any) {
       setUploadError(err.message || 'Лого байршуулахад алдаа гарлаа');
@@ -599,7 +611,7 @@ export const AdminPanel: React.FC = () => {
     try {
       const urls: string[] = [];
       for (const file of Array.from(files)) {
-        const url = await uploadFileToMedia(file, 'gallery', Date.now());
+        const url = await uploadFileToMedia(await asWebp(file, 1600), 'gallery', Date.now());
         urls.push(url);
       }
       updateData(prev => ({ gallery: [...urls, ...prev.gallery] }));
@@ -620,9 +632,7 @@ export const AdminPanel: React.FC = () => {
       const urls: string[] = [];
       for (const file of Array.from(files)) {
         // Нүүрэнд 140px-ээр харагддаг тул эхээр нь байршуулах шаардлагагүй
-        const small = await shrinkImage(file, 400);
-        const named = new File([small], `${Date.now()}.webp`, { type: small.type || 'image/webp' });
-        urls.push(await uploadFileToMedia(named, 'participants', Date.now()));
+        urls.push(await uploadFileToMedia(await asWebp(file, 400), 'participants', Date.now()));
       }
       // Урт байршуулалтын хугацаанд өөр өөрчлөлт орсон байж болзошгүй тул
       // хамгийн сүүлийн төлөвөөс (prev) шинэчилнэ.
@@ -671,35 +681,56 @@ export const AdminPanel: React.FC = () => {
   // Хуучин байршуулсан том логонуудыг нэг удаа багасгана
   const [shrinking, setShrinking] = useState('');
 
-  const shrinkParticipantLogos = async () => {
-    const list = data.participants || [];
-    if (!list.length) { setShrinking('Лого алга байна.'); return; }
+  /** Supabase дээрх бүх зургийг (лого, ивээн тэтгэгч, мэдээ) багасгаж WebP болгоно.
+   *  Нэг зураг бүрийн дараа шууд хадгална — дундуур тасарсан ч ажил үрэгдэхгүй. */
+  const shrinkAllImages = async () => {
     setUploadError('');
+    const isSb = (u?: string) => !!u && u.includes('supabase.co') && !/\.webp($|\?)/i.test(u);
+
+    type Job = { url: string; width: number; apply: (newUrl: string) => void };
+    const jobs: Job[] = [];
+
+    (data.participants || []).forEach((url, i) => {
+      if (isSb(url)) jobs.push({ url, width: 400, apply: nu => updateData(prev => {
+        const arr = [...(prev.participants || [])];
+        if (arr[i] === url) arr[i] = nu;
+        return { participants: arr };
+      })});
+    });
+
+    (data.sponsors || []).forEach(sp => {
+      if (isSb(sp.logo)) jobs.push({ url: sp.logo, width: 500, apply: nu => updateData(prev => ({
+        sponsors: prev.sponsors.map(x => x.id === sp.id ? { ...x, logo: nu } : x),
+      }))});
+    });
+
+    (data.news || []).forEach(n => {
+      if (isSb(n.image)) jobs.push({ url: n.image, width: 1200, apply: nu => updateData(prev => ({
+        news: prev.news.map(x => x.id === n.id ? { ...x, image: nu } : x),
+      }))});
+    });
+
+    if (!jobs.length) { setShrinking('Багасгах зураг алга байна.'); return; }
+
     let ok = 0, skipped = 0, failed = 0, saved = 0;
     let firstError = '';
 
-    for (let i = 0; i < list.length; i++) {
-      setShrinking(`${i + 1}/${list.length} багасгаж байна…`);
-      const url = list[i];
-      if (/\.webp($|\?)/i.test(url)) { skipped++; continue; }
+    for (let i = 0; i < jobs.length; i++) {
+      const job = jobs[i];
+      setShrinking(`${i + 1}/${jobs.length} багасгаж байна…`);
       try {
-        const orig = await (await fetch(url)).blob();
-        const small = await shrinkImage(orig, 400);
+        const orig = await (await fetch(job.url)).blob();
+        const small = await shrinkImage(orig, job.width);
         if (small.size >= orig.size) { skipped++; continue; }
         const named = new File([small], `${Date.now()}-${i}.webp`, { type: 'image/webp' });
-        const newUrl = await uploadFileToMedia(named, 'participants', `${Date.now()}-${i}`);
-        // Алхам тутамд хадгална — дундуур тасарсан ч хийсэн ажил үрэгдэхгүй
-        updateData(prev => {
-          const arr = [...(prev.participants || [])];
-          if (arr[i] === url) arr[i] = newUrl;
-          return { participants: arr };
-        });
+        const newUrl = await uploadFileToMedia(named, 'optimized', `${Date.now()}-${i}`);
+        job.apply(newUrl);
         saved += orig.size - small.size;
         ok++;
       } catch (e: any) {
         failed++;
         if (!firstError) firstError = e?.message || String(e);
-        console.warn('shrink failed', url, e);
+        console.warn('shrink failed', job.url, e);
       }
     }
 
@@ -709,7 +740,7 @@ export const AdminPanel: React.FC = () => {
       (failed ? `, ${failed} амжилтгүй` : '') +
       '. Хадгалах товчийг дарна уу.',
     );
-    if (failed) setUploadError(`${failed} лого багасгаж чадсангүй. Эхний алдаа: ${firstError}`);
+    if (failed) setUploadError(`${failed} зураг багасгаж чадсангүй. Эхний алдаа: ${firstError}`);
   };
 
   const removeParticipant = (index: number) => {
@@ -1352,21 +1383,22 @@ export const AdminPanel: React.FC = () => {
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-5">
                   <div className="flex flex-wrap items-center gap-3">
                     <button
-                      onClick={shrinkParticipantLogos}
+                      onClick={shrinkAllImages}
                       disabled={shrinking.includes('багасгаж')}
                       className="flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-2 rounded-lg hover:bg-amber-200 disabled:opacity-60 text-sm font-medium"
                     >
                       {shrinking.includes('багасгаж')
                         ? <Loader2 size={16} className="animate-spin" />
                         : <Image size={16} />}
-                      Логонуудыг багасгах
+                      Бүх зургийг багасгах
                     </button>
                     {shrinking && <span className="text-xs text-gray-700">{shrinking}</span>}
                   </div>
                   <p className="text-xs text-amber-800 mt-2">
-                    Логонууд нүүр хуудсанд 140px-ээр харагддаг ч эх хэмжээгээрээ дамжуулагдаж
-                    байвал интернэт урсгал их зарцуулна. Энэ товчийг нэг удаа дарж бүгдийг нь
-                    багасгаад Хадгалах товчийг дарна уу. Шинээр оруулах логонууд автоматаар багасна.
+                    Оролцогчийн лого, ивээн тэтгэгчийн лого, мэдээний зургийг бүгдийг нь багасгаж
+                    WebP болгоно. Эдгээр нь жижигхэн харагддаг мөртлөө эх хэмжээгээрээ дамжуулагдаж
+                    байгаа тул интернэт урсгал (egress) их зарцуулж байна. Нэг удаа дарж дуустал нь
+                    хүлээгээд Хадгалах товчийг дарна уу.
                   </p>
                 </div>
               )}
