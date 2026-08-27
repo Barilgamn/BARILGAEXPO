@@ -28,6 +28,7 @@ const TestimonialsSection = lazy(() => import('./components/TestimonialsSection'
 const IsometricFloorPlan = lazy(() => import('./components/IsometricFloorPlan').then(m => ({ default: m.IsometricFloorPlan })));
 const GuidePage = lazy(() => import('./components/GuidePage').then(m => ({ default: m.GuidePage })));
 const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({ default: m.BoothBooking })));
+const PosterMaker = lazy(() => import('./components/PosterMaker').then(m => ({ default: m.PosterMaker })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({ default: m.AuthCallback })));
 
@@ -762,6 +763,11 @@ export default function App() {
         <Route path="/booking" element={
           <Suspense fallback={<LoadingPlaceHolder />}>
             <BoothBooking />
+          </Suspense>
+        } />
+        <Route path="/poster" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <PosterMaker />
           </Suspense>
         } />
       </Routes>
