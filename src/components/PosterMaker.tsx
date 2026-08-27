@@ -23,16 +23,40 @@ const TEMPLATE_SRC = '/poster-template.png';
 const loadImage = (src: string) =>
   new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    // crossOrigin-ийг зөвхөн гадаад URL-д хэрэглэнэ. blob:/data: дээр тавивал
+    // зарим хөтөч дээр ачаалалт бүтэлгүйтдэг.
+    if (/^https?:/i.test(src)) img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error('Зураг ачаалж чадсангүй'));
     img.src = src;
   });
 
+/** Хөтөч дэмжихгүй байж болзошгүй форматууд (ялангуяа iPhone-ы HEIC). */
+const isUnsupported = (file: File) =>
+  /heic|heif|avif|tiff?$/i.test(file.type) || /\.(heic|heif|tif|tiff)$/i.test(file.name);
+
+/** Файлыг зурган болгож уншина. createImageBitmap илүү олон форматыг
+ *  тайлдаг тул эхэлж түүгээр, бүтэхгүй бол <img>-ээр оролдоно. */
+const decodeLogo = async (file: File): Promise<CanvasImageSource & { width: number; height: number }> => {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      return await createImageBitmap(file) as any;
+    } catch { /* доорх аргаар оролдоно */ }
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await loadImage(url);
+    // ImageBitmap-тай ижил интерфэйстэй болгоно
+    return Object.assign(img, { width: img.naturalWidth, height: img.naturalHeight }) as any;
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+};
+
 export const PosterMaker: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const templateRef = useRef<HTMLImageElement | null>(null);
-  const logoRef = useRef<HTMLImageElement | null>(null);
+  const logoRef = useRef<(CanvasImageSource & { width: number; height: number }) | null>(null);
 
   const [booth, setBooth] = useState('A7');
   const [logoName, setLogoName] = useState('');
@@ -73,10 +97,10 @@ export const PosterMaker: React.FC = () => {
 
     // --- Лого — хайрцагт багтаана, харьцаа нь хадгалагдана ---
     const logo = logoRef.current;
-    if (logo && logo.naturalWidth) {
-      const scale = Math.min(LOGO_BOX.w / logo.naturalWidth, LOGO_BOX.h / logo.naturalHeight);
-      const w = logo.naturalWidth * scale;
-      const h = logo.naturalHeight * scale;
+    if (logo && logo.width) {
+      const scale = Math.min(LOGO_BOX.w / logo.width, LOGO_BOX.h / logo.height);
+      const w = logo.width * scale;
+      const h = logo.height * scale;
       ctx.drawImage(
         logo,
         LOGO_BOX.x + (LOGO_BOX.w - w) / 2,
@@ -121,19 +145,29 @@ export const PosterMaker: React.FC = () => {
 
   const onPickLogo = async (file: File) => {
     setError('');
-    if (!file.type.startsWith('image/')) {
-      setError('Зөвхөн зураг оруулна уу (PNG, JPG, SVG).');
+    if (isUnsupported(file)) {
+      setError(
+        `Энэ форматыг (${file.name.split('.').pop()?.toUpperCase()}) хөтөч уншиж чадахгүй. ` +
+        'iPhone-оос авсан зураг бол PNG эсвэл JPG болгож хөрвүүлээд оруулна уу.',
+      );
+      return;
+    }
+    if (file.type && !file.type.startsWith('image/')) {
+      setError(`Зөвхөн зураг оруулна уу. Таны файл: ${file.type}`);
       return;
     }
     setBusy(true);
     try {
-      const url = URL.createObjectURL(file);
-      const img = await loadImage(url);
-      logoRef.current = img;
+      const logo = await decodeLogo(file);
+      if (!logo.width || !logo.height) throw new Error('хэмжээ тодорхойгүй');
+      logoRef.current = logo;
       setLogoName(file.name);
       draw();
-    } catch {
-      setError('Логог уншиж чадсангүй. Өөр файл оруулж үзнэ үү.');
+    } catch (e: any) {
+      setError(
+        `Логог уншиж чадсангүй (${file.name}). PNG эсвэл JPG хэлбэрээр оруулж үзнэ үү. ` +
+        `Дэлгэрэнгүй: ${e?.message || 'тодорхойгүй алдаа'}`,
+      );
     } finally {
       setBusy(false);
     }
