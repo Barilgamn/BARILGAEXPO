@@ -8,8 +8,9 @@ import { AdminUsersTab } from './AdminUsersTab';
 import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '../supabase';
 import { compressVideo } from '../utils/compressVideo';
+import { capturePosterFrame } from '../utils/posterFrame';
 import { defaultTestimonials } from '../data/testimonials';
-import { optimizeImage } from '../utils/image';
+import { optimizeImage, CACHE_ONE_YEAR, shrinkImage } from '../utils/image';
 
 // Contact табын талбаруудын уншигдахуйц нэр
 const CONTACT_LABELS: Record<string, string> = {
@@ -385,7 +386,7 @@ export const AdminPanel: React.FC = () => {
     const path = `${folder}/${name}-${Date.now()}.${ext}`;
     const { error: uploadErr } = await supabase.storage
       .from('media')
-      .upload(path, file, { cacheControl: '3600', upsert: true });
+      .upload(path, file, { cacheControl: CACHE_ONE_YEAR, upsert: true });
     if (uploadErr) throw uploadErr;
     const { data: publicUrlData } = supabase.storage.from('media').getPublicUrl(path);
     return publicUrlData.publicUrl;
@@ -442,7 +443,7 @@ export const AdminPanel: React.FC = () => {
       reels: [...(prev.reels ?? []), { id: Date.now().toString(), url: '', title: 'Reel' }],
     }));
   };
-  const updateReel = (id: string, field: 'url' | 'title', value: string) => {
+  const updateReel = (id: string, field: 'url' | 'title' | 'poster', value: string) => {
     updateData(prev => ({
       reels: (prev.reels ?? []).map(r => r.id === id ? { ...r, [field]: value } : r),
     }));
@@ -518,12 +519,50 @@ export const AdminPanel: React.FC = () => {
       );
       const url = await uploadFileToMedia(small, 'reels', reelId);
       updateReel(reelId, 'url', url);
+
+      // Нүүр кадрыг зураг болгож хадгална — эс бөгөөс нүүр хуудас бичлэг бүрийг
+      // татаж кадр гаргах болж, egress асар их зарцуулагдана.
+      setReelStage('Нүүр зураг үүсгэж байна…');
+      try {
+        const poster = await capturePosterFrame(URL.createObjectURL(small));
+        const posterUrl = await uploadFileToMedia(
+          new File([poster], 'poster.jpg', { type: 'image/jpeg' }), 'reel-posters', reelId,
+        );
+        updateReel(reelId, 'poster', posterUrl);
+      } catch (e) {
+        console.warn('poster frame failed', e);   // бичлэг өөрөө хадгалагдсан тул зогсоохгүй
+      }
     } catch (err: any) {
       setUploadError(err.message || 'Бичлэг байршуулахад алдаа гарлаа');
     } finally {
       setUploadingReelId(null);
       setReelStage('');
     }
+  };
+
+  // Нүүр зурагтай болоогүй хуучин бичлэгүүдэд нэг удаа нөхөж үүсгэнэ
+  const [backfilling, setBackfilling] = useState('');
+
+  const backfillPosters = async () => {
+    const missing = (data.reels ?? []).filter(r => !r.poster && r.url && r.url.includes('supabase.co'));
+    if (!missing.length) { setBackfilling('Бүх бичлэг нүүр зурагтай байна.'); return; }
+    setUploadError('');
+    let ok = 0;
+    for (let i = 0; i < missing.length; i++) {
+      const reel = missing[i];
+      setBackfilling(`${i + 1}/${missing.length} боловсруулж байна…`);
+      try {
+        const blob = await capturePosterFrame(reel.url);
+        const posterUrl = await uploadFileToMedia(
+          new File([blob], 'poster.jpg', { type: 'image/jpeg' }), 'reel-posters', reel.id,
+        );
+        updateReel(reel.id, 'poster', posterUrl);
+        ok++;
+      } catch (e: any) {
+        console.warn('backfill failed for', reel.id, e);
+      }
+    }
+    setBackfilling(`${ok}/${missing.length} бэлэн боллоо. Хадгалах товчийг дарна уу.`);
   };
 
   const moveReel = (id: string, dir: -1 | 1) => {
@@ -580,7 +619,10 @@ export const AdminPanel: React.FC = () => {
     try {
       const urls: string[] = [];
       for (const file of Array.from(files)) {
-        urls.push(await uploadFileToMedia(file, 'participants', Date.now()));
+        // Нүүрэнд 140px-ээр харагддаг тул эхээр нь байршуулах шаардлагагүй
+        const small = await shrinkImage(file, 400);
+        const named = new File([small], `${Date.now()}.webp`, { type: small.type || 'image/webp' });
+        urls.push(await uploadFileToMedia(named, 'participants', Date.now()));
       }
       // Урт байршуулалтын хугацаанд өөр өөрчлөлт орсон байж болзошгүй тул
       // хамгийн сүүлийн төлөвөөс (prev) шинэчилнэ.
@@ -625,6 +667,36 @@ export const AdminPanel: React.FC = () => {
     if (activeTab === 'participants') fetchMarketingLogos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
+
+  // Хуучин байршуулсан том логонуудыг нэг удаа багасгана
+  const [shrinking, setShrinking] = useState('');
+
+  const shrinkParticipantLogos = async () => {
+    const list = data.participants || [];
+    if (!list.length) { setShrinking('Лого алга байна.'); return; }
+    setUploadError('');
+    let ok = 0, saved = 0;
+    const next = [...list];
+    for (let i = 0; i < list.length; i++) {
+      setShrinking(`${i + 1}/${list.length} багасгаж байна…`);
+      const url = list[i];
+      if (/\.webp($|\?)/i.test(url)) continue;   // аль хэдийн багасгасан
+      try {
+        const res = await fetch(url);
+        const orig = await res.blob();
+        const small = await shrinkImage(orig, 400);
+        if (small.size >= orig.size) continue;     // ашиггүй бол хөндөхгүй
+        const named = new File([small], `${Date.now()}-${i}.webp`, { type: 'image/webp' });
+        next[i] = await uploadFileToMedia(named, 'participants', `${Date.now()}-${i}`);
+        saved += orig.size - small.size;
+        ok++;
+      } catch (e) {
+        console.warn('shrink failed', url, e);
+      }
+    }
+    updateData({ participants: next });
+    setShrinking(`${ok} лого багасгав, ${(saved / 1048576).toFixed(1)} МБ хэмнэлээ. Хадгалах товчийг дарна уу.`);
+  };
 
   const removeParticipant = (index: number) => {
     updateData(prev => ({ participants: (prev.participants || []).filter((_, i) => i !== index) }));
@@ -1077,13 +1149,35 @@ export const AdminPanel: React.FC = () => {
                 Нүүр хуудасны дээд зурагны доор story маягаар харагдана. Дээр нь дарахад бичлэг томроод дуутай тоглоно.
                 Босоо (9:16) бичлэг оруулбал хамгийн тохиромжтой. Нүүр зургийг бичлэгээс өөрөөс нь авна.
               </p>
-              <button onClick={addReel} className="mb-6 flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                <Plus size={18} /> Reel нэмэх
-              </button>
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <button onClick={addReel} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                  <Plus size={18} /> Reel нэмэх
+                </button>
+                <button
+                  onClick={backfillPosters}
+                  disabled={!!backfilling && backfilling.includes('боловсруулж')}
+                  className="flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-2 rounded-lg hover:bg-amber-200 disabled:opacity-60"
+                  title="Нүүр зураггүй хуучин бичлэгүүдэд нэг удаа үүсгэнэ"
+                >
+                  {backfilling.includes('боловсруулж')
+                    ? <Loader2 size={18} className="animate-spin" />
+                    : <Image size={18} />}
+                  Нүүр зураг нөхөх
+                </button>
+                {backfilling && <span className="text-xs text-gray-600">{backfilling}</span>}
+              </div>
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg p-3 mb-5">
+                Нүүр зураггүй бичлэг нүүр хуудсанд ачаалагдахдаа өөрийгөө бүтнээр нь татдаг тул
+                интернэт урсгал (egress) их зарцуулна. Дээрх товчийг нэг удаа дарж бүх бичлэгт
+                нүүр зураг үүсгээд, дараа нь Хадгалах товчийг дарна уу.
+              </div>
               <div className="space-y-4">
                 {reels.map(reel => (
                   <div key={reel.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {reel.url ? (
+                    {reel.poster ? (
+                      <img src={reel.poster} alt=""
+                        className="w-14 h-20 object-cover rounded-lg bg-slate-900 shrink-0" />
+                    ) : reel.url ? (
                       <video src={reel.url} muted playsInline preload="metadata"
                         className="w-14 h-20 object-cover rounded-lg bg-slate-900 shrink-0" />
                     ) : (
@@ -1239,6 +1333,29 @@ export const AdminPanel: React.FC = () => {
                   }}
                 />
               </label>
+
+              {(data.participants || []).length > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-5">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={shrinkParticipantLogos}
+                      disabled={shrinking.includes('багасгаж')}
+                      className="flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-2 rounded-lg hover:bg-amber-200 disabled:opacity-60 text-sm font-medium"
+                    >
+                      {shrinking.includes('багасгаж')
+                        ? <Loader2 size={16} className="animate-spin" />
+                        : <Image size={16} />}
+                      Логонуудыг багасгах
+                    </button>
+                    {shrinking && <span className="text-xs text-gray-700">{shrinking}</span>}
+                  </div>
+                  <p className="text-xs text-amber-800 mt-2">
+                    Логонууд нүүр хуудсанд 140px-ээр харагддаг ч эх хэмжээгээрээ дамжуулагдаж
+                    байвал интернэт урсгал их зарцуулна. Энэ товчийг нэг удаа дарж бүгдийг нь
+                    багасгаад Хадгалах товчийг дарна уу. Шинээр оруулах логонууд автоматаар багасна.
+                  </p>
+                </div>
+              )}
 
               {!(data.participants || []).length ? (
                 <p className="text-sm text-gray-400">Одоогоор лого оруулаагүй байна.</p>

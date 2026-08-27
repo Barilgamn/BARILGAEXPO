@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Upload, Download, Loader2, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { supabase } from '../supabase';
+import { CACHE_ONE_YEAR } from '../utils/image';
 
 /* Загварын хэмжээ ба байрлалууд — эх PNG (1800x1641) дээр хэмжсэн утгууд. */
 const W = 1800;
@@ -197,7 +198,7 @@ export const PosterMaker: React.FC = () => {
       const path = `marketing-logos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from('media')
-        .upload(path, file, { cacheControl: '3600', upsert: false });
+        .upload(path, file, { cacheControl: CACHE_ONE_YEAR, upsert: false });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from('media').getPublicUrl(path);
       await supabase.from('marketing_logos').insert({

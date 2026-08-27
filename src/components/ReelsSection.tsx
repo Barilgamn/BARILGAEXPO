@@ -120,8 +120,9 @@ export const ReelsSection: React.FC = () => {
                          ring-1 ring-white/10 hover:ring-white/40 transition-all group"
               style={{ width: CARD_W, aspectRatio: '9 / 16' }}
             >
-              {/* Нүүр кадр: байршуулсан бичлэгээс, хуучин FB холбоос бол сервер талаас.
-                  Ачаалалтыг браузерын өөрийн lazy / preload=metadata зохицуулна. */}
+              {/* Нүүр кадр нь ЗУРАГ байх ёстой. <video>-г карт бүрт тавибал хөтөч
+                  кадр гаргахын тулд бичлэг бүрээс мегабайтаар татдаг (egress иддэг).
+                  poster байхгүй хуучин бичлэгт л видео рүү шилжинэ. */}
               {isFacebook(reel.url) ? (
                 <img
                   src={`/api/fb-thumb?url=${encodeURIComponent(reel.url)}`}
@@ -129,6 +130,13 @@ export const ReelsSection: React.FC = () => {
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
+              ) : reel.poster ? (
+                <img
+                  src={reel.poster}
+                  alt={reel.title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
                 <video

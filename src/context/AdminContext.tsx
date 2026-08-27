@@ -25,6 +25,8 @@ export interface Reel {
   id: string;
   url: string;   // Facebook reel-ийн холбоос
   title: string; // Карт дээр харагдах богино нэр (заавал биш)
+  poster?: string; // Нүүр кадрын зураг. Байхгүй бол карт нь бичлэгийг өөрийг нь
+                   // татаж кадр гаргадаг тул egress их иддэг.
 }
 
 export interface ProgramEvent {
