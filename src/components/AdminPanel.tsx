@@ -680,6 +680,7 @@ export const AdminPanel: React.FC = () => {
 
   // Хуучин байршуулсан том логонуудыг нэг удаа багасгана
   const [shrinking, setShrinking] = useState('');
+  const [shrinkErrors, setShrinkErrors] = useState<string[]>([]);
 
   /** Supabase дээрх бүх зургийг (лого, ивээн тэтгэгч, мэдээ) багасгаж WebP болгоно.
    *  Нэг зураг бүрийн дараа шууд хадгална — дундуур тасарсан ч ажил үрэгдэхгүй. */
@@ -713,24 +714,33 @@ export const AdminPanel: React.FC = () => {
     if (!jobs.length) { setShrinking('Багасгах зураг алга байна.'); return; }
 
     let ok = 0, skipped = 0, failed = 0, saved = 0;
-    let firstError = '';
+    const errors = new Set<string>();
 
     for (let i = 0; i < jobs.length; i++) {
       const job = jobs[i];
       setShrinking(`${i + 1}/${jobs.length} багасгаж байна…`);
+      // Аль шатанд унасныг мэдэхийн тулд шат бүрийг тусад нь барина
+      let stage = 'татах';
       try {
-        const orig = await (await fetch(job.url)).blob();
+        const res = await fetch(job.url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const orig = await res.blob();
+
+        stage = 'багасгах';
         const small = await shrinkImage(orig, job.width);
         if (small.size >= orig.size) { skipped++; continue; }
+
+        stage = 'байршуулах';
         const named = new File([small], `${Date.now()}-${i}.webp`, { type: 'image/webp' });
         const newUrl = await uploadFileToMedia(named, 'optimized', `${Date.now()}-${i}`);
+
         job.apply(newUrl);
         saved += orig.size - small.size;
         ok++;
       } catch (e: any) {
         failed++;
-        if (!firstError) firstError = e?.message || String(e);
-        console.warn('shrink failed', job.url, e);
+        errors.add(`${stage}: ${e?.message || e?.error || String(e)}`);
+        console.warn('shrink failed', stage, job.url, e);
       }
     }
 
@@ -740,7 +750,7 @@ export const AdminPanel: React.FC = () => {
       (failed ? `, ${failed} амжилтгүй` : '') +
       '. Хадгалах товчийг дарна уу.',
     );
-    if (failed) setUploadError(`${failed} зураг багасгаж чадсангүй. Эхний алдаа: ${firstError}`);
+    setShrinkErrors(failed ? [...errors].slice(0, 4) : []);
   };
 
   const removeParticipant = (index: number) => {
@@ -1394,6 +1404,14 @@ export const AdminPanel: React.FC = () => {
                     </button>
                     {shrinking && <span className="text-xs text-gray-700">{shrinking}</span>}
                   </div>
+                  {shrinkErrors.length > 0 && (
+                    <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-xs font-bold text-red-700 mb-1">Алдаанууд:</p>
+                      <ul className="text-xs text-red-700 space-y-0.5 list-disc list-inside">
+                        {shrinkErrors.map((er, i) => <li key={i}>{er}</li>)}
+                      </ul>
+                    </div>
+                  )}
                   <p className="text-xs text-amber-800 mt-2">
                     Оролцогчийн лого, ивээн тэтгэгчийн лого, мэдээний зургийг бүгдийг нь багасгаж
                     WebP болгоно. Эдгээр нь жижигхэн харагддаг мөртлөө эх хэмжээгээрээ дамжуулагдаж
