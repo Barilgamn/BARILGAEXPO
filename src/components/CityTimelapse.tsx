@@ -92,8 +92,9 @@ export const CityTimelapse: React.FC<Props> = ({ src, className = '', trails = t
 
       <style>{`
         .ct-pan {
-          transform-origin: 55% 60%;
-          animation: ctPan 40s ease-in-out infinite alternate;
+          transform-origin: 52% 55%;
+          /* Дрон дээрээс хөвж буй мэт — эргэж ирдэг тул alternate хэрэггүй. */
+          animation: ctDrone 72s ease-in-out infinite;
           will-change: transform;
         }
         .ct-glow {
@@ -102,9 +103,15 @@ export const CityTimelapse: React.FC<Props> = ({ src, className = '', trails = t
           animation: ctGlow 9s ease-in-out infinite;
           will-change: opacity;
         }
-        @keyframes ctPan {
-          0%   { transform: scale(1.06) translate3d(0, 0, 0); }
-          100% { transform: scale(1.18) translate3d(-2%, -2%, 0); }
+        /* Дрон удаанаар доошилж, бага зэрэг хажуу тийш хөвж, эргэн ирнэ.
+           Эргэлт маш бага (0.5°) — scale 1.08+ тул булан хоосорхгүй. */
+        @keyframes ctDrone {
+          0%   { transform: scale(1.08) translate3d(0, 0, 0)          rotate(0deg); }
+          20%  { transform: scale(1.11) translate3d(-1.1%, -0.5%, 0)  rotate(0.18deg); }
+          40%  { transform: scale(1.15) translate3d(-1.9%, -1.4%, 0)  rotate(0.42deg); }
+          60%  { transform: scale(1.16) translate3d(-1.2%, -2.2%, 0)  rotate(0.30deg); }
+          80%  { transform: scale(1.12) translate3d(-0.3%, -1.3%, 0)  rotate(0.10deg); }
+          100% { transform: scale(1.08) translate3d(0, 0, 0)          rotate(0deg); }
         }
         @keyframes ctGlow {
           0%, 100% { opacity: 0.06; }
