@@ -355,11 +355,11 @@ export default function App() {
             {/* Hero Section */}
             <section id="home" className="relative pt-28 pb-12 md:pb-0 md:pt-20 min-h-[100svh] md:min-h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full bg-blue-950">
-          <div className="absolute inset-0 bg-blueprint z-10 opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/50 via-blue-900/35 to-blue-900/10 mix-blend-multiply z-10" />
+          <div className="absolute inset-0 bg-blueprint z-10 opacity-35" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/35 via-blue-900/20 to-blue-900/5 mix-blend-multiply z-10" />
           <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-blue-950/80 to-transparent z-10" />
           {/* Дэвсгэр — Улаанбаатарын зургийг timelapse мэт удаан хөдөлгөөнтэй болгосон */}
-          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-90 blur-[1.5px]" />
+          <CityTimelapse src="/hero-city.jpg" trails={false} className="w-full h-full blur-[1px]" />
           {/* Текст уншигдахуйц байхын тулд зүүн талд харанхуй давхарга (баруун тал ил тод) */}
           <div className="absolute inset-0 z-[15] bg-gradient-to-r from-blue-950/85 via-blue-950/40 to-transparent" />
         </div>

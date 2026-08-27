@@ -3,6 +3,10 @@ import React from 'react';
 interface Props {
   src: string;
   className?: string;
+  /** Машины гэрлийн урсгал ба анивчих давхаргыг харуулах эсэх.
+   *  Замын замнал нь шөнийн зурагт тааруулж гараар зурсан тул өдрийн
+   *  зураг тавихад унтраана (эс бөгөөс байшин дээгүүр гэрэл гүйнэ). */
+  trails?: boolean;
 }
 
 /** Зургийн координат (1600x1351) дахь гол замууд — гэрлийн цацраг эдгээрийг дагаж хөдөлнө. */
@@ -30,7 +34,7 @@ const ROADS: { d: string; color: string; r: number; count: number; dur: number; 
  *  3) Гол замууд дагуу хөдлөх гэрлийн цацраг — машин явж буй мэт.
  * Бүх давхарга нэг pan дотор тул цацраг зурагтайгаа цуг хөдөлнө.
  */
-export const CityTimelapse: React.FC<Props> = ({ src, className = '' }) => {
+export const CityTimelapse: React.FC<Props> = ({ src, className = '', trails = true }) => {
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
       <div className="ct-pan absolute inset-0">
@@ -38,6 +42,7 @@ export const CityTimelapse: React.FC<Props> = ({ src, className = '' }) => {
         <img src={src} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
 
         {/* Машины гэрлийн урсгал */}
+        {trails && (
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox="0 0 1600 1351"
@@ -71,8 +76,10 @@ export const CityTimelapse: React.FC<Props> = ({ src, className = '' }) => {
             )}
           </g>
         </svg>
+        )}
 
         {/* Гэрэл анивчих давхарга */}
+        {trails && (
         <img
           src={src}
           alt=""
@@ -80,6 +87,7 @@ export const CityTimelapse: React.FC<Props> = ({ src, className = '' }) => {
           className="ct-glow absolute inset-0 w-full h-full object-cover"
           style={{ mixBlendMode: 'screen' }}
         />
+        )}
       </div>
 
       <style>{`
