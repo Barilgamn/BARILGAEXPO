@@ -45,9 +45,8 @@ export const shrinkImage = async (
 
     const w = img.naturalWidth, h = img.naturalHeight;
     if (!w || !h) throw new Error('Зургийн хэмжээ тодорхойгүй');
-    // Аль хэдийн жижиг бол дахин шахахгүй (чанар унана)
-    if (w <= maxWidth && typeof source !== 'string') return source;
-
+    // Өргөн нь аль хэдийн бага байсан ч WebP болгож дахин кодлоно —
+    // хэмнэлтийн ихэнх нь хэмжээнээс биш форматаас гардаг.
     const scale = Math.min(1, maxWidth / w);
     const canvas = document.createElement('canvas');
     canvas.width = Math.round(w * scale);

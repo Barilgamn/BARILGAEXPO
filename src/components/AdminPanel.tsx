@@ -675,27 +675,41 @@ export const AdminPanel: React.FC = () => {
     const list = data.participants || [];
     if (!list.length) { setShrinking('Лого алга байна.'); return; }
     setUploadError('');
-    let ok = 0, saved = 0;
-    const next = [...list];
+    let ok = 0, skipped = 0, failed = 0, saved = 0;
+    let firstError = '';
+
     for (let i = 0; i < list.length; i++) {
       setShrinking(`${i + 1}/${list.length} багасгаж байна…`);
       const url = list[i];
-      if (/\.webp($|\?)/i.test(url)) continue;   // аль хэдийн багасгасан
+      if (/\.webp($|\?)/i.test(url)) { skipped++; continue; }
       try {
-        const res = await fetch(url);
-        const orig = await res.blob();
+        const orig = await (await fetch(url)).blob();
         const small = await shrinkImage(orig, 400);
-        if (small.size >= orig.size) continue;     // ашиггүй бол хөндөхгүй
+        if (small.size >= orig.size) { skipped++; continue; }
         const named = new File([small], `${Date.now()}-${i}.webp`, { type: 'image/webp' });
-        next[i] = await uploadFileToMedia(named, 'participants', `${Date.now()}-${i}`);
+        const newUrl = await uploadFileToMedia(named, 'participants', `${Date.now()}-${i}`);
+        // Алхам тутамд хадгална — дундуур тасарсан ч хийсэн ажил үрэгдэхгүй
+        updateData(prev => {
+          const arr = [...(prev.participants || [])];
+          if (arr[i] === url) arr[i] = newUrl;
+          return { participants: arr };
+        });
         saved += orig.size - small.size;
         ok++;
-      } catch (e) {
+      } catch (e: any) {
+        failed++;
+        if (!firstError) firstError = e?.message || String(e);
         console.warn('shrink failed', url, e);
       }
     }
-    updateData({ participants: next });
-    setShrinking(`${ok} лого багасгав, ${(saved / 1048576).toFixed(1)} МБ хэмнэлээ. Хадгалах товчийг дарна уу.`);
+
+    setShrinking(
+      `Дууслаа — ${ok} багасгав (${(saved / 1048576).toFixed(1)} МБ хэмнэв)` +
+      (skipped ? `, ${skipped} алгасав` : '') +
+      (failed ? `, ${failed} амжилтгүй` : '') +
+      '. Хадгалах товчийг дарна уу.',
+    );
+    if (failed) setUploadError(`${failed} лого багасгаж чадсангүй. Эхний алдаа: ${firstError}`);
   };
 
   const removeParticipant = (index: number) => {
