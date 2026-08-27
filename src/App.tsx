@@ -17,6 +17,7 @@ import { CityTimelapse } from './components/CityTimelapse';
 import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
+const VideoSection = lazy(() => import('./components/VideoSection').then(m => ({ default: m.VideoSection })));
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
 const ReelsSection = lazy(() => import('./components/ReelsSection').then(m => ({ default: m.ReelsSection })));
 const ParticipantsSection = lazy(() => import('./components/ParticipantsSection').then(m => ({ default: m.ParticipantsSection })));
@@ -597,6 +598,11 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* Үзэсгэлэнгийн танилцуулга бичлэг */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <VideoSection />
+      </Suspense>
 
       {/* Stats Counters Section */}
       <Suspense fallback={<LoadingPlaceHolder />}>
