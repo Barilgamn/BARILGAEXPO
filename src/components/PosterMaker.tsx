@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Upload, Download, Loader2, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { supabase } from '../supabase';
 
 /* Загварын хэмжээ ба байрлалууд — эх PNG (1800x1641) дээр хэмжсэн утгууд. */
 const W = 1800;
@@ -57,6 +58,8 @@ export const PosterMaker: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const templateRef = useRef<HTMLImageElement | null>(null);
   const logoRef = useRef<(CanvasImageSource & { width: number; height: number }) | null>(null);
+  const logoFileRef = useRef<File | null>(null);
+  const savedRef = useRef(false);   // нэг лого нэг л удаа хадгалагдана
 
   const [booth, setBooth] = useState('A7');
   const [logoName, setLogoName] = useState('');
@@ -161,6 +164,8 @@ export const PosterMaker: React.FC = () => {
       const logo = await decodeLogo(file);
       if (!logo.width || !logo.height) throw new Error('хэмжээ тодорхойгүй');
       logoRef.current = logo;
+      logoFileRef.current = file;
+      savedRef.current = false;
       setLogoName(file.name);
       draw();
     } catch (e: any) {
@@ -175,13 +180,41 @@ export const PosterMaker: React.FC = () => {
 
   const removeLogo = () => {
     logoRef.current = null;
+    logoFileRef.current = null;
+    savedRef.current = false;
     setLogoName('');
     draw();
+  };
+
+  /** Татаж авсан логог "Хамтын маркетингийн логонууд" жагсаалтад нэмнэ.
+   *  Амжилтгүй болсон ч татаж авахад саад болохгүй — чимээгүй өнгөрнө. */
+  const saveLogoForMarketing = async () => {
+    const file = logoFileRef.current;
+    if (!file || savedRef.current) return;
+    savedRef.current = true;   // давхар хадгалахаас сэргийлнэ
+    try {
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase().slice(0, 5);
+      const path = `marketing-logos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('media')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('media').getPublicUrl(path);
+      await supabase.from('marketing_logos').insert({
+        logo_url: pub.publicUrl,
+        booth: (booth.trim() || 'A7').toUpperCase(),
+        file_name: file.name,
+      });
+    } catch (e) {
+      savedRef.current = false;    // дараагийн татахад дахин оролдоно
+      console.warn('marketing logo save failed', e);
+    }
   };
 
   const download = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    saveLogoForMarketing();
     canvas.toBlob(blob => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);

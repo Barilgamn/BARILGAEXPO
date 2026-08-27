@@ -592,6 +592,40 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
+  // --- Хамтын маркетингийн логонууд (/poster хуудсаар татаж авсан) ---
+  type MarketingLogo = { id: number; logo_url: string; booth: string | null; file_name: string | null; created_at: string };
+  const [mktLogos, setMktLogos] = useState<MarketingLogo[]>([]);
+  const [mktLoading, setMktLoading] = useState(false);
+  const [mktError, setMktError] = useState('');
+
+  const fetchMarketingLogos = async () => {
+    setMktLoading(true); setMktError('');
+    try {
+      const { data: rows, error } = await supabase
+        .from('marketing_logos')
+        .select('id, logo_url, booth, file_name, created_at')
+        .order('created_at', { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      setMktLogos(rows || []);
+    } catch (e: any) {
+      setMktError(e?.message || 'Уншихад алдаа гарлаа');
+    } finally {
+      setMktLoading(false);
+    }
+  };
+
+  const deleteMarketingLogo = async (id: number) => {
+    const { error } = await supabase.from('marketing_logos').delete().eq('id', id);
+    if (error) { setMktError(error.message); return; }
+    setMktLogos(prev => prev.filter(r => r.id !== id));
+  };
+
+  useEffect(() => {
+    if (activeTab === 'participants') fetchMarketingLogos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
   const removeParticipant = (index: number) => {
     updateData(prev => ({ participants: (prev.participants || []).filter((_, i) => i !== index) }));
   };
@@ -1230,6 +1264,64 @@ export const AdminPanel: React.FC = () => {
                   </div>
                 </>
               )}
+
+              {/* --- Хамтын маркетингийн логонууд --- */}
+              <div className="mt-10 pt-8 border-t border-gray-200">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <h3 className="font-bold text-gray-900">Хамтын маркетингийн логонууд</h3>
+                  <button
+                    onClick={fetchMarketingLogos}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 shrink-0"
+                  >
+                    <RefreshCw size={14} /> Шинэчлэх
+                  </button>
+                </div>
+                <p className="text-sm text-gray-500 mb-4">
+                  Оролцогчид /poster хуудсаар зурагт хуудсаа татаж авахдаа оруулсан логонууд.
+                  Энэ жагсаалт нүүр хуудсанд харагдахгүй — зөвхөн танд харагдана.
+                </p>
+
+                {mktError && (
+                  <div className="bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-4 mb-4">
+                    Алдаа: {mktError}. "supabase-marketing-logos.sql" скриптийг Supabase дээр ажиллуулсан эсэхээ шалгаарай.
+                  </div>
+                )}
+
+                {mktLoading ? (
+                  <div className="flex items-center gap-2 text-gray-400 text-sm py-6">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Ачаалж байна...
+                  </div>
+                ) : !mktLogos.length ? (
+                  <p className="text-sm text-gray-400">Одоогоор нэг ч лого татагдаагүй байна.</p>
+                ) : (
+                  <>
+                    <p className="text-xs text-gray-400 mb-3">Нийт {mktLogos.length} лого</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                      {mktLogos.map(row => (
+                        <div key={row.id} className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+                          <a href={row.logo_url} target="_blank" rel="noopener noreferrer"
+                             className="block aspect-[4/3] flex items-center justify-center bg-white rounded overflow-hidden">
+                            <img src={row.logo_url} alt="" className="max-w-full max-h-full object-contain" />
+                          </a>
+                          <div className="mt-2 text-[11px] text-gray-600 text-center truncate" title={row.file_name || ''}>
+                            {row.booth ? <span className="font-bold text-blue-700">{row.booth}</span> : null}
+                            {row.file_name ? <span className="text-gray-400"> · {row.file_name}</span> : null}
+                          </div>
+                          <div className="text-[10px] text-gray-400 text-center">
+                            {new Date(row.created_at).toLocaleDateString('mn-MN')}
+                          </div>
+                          <button
+                            onClick={() => deleteMarketingLogo(row.id)}
+                            className="mt-1 w-full flex items-center justify-center gap-1 text-red-500 hover:text-red-700 text-[11px] py-1 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 size={12} /> Устгах
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
