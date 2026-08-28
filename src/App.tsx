@@ -240,14 +240,14 @@ export default function App() {
                   src={data.logoUrl}
                   alt="Barilga Expo Logo"
                   referrerPolicy="no-referrer"
-                  className="h-8 sm:h-10 md:h-16 object-contain brightness-0 invert transition-all shrink-0"
+                  className="h-11 sm:h-14 md:h-[4.5rem] object-contain brightness-0 invert transition-all shrink-0"
                 />
-                <div className="w-px h-6 sm:h-8 md:h-10 bg-white/30 shrink-0"></div>
+                <div className="w-px h-7 sm:h-9 md:h-12 bg-white/30 shrink-0"></div>
                 <img
                   src="https://mcud.gov.mn/resource/mcud/image/2026/03/02/2eepuf1io6kp37z3/100%20logo_01.png"
                   alt="Их Барилга 100"
                   referrerPolicy="no-referrer"
-                  className="h-6 sm:h-8 md:h-12 object-contain brightness-0 invert transition-all pb-1 shrink-0"
+                  className="h-9 sm:h-12 md:h-16 object-contain brightness-0 invert transition-all pb-1 shrink-0"
                 />
               </Link>
             </div>
