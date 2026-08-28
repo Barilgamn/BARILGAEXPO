@@ -72,6 +72,8 @@ export default function App() {
     return () => { document.body.style.overflow = ''; };
   }, [isMenuOpen]);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  // Үзэсгэлэн эхлэхээс өмнө / явагдаж байх / өндөрлөсөн гэсэн 3 төлөв
+  const [phase, setPhase] = useState<'before' | 'live' | 'ended'>('before');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
   const [regType, setRegType] = useState<'visitor' | 'exhibitor' | null>(null);
@@ -205,19 +207,26 @@ export default function App() {
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
-    const targetDate = new Date('2026-09-11T00:00:00').getTime();
+    // Улаанбаатарын цагаар (UTC+8) — эс бөгөөс зочны цагийн бүсээс хамаарч
+    // тоолуур өөр өөр утга харуулна.
+    const startDate = new Date('2026-09-11T00:00:00+08:00').getTime();
+    const endDate   = new Date('2026-09-14T00:00:00+08:00').getTime();  // 13-ны төгсгөл
 
     const updateTimer = () => {
       const now = new Date().getTime();
-      const difference = targetDate - now;
+      const difference = startDate - now;
 
       if (difference > 0) {
+        setPhase('before');
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
           minutes: Math.floor((difference / 1000 / 60) % 60),
           seconds: Math.floor((difference / 1000) % 60),
         });
+      } else {
+        // Тоолуур 0 болмогц хөлдөж үлдэхгүй — төлөвөө сольж мессеж харуулна
+        setPhase(now < endDate ? 'live' : 'ended');
       }
     };
 
@@ -436,10 +445,25 @@ export default function App() {
                 <div className="absolute inset-0 bg-blueprint z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-1000"></div>
                 
                 <h3 className="text-red-400 font-bold mb-6 flex items-center gap-2 relative z-10 text-sm tracking-widest uppercase">
-                  <Timer className="h-5 w-5" />
-                  {t('starts_in')}
+                  {phase === 'live'
+                    ? <span className="relative flex h-3 w-3 shrink-0">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                      </span>
+                    : <Timer className="h-5 w-5" />}
+                  {phase === 'before' ? t('starts_in') : phase === 'live' ? t('expo_live') : t('expo_ended')}
                 </h3>
-                
+
+                {phase !== 'before' ? (
+                  <div className="relative z-10 bg-blue-950/60 rounded-xl p-5 border border-blue-400/20 backdrop-blur-sm text-center">
+                    <p className="text-2xl sm:text-3xl font-black text-white mb-2">
+                      {t('when_date')}
+                    </p>
+                    <p className="text-sm text-blue-200/80">
+                      {phase === 'live' ? t('expo_live_note') : t('expo_ended_note')}
+                    </p>
+                  </div>
+                ) : (
                 <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center relative z-10">
                   <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
                     <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.days}</div>
@@ -458,6 +482,7 @@ export default function App() {
                     <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('seconds')}</div>
                   </div>
                 </div>
+                )}
                 
                 <div className="mt-6 pt-6 border-t border-blue-400/20 text-center relative z-10">
                   {(() => {
