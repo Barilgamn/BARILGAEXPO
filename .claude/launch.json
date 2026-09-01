@@ -4,8 +4,35 @@
     {
       "name": "dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "barilgachin-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/ochir/Desktop/barilgachin.mn",
+        "run",
+        "dev"
+      ],
+      "port": 3100
+    },
+    {
+      "name": "barilgachin-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/ochir/Desktop/barilgachin-web",
+        "run",
+        "dev",
+        "--",
+        "--port=3200"
+      ],
+      "port": 3200
     }
   ]
 }

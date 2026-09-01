@@ -328,11 +328,13 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Эхлээд хамгийн сүүлийн админ жагсаалтыг авна
-    await fetchAdminEmails();
-
+    // ЭХЛЭЭД нэвтэрнэ. Админ жагсаалтыг зөвхөн үүний ДАРАА уншина —
+    // эс бөгөөс admin_users хүснэгтийг нийтэд нээлттэй болгох шаардлагатай
+    // болж, админуудын и-мэйл хаяг задардаг.
     const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
+    await fetchAdminEmails();
 
     if (!authData.user?.email || !isAllowedAdminEmail(authData.user.email)) {
       await supabase.auth.signOut();
