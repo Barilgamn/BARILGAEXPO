@@ -209,8 +209,9 @@ export default function App() {
   useEffect(() => {
     // Улаанбаатарын цагаар (UTC+8) — эс бөгөөс зочны цагийн бүсээс хамаарч
     // тоолуур өөр өөр утга харуулна.
-    const startDate = new Date('2026-09-11T00:00:00+08:00').getTime();
-    const endDate   = new Date('2026-09-14T00:00:00+08:00').getTime();  // 13-ны төгсгөл
+    // Хаалга нээгдэх/хаагдах яг мөч (Улаанбаатарын цагаар, UTC+8).
+    const startDate = new Date('2026-09-11T09:00:00+08:00').getTime();
+    const endDate   = new Date('2026-09-13T18:00:00+08:00').getTime();
 
     const updateTimer = () => {
       const now = new Date().getTime();
