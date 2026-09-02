@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote, Languages, Building2 } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
+import { B2BRequestsTab } from './B2BRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
 import { AnalyticsTab } from './AnalyticsTab';
 import { AdminUsersTab } from './AdminUsersTab';
@@ -206,6 +207,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'analytics', label: 'Статистик (Analytics)', icon: <BarChart3 size={18} /> },
     { id: 'registrations', label: 'Бүртгэлүүд (Registrations)', icon: <Users size={18} /> },
     { id: 'booth_requests', label: 'Талбайн захиалга (Booth Requests)', icon: <MapPin size={18} /> },
+    { id: 'b2b', label: 'B2B бүртгэл', icon: <Users size={18} /> },
     { id: 'booth_info', label: 'Талбайн мэдээлэл (Booth Info)', icon: <MapPin size={18} /> },
     { id: 'logo', label: 'Website Logo', icon: <Image size={18} /> },
     { id: 'menus', label: 'Menus', icon: <Menu size={18} /> },
@@ -800,7 +802,7 @@ export const AdminPanel: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto max-h-screen">
-        <div className={`${activeTab === 'booth_info' || activeTab === 'booth_requests' || activeTab === 'analytics' ? 'max-w-7xl' : 'max-w-4xl'} mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8`}>
+        <div className={`${activeTab === 'booth_info' || activeTab === 'booth_requests' || activeTab === 'analytics' || activeTab === 'b2b' ? 'max-w-7xl' : 'max-w-4xl'} mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8`}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-gray-100 pb-6">
             <div>
               <h1 className="text-2xl font-bold capitalize text-slate-900">{tabs.find(t => t.id === activeTab)?.label}</h1>
@@ -1363,6 +1365,8 @@ export const AdminPanel: React.FC = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'b2b' && <B2BRequestsTab />}
 
           {activeTab === 'participants' && (
             <div>
