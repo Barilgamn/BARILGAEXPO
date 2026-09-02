@@ -239,29 +239,32 @@ export const B2BRegistration: React.FC = () => {
                 { v: true,  main: 'Тийм, Booth-тэй оролцож байгаа', sub: 'Үнэгүй оролцоно' },
                 { v: false, main: 'Үгүй, Booth-гүй оролцож байгаа', sub: `Бүртгэлийн хураамж ${FEE}` },
               ].map(o => (
-                <label key={String(o.v)} className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors
-                  ${hasBooth === o.v ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
-                  <input type="radio" name="hasBooth" className="accent-blue-600 mt-1"
-                    checked={hasBooth === o.v} onChange={() => setHasBooth(o.v)} />
-                  <span>
-                    <span className={`block text-[15px] ${hasBooth === o.v ? 'font-bold text-blue-900' : 'font-medium text-gray-800'}`}>
-                      {o.main}
+                <React.Fragment key={String(o.v)}>
+                  <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors
+                    ${hasBooth === o.v ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input type="radio" name="hasBooth" className="accent-blue-600 mt-1"
+                      checked={hasBooth === o.v} onChange={() => setHasBooth(o.v)} />
+                    <span>
+                      <span className={`block text-[15px] ${hasBooth === o.v ? 'font-bold text-blue-900' : 'font-medium text-gray-800'}`}>
+                        {o.main}
+                      </span>
+                      <span className={`block text-xs mt-0.5 ${o.v ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}`}>
+                        {o.sub}
+                      </span>
                     </span>
-                    <span className={`block text-xs mt-0.5 ${o.v ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}`}>
-                      {o.sub}
-                    </span>
-                  </span>
-                </label>
+                  </label>
+
+                  {/* Booth дугаарыг сонгосон хариултынх нь ЯГ ДООР нь асууна */}
+                  {o.v === true && hasBooth === true && (
+                    <div className="ml-4 pl-5 border-l-2 border-blue-200 py-1">
+                      <Label>Танай Booth (павильон)-ийн дугаар</Label>
+                      <input className={input} placeholder="Жишээ: A7, B23, G12"
+                        value={boothNumber} onChange={e => setBoothNumber(e.target.value)} autoFocus />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
-
-            {hasBooth === true && (
-              <div className="mt-5">
-                <Label>Танай Booth (павильон)-ийн дугаар</Label>
-                <input className={input} placeholder="Жишээ: A7, B23, G12"
-                  value={boothNumber} onChange={e => setBoothNumber(e.target.value)} />
-              </div>
-            )}
           </section>
 
           {/* ХЭСЭГ 3 */}
