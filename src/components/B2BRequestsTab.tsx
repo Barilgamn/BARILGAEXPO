@@ -85,7 +85,7 @@ export const B2BRequestsTab: React.FC = () => {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
         <h3 className="font-bold text-gray-900 flex items-center gap-2">
-          <Handshake size={18} className="text-red-500" /> B2B бизнес түншлэлийн уулзалтын бүртгэл
+          <Handshake size={18} className="text-red-500" /> “INTERNATIONAL BUSINESS MEETING” бүртгэл
         </h3>
         <div className="flex gap-2">
           <button onClick={fetchRows} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700">

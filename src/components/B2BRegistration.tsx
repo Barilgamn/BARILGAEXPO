@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Building2, User, Phone, Mail, Handshake, CheckCircle2, Loader2,
-  AlertTriangle, CreditCard, Search,
+  AlertTriangle, CreditCard, Search, CalendarDays, MapPin,
 } from 'lucide-react';
 import { supabase } from '../supabase';
 
@@ -16,17 +16,19 @@ const ORG_FIELDS = [
 ];
 
 const GOALS = [
-  'Шинэ ханган нийлүүлэгч / бүтээгдэхүүн ХУДАЛДАН АВАХ',
-  'Өөрийн бүтээгдэхүүн, үйлчилгээг БОРЛУУЛАХ / НИЙЛҮҮЛЭХ',
-  'Төсөл, хөтөлбөртөө ХӨРӨНГӨ ОРУУЛАЛТ / санхүүжилт хайх',
-  'Гадаадын брэнд, үйлдвэрлэгчийн АЛБАН ЁСНЫ ТӨЛӨӨЛӨГЧ / дистрибьютер болох',
-  'Хамтарсан үйлдвэр / төсөл хэрэгжүүлэх УРТ ХУГАЦААНЫ ТҮНШЛЭЛ бий болгох',
+  'Гадаадын компанитай хамтран ажиллах',
+  'Хөрөнгө оруулалт татах',
+  'Шинэ бүтээгдэхүүн, технологи нэвтрүүлэх',
+  'Гадаадын брэндийн албан ёсны төлөөлөгч, дистрибьютор болох',
+  'Бүтээгдэхүүн, үйлчилгээгээ гадаадын зах зээлд гаргах',
+  'Шинэ бизнесийн түнш',
   'Бусад',
 ];
 
+const EVENT = 'INTERNATIONAL BUSINESS MEETING';
 const FEE = '50,000₮';
 /* Төлбөрийн данс — өөрчлөх бол зөвхөн энэ хэсгийг засна. */
-const BANK = { name: 'ХААН банк', account: '5175009575', holder: 'Барилга МН ХХК' };
+const BANK = { name: 'ХААН банк', account: '910005005175009575', holder: 'БЗМТ' };
 
 const Label: React.FC<{ children: React.ReactNode; required?: boolean }> = ({ children, required }) => (
   <label className="block text-sm font-semibold text-gray-800 mb-2">
@@ -115,7 +117,7 @@ export const B2BRegistration: React.FC = () => {
                 <li><b>Банк:</b> {BANK.name}</li>
                 <li><b>Данс:</b> {BANK.account}</li>
                 <li><b>Хүлээн авагч:</b> {BANK.holder}</li>
-                <li><b>Гүйлгээний утга:</b> {orgName.trim() || '[Байгууллагын нэр]'} - B2B</li>
+                <li><b>Гүйлгээний утга:</b> {orgName.trim() || '[Байгууллагын нэр]'} - {EVENT}</li>
               </ul>
             </div>
           )}
@@ -134,16 +136,27 @@ export const B2BRegistration: React.FC = () => {
           <div className="relative">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/25
                             text-red-300 font-semibold text-[11px] uppercase tracking-widest mb-4">
-              <Handshake className="w-3.5 h-3.5" /> B2B Бизнес Түншлэлийн Уулзалт
+              <Handshake className="w-3.5 h-3.5" /> Бизнес уулзалтын бүртгэл
             </div>
             <h1 className="font-heading text-xl sm:text-3xl font-black leading-tight mb-4">
-              40 дэх удаагийн “BARILGA EXPO” олон улсын барилгын үзэсгэлэн яармаг
+              “{EVENT}”
             </h1>
+
+            {/* Хэзээ, хаана — хамгийн түрүүнд харагдах ёстой мэдээлэл */}
+            <div className="flex flex-wrap gap-2.5 mb-5">
+              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3.5 py-2 text-sm font-semibold">
+                <CalendarDays className="w-4 h-4 text-red-300" /> 9 сарын 11, 16:00–18:00
+              </span>
+              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3.5 py-2 text-sm font-semibold">
+                <MapPin className="w-4 h-4 text-red-300" /> “Буянт-Ухаа” ордон
+              </span>
+            </div>
+
             <p className="text-blue-100/85 text-sm sm:text-[15px] leading-relaxed">
-              Үзэсгэлэн яармагийн хүрээнд зохион байгуулагдах B2B бизнес түншлэлийн уулзалтад
-              таныг урьж байна. Энэхүү бүртгэлийн формоор дамжуулан таны бизнесийн хэрэгцээ,
-              сонирхлыг тодорхойлж, тохирох түншүүдтэй холбох тул мэдээллээ бүрэн, үнэн зөв
-              бөглөнө үү.
+              40 дэх удаагийн “BARILGA EXPO” олон улсын барилгын үзэсгэлэн яармагийн хүрээнд
+              “{EVENT}” бизнес уулзалт зохион байгуулагдана. Энэхүү бүртгэлийн формоор
+              дамжуулан таны бизнесийн хэрэгцээ, сонирхлыг тодорхойлж, тохирох түншүүдтэй
+              холбох тул мэдээллээ бүрэн, үнэн зөв бөглөнө үү.
             </p>
           </div>
         </div>
@@ -152,10 +165,10 @@ export const B2BRegistration: React.FC = () => {
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-8 flex gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-900 leading-relaxed">
-            Та байгууллагынхаа мэргэжлийн соёлыг илэрхийлсэн ажил хэрэгч хувцаслаж, зорилго
-            болон хүрэх үр дүнгээ тодорхойлсны үндсэнд санал болгох бүтээгдэхүүн, үйлчилгээ,
-            төслийн мэдээлэл болон каталог, брошур, үнийн санал, нэрийн хуудас зэрэг
-            танилцуулга материалаа урьдчилан бэлтгэж оролцоно уу.
+            Байгууллагынхаа мэргэжлийн соёлыг илэрхийлсэн ажил хэрэгч хувцаслаж, уулзалтын
+            зорилго, хүрэх үр дүнгээ тодорхойлсны үндсэнд бүтээгдэхүүн, үйлчилгээний
+            танилцуулга, каталог, брошур, үнийн санал болон нэрийн хуудсаа бэлтгэн
+            оролцоно уу.
           </p>
         </div>
 
@@ -170,7 +183,7 @@ export const B2BRegistration: React.FC = () => {
 
             <div className="space-y-5">
               <div>
-                <Label required>Байгууллагын нэр (бүрэн болон товчилсон)</Label>
+                <Label required>Байгууллагын нэр</Label>
                 <input className={input} value={orgName} onChange={e => setOrgName(e.target.value)} required />
               </div>
 
@@ -236,8 +249,8 @@ export const B2BRegistration: React.FC = () => {
             </Label>
             <div className="space-y-2.5">
               {[
-                { v: true,  main: 'Тийм, Booth-тэй оролцож байгаа', sub: 'Үнэгүй оролцоно' },
-                { v: false, main: 'Үгүй, Booth-гүй оролцож байгаа', sub: `Бүртгэлийн хураамж ${FEE}` },
+                { v: true,  main: 'Тийм', sub: 'Үнэгүй оролцоно' },
+                { v: false, main: 'Үгүй', sub: `Бүртгэлийн хураамж ${FEE}` },
               ].map(o => (
                 <React.Fragment key={String(o.v)}>
                   <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors
@@ -276,7 +289,7 @@ export const B2BRegistration: React.FC = () => {
 
             <div className="space-y-5">
               <div>
-                <Label>B2B уулзалтад оролцож буй гол зорилго <span className="font-normal text-gray-400">(олон сонголт)</span></Label>
+                <Label>Уулзалтад оролцож буй гол зорилго <span className="font-normal text-gray-400">(олон сонголт)</span></Label>
                 <div className="space-y-2">
                   {GOALS.map(g => (
                     <label key={g} className={`flex items-start gap-3 px-4 py-3 rounded-xl border cursor-pointer text-sm transition-colors
@@ -294,10 +307,10 @@ export const B2BRegistration: React.FC = () => {
               </div>
 
               <div>
-                <Label>Та ямар чиглэлийн байгууллага, хөрөнгө оруулагчтай уулзахыг хүсэж байна вэ?</Label>
+                <Label>Та уулзалт хийхийг хүсэж буй компанийн төрлийг тодорхойлно уу</Label>
                 <textarea
                   className={`${input} h-28 resize-y`}
-                  placeholder="Жишээ нь: арматурын шууд үйлдвэрлэгч, барилгын ерөнхий гүйцэтгэгч компаниуд, олон улсын хөрөнгө оруулагчид гэх мэт"
+                  placeholder="Жишээ нь: барилгын ерөнхий гүйцэтгэгч компаниуд, ханган нийлүүлэгч, үйлдвэрлэгчид гэх мэт"
                   value={partnerWanted}
                   onChange={e => setPartnerWanted(e.target.value)}
                 />
@@ -323,7 +336,7 @@ export const B2BRegistration: React.FC = () => {
                 <div className="flex justify-between gap-4"><span className="text-gray-600">Хүлээн авагч</span><span className="font-semibold">{BANK.holder}</span></div>
                 <div className="flex justify-between gap-4 pt-2.5 border-t border-amber-200">
                   <span className="text-gray-600 shrink-0">Гүйлгээний утга</span>
-                  <span className="font-semibold text-right">{orgName.trim() || '[Байгууллагын нэр]'} - B2B</span>
+                  <span className="font-semibold text-right">{orgName.trim() || '[Байгууллагын нэр]'} - {EVENT}</span>
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-3">
