@@ -303,16 +303,12 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
           localStorage.setItem('barilga_admin_auth', JSON.stringify(freshAuth));
         } catch (e) {}
       } else if (!session) {
-        // localStorage-д хадгалсан auth байвал хэвээр үлдээх
-        const localAuthStr = localStorage.getItem('barilga_admin_auth');
-        if (localAuthStr) {
-          try {
-            const parsed = JSON.parse(localAuthStr);
-            if (parsed.isAuthenticated && isAllowedAdminEmail(parsed.userEmail)) {
-              return;
-            }
-          } catch (e) {}
-        }
+        // Жинхэнэ Supabase session байхгүй бол нэвтрээгүйд тооцно.
+        // Өмнө нь localStorage-ийн тэмдэглэгээг үнэмшиж "нэвтэрсэн" гэж
+        // харуулдаг байсан. RLS ажиллаж эхэлсэн үед энэ нь хамгийн
+        // төөрөгдүүлсэн эвдрэл болно: дэлгэц дээр админаар нэвтэрсэн
+        // мөртлөө бүх хүсэлт зочны эрхээр явж, хүснэгт бүр хоосон харагдана.
+        try { localStorage.removeItem('barilga_admin_auth'); } catch (e) {}
         setAuthState({ isAuthenticated: false, userEmail: null });
       }
     });
