@@ -37,6 +37,9 @@ alter table booth_requests enable row level security;
 alter table admin_users    enable row level security;
 
 -- Админ эсэхийг шалгах туслах
+-- ЧУХАЛ: auth.role() ашиглаж БОЛОХГҮЙ. Supabase түүнийг хуучирсанд тооцсон
+-- бөгөөд одоогийн хувилбарт NULL буцаадаг тул нөхцөл бүхэлдээ худал болж,
+-- админд хүртэл мөр харагдахгүй болно. Зөвхөн JWT-ийн и-мэйлээр шалгана.
 create or replace function public.is_expo_admin()
 returns boolean
 language sql
@@ -44,14 +47,14 @@ stable
 security definer
 set search_path = public
 as $$
-  select auth.role() = 'authenticated'
-     and (
-       auth.jwt() ->> 'email' = 'info@barilga.mn'
-       or exists (
-         select 1 from admin_users
-         where lower(email) = lower(auth.jwt() ->> 'email')
-       )
-     );
+  select coalesce(
+    lower(auth.jwt() ->> 'email') = 'info@barilga.mn'
+    or exists (
+      select 1 from admin_users
+      where lower(email) = lower(auth.jwt() ->> 'email')
+    ),
+    false
+  );
 $$;
 
 -- -------------------------------------------------------------
