@@ -4,7 +4,6 @@ import {
   AlertTriangle, CreditCard, Search,
 } from 'lucide-react';
 import { supabase } from '../supabase';
-import { useAdmin } from '../context/AdminContext';
 
 const ORG_FIELDS = [
   'Үйлдвэрлэл',
@@ -42,7 +41,6 @@ const input =
   'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow';
 
 export const B2BRegistration: React.FC = () => {
-  const { data } = useAdmin();
   const [orgName, setOrgName] = useState('');
   const [orgField, setOrgField] = useState('');
   const [orgFieldOther, setOrgFieldOther] = useState('');
@@ -138,35 +136,17 @@ export const B2BRegistration: React.FC = () => {
             уулзалтын нэр, доор нь улаан/хөх огноо-байршлын хос. */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
           <div className="h-1.5 bg-gradient-to-r from-[#C4161C] via-[#C4161C] to-[#1B3281]" />
-          <div className="p-6 sm:p-9">
-            <div className="grid md:grid-cols-2 gap-7 md:gap-8 items-center">
+          <div className="p-5 sm:p-10 text-center">
 
-              <div className="text-center md:text-left">
-                <p className="font-heading font-black text-[#00337F] uppercase leading-tight mb-3
-                              text-[10px] sm:text-[11px] tracking-[0.16em]">
-                  <span className="text-xl sm:text-2xl align-middle mr-1.5">40</span>
-                  TH · International Construction Fair
-                </p>
-                <img
-                  src={data.logoUrl}
-                  alt="BARILGA EXPO"
-                  referrerPolicy="no-referrer"
-                  className="h-14 sm:h-20 object-contain mx-auto md:mx-0"
-                />
-              </div>
+            <h1 className="font-heading font-black uppercase leading-[0.9] tracking-tight
+                           text-[1.7rem] sm:text-5xl md:text-6xl lg:text-7xl">
+              <span className="block text-[#1B3281]">International</span>
+              <span className="block text-[#1B3281]">Business</span>
+              <span className="block text-[#C4161C]">Meeting</span>
+            </h1>
 
-              <div className="md:border-l-2 md:border-gray-200 md:pl-8 text-center md:text-left">
-                <h1 className="font-heading font-black uppercase leading-[0.9] tracking-tight
-                               text-3xl sm:text-4xl md:text-[1.9rem] lg:text-[2.6rem]">
-                  <span className="block text-[#1B3281]">International</span>
-                  <span className="block text-[#1B3281]">Business</span>
-                  <span className="block text-[#C4161C]">Meeting</span>
-                </h1>
-              </div>
-            </div>
-
-            {/* Огноо · байршил — зурагт хуудасны улаан/хөх хос тэмдэг */}
-            <div className="mt-7 flex flex-wrap items-stretch justify-center md:justify-start gap-y-2">
+            {/* Болох газар, цаг — голлуулсан */}
+            <div className="mt-7 flex flex-wrap items-stretch justify-center gap-y-2">
               <span className="bg-[#C4161C] text-white font-heading font-black
                                text-sm sm:text-lg px-4 sm:px-5 py-2.5 rounded-l-lg whitespace-nowrap">
                 2026.09.11
@@ -181,7 +161,7 @@ export const B2BRegistration: React.FC = () => {
               </span>
             </div>
 
-            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mt-6 max-w-3xl">
+            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mt-7 max-w-3xl mx-auto">
               40 дэх удаагийн “BARILGA EXPO” олон улсын барилгын үзэсгэлэн яармагийн хүрээнд
               “{EVENT}” бизнес уулзалт зохион байгуулагдана. Энэхүү бүртгэлийн формоор
               дамжуулан таны бизнесийн хэрэгцээ, сонирхлыг тодорхойлж, тохирох түншүүдтэй
