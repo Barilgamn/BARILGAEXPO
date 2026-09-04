@@ -138,6 +138,16 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Цэсний лого, бичиг нь ЦАГААН тул зөвхөн бараан дэвсгэр дээр уншигдана.
+  // Нүүр хуудсанд арын том зураг байдаг тул ил тод байж болно, харин дотоод
+  // хуудсууд цайвар дэвсгэртэй — тэнд заавал бүтэн бараан дэвсгэр өгнө.
+  const isHomePage = location.pathname === '/';
+  const navStyle = !isHomePage
+    ? 'bg-blue-950 shadow-lg border-b border-white/10 py-2'
+    : isScrolled
+      ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2'
+      : 'bg-transparent py-4';
+
   const handleMenuClick = (path: string, e: React.MouseEvent) => {
     const isHashPath = path.includes('#');
     if (isHashPath) {
@@ -242,7 +252,7 @@ export default function App() {
     <div className="min-h-screen bg-white font-sans text-gray-800">
       {/* Navbar segment */}
       {!isAdminRoute && (
-        <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${isScrolled ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2' : 'bg-transparent py-4'}`}>
+        <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}

@@ -142,7 +142,7 @@ const defaultData: SiteData = {
     { id: '1', labelMn: 'НҮҮР', labelEn: 'HOME', path: '/' },
     { id: '2', labelMn: 'МЭДЭЭ', labelEn: 'NEWS', path: '/#news' },
     { id: '3', labelMn: 'УДИРДАМЖ', labelEn: 'GUIDE', path: '/guide' },
-    { id: '4', labelMn: 'ХӨТӨЛБӨР', labelEn: 'PROGRAM', path: '/#program' },
+    { id: '4', labelMn: 'ХӨТӨЛБӨР', labelEn: 'PROGRAM', path: '/program' },
     { id: '5', labelMn: 'ХОЛБОО БАРИХ', labelEn: 'CONTACT', path: '/#contact' },
   ],
   organizers: defaultOrganizers,
