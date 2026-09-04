@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Upload, Download, Loader2, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { CACHE_ONE_YEAR } from '../utils/image';
+import { useTranslation } from '../i18n';
 
 /* Загварын хэмжээ ба байрлалууд — эх PNG (1800x1641) дээр хэмжсэн утгууд. */
 const W = 1800;
@@ -56,6 +57,7 @@ const decodeLogo = async (file: File): Promise<CanvasImageSource & { width: numb
 };
 
 export const PosterMaker: React.FC = () => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const templateRef = useRef<HTMLImageElement | null>(null);
   const logoRef = useRef<(CanvasImageSource & { width: number; height: number }) | null>(null);
@@ -150,14 +152,11 @@ export const PosterMaker: React.FC = () => {
   const onPickLogo = async (file: File) => {
     setError('');
     if (isUnsupported(file)) {
-      setError(
-        `Энэ форматыг (${file.name.split('.').pop()?.toUpperCase()}) хөтөч уншиж чадахгүй. ` +
-        'iPhone-оос авсан зураг бол PNG эсвэл JPG болгож хөрвүүлээд оруулна уу.',
-      );
+      setError(`${file.name.split('.').pop()?.toUpperCase()} — ${t('pm_err_fmt')}`);
       return;
     }
     if (file.type && !file.type.startsWith('image/')) {
-      setError(`Зөвхөн зураг оруулна уу. Таны файл: ${file.type}`);
+      setError(`${t('pm_err_img')} (${file.type})`);
       return;
     }
     setBusy(true);
@@ -170,10 +169,7 @@ export const PosterMaker: React.FC = () => {
       setLogoName(file.name);
       draw();
     } catch (e: any) {
-      setError(
-        `Логог уншиж чадсангүй (${file.name}). PNG эсвэл JPG хэлбэрээр оруулж үзнэ үү. ` +
-        `Дэлгэрэнгүй: ${e?.message || 'тодорхойгүй алдаа'}`,
-      );
+      setError(`${t('pm_err_read')} (${file.name}). ${t('pm_err_fmt')} — ${e?.message || ''}`);
     } finally {
       setBusy(false);
     }
@@ -233,11 +229,10 @@ export const PosterMaker: React.FC = () => {
     <div className="min-h-screen bg-gray-50 pt-28 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="font-heading text-2xl sm:text-4xl font-black text-blue-950 mb-2">
-          Оролцогчийн зурагт хуудас
+          {t('pm_title')}
         </h1>
         <p className="text-gray-500 text-sm sm:text-base mb-8 max-w-2xl">
-          Логогоо оруулаад стендийн дугаараа бичнэ үү. Дараа нь зургаа татаж аваад
-          олон нийтийн сүлжээндээ нийтэлж болно.
+          {t('pm_intro')}
         </p>
 
         <div className="grid lg:grid-cols-5 gap-8">
@@ -252,7 +247,7 @@ export const PosterMaker: React.FC = () => {
               />
               {!ready && !error && (
                 <div className="flex items-center justify-center gap-2 py-10 text-gray-400 text-sm">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Загвар ачаалж байна...
+                  <Loader2 className="w-4 h-4 animate-spin" /> {t('pm_loading')}
                 </div>
               )}
             </div>
@@ -263,13 +258,13 @@ export const PosterMaker: React.FC = () => {
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  1. Байгууллагын лого
+                  {t('pm_step1')}
                 </label>
                 <label className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border-2 border-dashed
                                   border-blue-300 bg-blue-50 text-blue-700 font-medium cursor-pointer
                                   hover:bg-blue-100 hover:border-blue-400 transition-colors">
                   {busy ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
-                  {busy ? 'Уншиж байна...' : logoName ? 'Лого солих' : 'Лого оруулах'}
+                  {busy ? t('pm_reading') : logoName ? t('pm_change') : t('pm_upload')}
                   <input
                     type="file"
                     accept="image/*"
@@ -289,18 +284,18 @@ export const PosterMaker: React.FC = () => {
                       <span className="truncate">{logoName}</span>
                     </span>
                     <button onClick={removeLogo} className="flex items-center gap-1 text-red-500 hover:text-red-700 shrink-0">
-                      <Trash2 size={14} /> Хасах
+                      <Trash2 size={14} /> {t('pm_remove')}
                     </button>
                   </div>
                 )}
                 <p className="text-[11px] text-gray-400 mt-2">
-                  Ил тод дэвсгэртэй PNG хамгийн сайн харагдана.
+                  {t('pm_png_hint')}
                 </p>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  2. Стендийн дугаар
+                  {t('pm_step2')}
                 </label>
                 <input
                   type="text"
@@ -312,7 +307,7 @@ export const PosterMaker: React.FC = () => {
                              uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <p className="text-[11px] text-gray-400 mt-2">
-                  Жишээ: A7, B23, G12
+                  {t('pm_booth_hint')}
                 </p>
               </div>
 
@@ -323,7 +318,7 @@ export const PosterMaker: React.FC = () => {
                            bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed
                            text-white font-bold transition-colors shadow-sm"
               >
-                <Download size={18} /> Зургаа татаж авах
+                <Download size={18} /> {t('pm_download')}
               </button>
 
               {error && (

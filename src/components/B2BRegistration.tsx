@@ -4,6 +4,7 @@ import {
   AlertTriangle, CreditCard, Search,
 } from 'lucide-react';
 import { supabase } from '../supabase';
+import { useTranslation } from '../i18n';
 
 const ORG_FIELDS = [
   'Үйлдвэрлэл',
@@ -41,6 +42,7 @@ const input =
   'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow';
 
 export const B2BRegistration: React.FC = () => {
+  const { t } = useTranslation();
   const [orgName, setOrgName] = useState('');
   const [orgField, setOrgField] = useState('');
   const [orgFieldOther, setOrgFieldOther] = useState('');
@@ -67,7 +69,7 @@ export const B2BRegistration: React.FC = () => {
     setError('');
 
     if (hasBooth === null) {
-      setError('Booth эзэмшиж байгаа эсэхээ сонгоно уу.');
+      setError(t('b2b_pick_booth'));
       return;
     }
     setSubmitting(true);
@@ -90,7 +92,7 @@ export const B2BRegistration: React.FC = () => {
       setDone(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
-      setError(err?.message || 'Бүртгэл илгээхэд алдаа гарлаа. Дахин оролдоно уу.');
+      setError(err?.message || t('b2b_send_err'));
     } finally {
       setSubmitting(false);
     }
@@ -103,21 +105,20 @@ export const B2BRegistration: React.FC = () => {
           <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
           </div>
-          <h1 className="font-heading text-2xl font-black text-blue-950 mb-3">Бүртгэл амжилттай илгээгдлээ</h1>
+          <h1 className="font-heading text-2xl font-black text-blue-950 mb-3">{t('b2b_done')}</h1>
           <p className="text-gray-600 text-[15px] leading-relaxed mb-6">
-            Танай мэдээллийг хүлээн авлаа. Зохион байгуулагчид тохирох түншүүдийг сонгож,
-            уулзалтын хуваарийг таны утас, и-мэйлээр мэдэгдэнэ.
+            {t('b2b_done_text')}
           </p>
           {hasBooth === false && (
             <div className="text-left bg-amber-50 border border-amber-200 rounded-xl p-5">
               <p className="font-bold text-amber-900 mb-2 flex items-center gap-2">
-                <CreditCard size={18} /> Төлбөрөө шилжүүлнэ үү — {FEE}
+                <CreditCard size={18} /> {t('b2b_pay_now')} — {FEE}
               </p>
               <ul className="text-sm text-amber-900/90 space-y-1">
-                <li><b>Банк:</b> {BANK.name}</li>
-                <li><b>Данс:</b> {BANK.account}</li>
-                <li><b>Хүлээн авагч:</b> {BANK.holder}</li>
-                <li><b>Гүйлгээний утга:</b> {orgName.trim() || '[Байгууллагын нэр]'} - {EVENT}</li>
+                <li><b>{t('b2b_bank')}:</b> {BANK.name}</li>
+                <li><b>{t('b2b_account')}:</b> {BANK.account}</li>
+                <li><b>{t('b2b_holder')}:</b> {BANK.holder}</li>
+                <li><b>{t('b2b_purpose')}:</b> {orgName.trim() || `[${t('b2b_org_name')}]`} - {EVENT}</li>
               </ul>
             </div>
           )}
@@ -162,10 +163,7 @@ export const B2BRegistration: React.FC = () => {
             </div>
 
             <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mt-7 max-w-3xl mx-auto">
-              40 дэх удаагийн “BARILGA EXPO” олон улсын барилгын үзэсгэлэн яармагийн хүрээнд
-              “{EVENT}” бизнес уулзалт зохион байгуулагдана. Энэхүү бүртгэлийн формоор
-              дамжуулан таны бизнесийн хэрэгцээ, сонирхлыг тодорхойлж, тохирох түншүүдтэй
-              холбох тул мэдээллээ бүрэн, үнэн зөв бөглөнө үү.
+              {t('b2b_intro')}
             </p>
           </div>
         </div>
@@ -177,10 +175,7 @@ export const B2BRegistration: React.FC = () => {
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-8 flex gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-900 leading-relaxed">
-            Байгууллагынхаа мэргэжлийн соёлыг илэрхийлсэн ажил хэрэгч хувцаслаж, уулзалтын
-            зорилго, хүрэх үр дүнгээ тодорхойлсны үндсэнд бүтээгдэхүүн, үйлчилгээний
-            танилцуулга, каталог, брошур, үнийн санал болон нэрийн хуудсаа бэлтгэн
-            оролцоно уу.
+            {t('b2b_note')}
           </p>
         </div>
 
@@ -189,48 +184,48 @@ export const B2BRegistration: React.FC = () => {
           {/* ХЭСЭГ 1 */}
           <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <h2 className="font-heading text-lg font-black text-blue-950 mb-1 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-red-500" /> Байгууллага, харилцах ажилтны мэдээлэл
+              <Building2 className="w-5 h-5 text-red-500" /> {t('b2b_s1')}
             </h2>
-            <p className="text-xs text-gray-400 mb-6">Хэсэг 1</p>
+            <p className="text-xs text-gray-400 mb-6">{t('b2b_part')} 1</p>
 
             <div className="space-y-5">
               <div>
-                <Label required>Байгууллагын нэр</Label>
+                <Label required>{t('b2b_org_name')}</Label>
                 <input className={input} value={orgName} onChange={e => setOrgName(e.target.value)} required />
               </div>
 
               <div>
-                <Label>Байгууллагын үйл ажиллагааны чиглэл</Label>
+                <Label>{t('b2b_org_field')}</Label>
                 <div className="grid sm:grid-cols-2 gap-2">
-                  {ORG_FIELDS.map(f => (
+                  {ORG_FIELDS.map((f, fi) => (
                     <label key={f} className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border cursor-pointer text-sm transition-colors
                       ${orgField === f ? 'border-blue-500 bg-blue-50 text-blue-900 font-semibold' : 'border-gray-200 hover:bg-gray-50'}`}>
                       <input type="radio" name="orgField" className="accent-blue-600"
                         checked={orgField === f} onChange={() => setOrgField(f)} />
-                      {f}
+                      {t(`b2b_field_${fi + 1}` as any)}
                     </label>
                   ))}
                 </div>
                 {orgField === 'Бусад' && (
-                  <input className={`${input} mt-2`} placeholder="Чиглэлээ бичнэ үү"
+                  <input className={`${input} mt-2`} placeholder={t('b2b_other_ph')}
                     value={orgFieldOther} onChange={e => setOrgFieldOther(e.target.value)} />
                 )}
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label required>Төлөөлөгчийн нэр</Label>
+                  <Label required>{t('b2b_rep_name')}</Label>
                   <input className={input} value={repName} onChange={e => setRepName(e.target.value)} required />
                 </div>
                 <div>
-                  <Label>Албан тушаал</Label>
+                  <Label>{t('b2b_rep_pos')}</Label>
                   <input className={input} value={repPosition} onChange={e => setRepPosition(e.target.value)} />
                 </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label required>Утасны дугаар</Label>
+                  <Label required>{t('b2b_phone')}</Label>
                   <div className="relative">
                     <Phone className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                     <input className={`${input} pl-11`} type="tel" inputMode="tel"
@@ -238,7 +233,7 @@ export const B2BRegistration: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <Label>Имэйл хаяг</Label>
+                  <Label>{t('b2b_email')}</Label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                     <input className={`${input} pl-11`} type="email"
@@ -252,17 +247,17 @@ export const B2BRegistration: React.FC = () => {
           {/* ХЭСЭГ 2 */}
           <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <h2 className="font-heading text-lg font-black text-blue-950 mb-1 flex items-center gap-2">
-              <User className="w-5 h-5 text-red-500" /> BARILGA EXPO оролцооны төлөв
+              <User className="w-5 h-5 text-red-500" /> {t('b2b_s2')}
             </h2>
-            <p className="text-xs text-gray-400 mb-6">Хэсэг 2</p>
+            <p className="text-xs text-gray-400 mb-6">{t('b2b_part')} 2</p>
 
             <Label required>
-              40 дэх удаагийн “BARILGA EXPO” үзэсгэлэнд танай байгууллага Booth (павильон) эзэмшиж байгаа юу?
+              {t('b2b_booth_q')}
             </Label>
             <div className="space-y-2.5">
               {[
-                { v: true,  main: 'Тийм', sub: 'Үнэгүй оролцоно' },
-                { v: false, main: 'Үгүй', sub: `Бүртгэлийн хураамж ${FEE}` },
+                { v: true,  main: t('b2b_yes'), sub: t('b2b_yes_sub') },
+                { v: false, main: t('b2b_no'), sub: `${t('b2b_no_sub')} ${FEE}` },
               ].map(o => (
                 <React.Fragment key={String(o.v)}>
                   <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors
@@ -282,8 +277,8 @@ export const B2BRegistration: React.FC = () => {
                   {/* Booth дугаарыг сонгосон хариултынх нь ЯГ ДООР нь асууна */}
                   {o.v === true && hasBooth === true && (
                     <div className="ml-4 pl-5 border-l-2 border-blue-200 py-1">
-                      <Label>Танай Booth (павильон)-ийн дугаар</Label>
-                      <input className={input} placeholder="Жишээ: A7, B23, G12"
+                      <Label>{t('b2b_booth_no')}</Label>
+                      <input className={input} placeholder={t('b2b_booth_ph')}
                         value={boothNumber} onChange={e => setBoothNumber(e.target.value)} autoFocus />
                     </div>
                   )}
@@ -295,34 +290,34 @@ export const B2BRegistration: React.FC = () => {
           {/* ХЭСЭГ 3 */}
           <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <h2 className="font-heading text-lg font-black text-blue-950 mb-1 flex items-center gap-2">
-              <Search className="w-5 h-5 text-red-500" /> Бизнес хэрэгцээ, түнш хайлт
+              <Search className="w-5 h-5 text-red-500" /> {t('b2b_s3')}
             </h2>
-            <p className="text-xs text-gray-400 mb-6">Хэсэг 3 — тохирох түншүүдийг холбоход ашиглагдана</p>
+            <p className="text-xs text-gray-400 mb-6">{t('b2b_part')} 3 — {t('b2b_s3_sub')}</p>
 
             <div className="space-y-5">
               <div>
-                <Label>Уулзалтад оролцож буй гол зорилго <span className="font-normal text-gray-400">(олон сонголт)</span></Label>
+                <Label>{t('b2b_goals_q')} <span className="font-normal text-gray-400">({t('b2b_multi')})</span></Label>
                 <div className="space-y-2">
-                  {GOALS.map(g => (
+                  {GOALS.map((g, gi) => (
                     <label key={g} className={`flex items-start gap-3 px-4 py-3 rounded-xl border cursor-pointer text-sm transition-colors
                       ${goals.includes(g) ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-gray-200 hover:bg-gray-50'}`}>
                       <input type="checkbox" className="accent-blue-600 mt-0.5"
                         checked={goals.includes(g)} onChange={() => toggleGoal(g)} />
-                      {g}
+                      {t(`b2b_goal_${gi + 1}` as any)}
                     </label>
                   ))}
                 </div>
                 {goals.includes('Бусад') && (
-                  <input className={`${input} mt-2`} placeholder="Зорилгоо бичнэ үү"
+                  <input className={`${input} mt-2`} placeholder={t('b2b_goal_other_ph')}
                     value={goalOther} onChange={e => setGoalOther(e.target.value)} />
                 )}
               </div>
 
               <div>
-                <Label>Та уулзалт хийхийг хүсэж буй компанийн төрлийг тодорхойлно уу</Label>
+                <Label>{t('b2b_partner_q')}</Label>
                 <textarea
                   className={`${input} h-28 resize-y`}
-                  placeholder="Жишээ нь: барилгын ерөнхий гүйцэтгэгч компаниуд, ханган нийлүүлэгч, үйлдвэрлэгчид гэх мэт"
+                  placeholder={t('b2b_partner_ph')}
                   value={partnerWanted}
                   onChange={e => setPartnerWanted(e.target.value)}
                 />
@@ -334,26 +329,25 @@ export const B2BRegistration: React.FC = () => {
           {hasBooth === false && (
             <section className="bg-white rounded-2xl border-2 border-amber-300 shadow-sm p-6 sm:p-8">
               <h2 className="font-heading text-lg font-black text-blue-950 mb-1 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-amber-600" /> Төлбөрийн мэдээлэл
+                <CreditCard className="w-5 h-5 text-amber-600" /> {t('b2b_s4')}
               </h2>
-              <p className="text-xs text-gray-400 mb-6">Хэсэг 4 — Booth-гүй оролцогчид</p>
+              <p className="text-xs text-gray-400 mb-6">{t('b2b_part')} 4 — {t('b2b_s4_sub')}</p>
 
               <div className="bg-amber-50 rounded-xl p-5 space-y-2.5 text-[15px]">
                 <div className="flex justify-between gap-4 pb-2.5 border-b border-amber-200">
-                  <span className="text-gray-600">Хураамж</span>
+                  <span className="text-gray-600">{t('b2b_fee')}</span>
                   <span className="font-black text-amber-900 text-lg">{FEE}</span>
                 </div>
-                <div className="flex justify-between gap-4"><span className="text-gray-600">Банк</span><span className="font-semibold">{BANK.name}</span></div>
-                <div className="flex justify-between gap-4"><span className="text-gray-600">Данс</span><span className="font-semibold font-mono">{BANK.account}</span></div>
-                <div className="flex justify-between gap-4"><span className="text-gray-600">Хүлээн авагч</span><span className="font-semibold">{BANK.holder}</span></div>
+                <div className="flex justify-between gap-4"><span className="text-gray-600">{t('b2b_bank')}</span><span className="font-semibold">{BANK.name}</span></div>
+                <div className="flex justify-between gap-4"><span className="text-gray-600">{t('b2b_account')}</span><span className="font-semibold font-mono">{BANK.account}</span></div>
+                <div className="flex justify-between gap-4"><span className="text-gray-600">{t('b2b_holder')}</span><span className="font-semibold">{BANK.holder}</span></div>
                 <div className="flex justify-between gap-4 pt-2.5 border-t border-amber-200">
-                  <span className="text-gray-600 shrink-0">Гүйлгээний утга</span>
-                  <span className="font-semibold text-right">{orgName.trim() || '[Байгууллагын нэр]'} - {EVENT}</span>
+                  <span className="text-gray-600 shrink-0">{t('b2b_purpose')}</span>
+                  <span className="font-semibold text-right">{orgName.trim() || `[${t('b2b_org_name')}]`} - {EVENT}</span>
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-3">
-                Бүртгэлээ илгээсний дараа төлбөрөө шилжүүлнэ үү. Төлбөр баталгаажсаны дараа
-                уулзалтын хуваарь илгээгдэнэ.
+                {t('b2b_pay_note')}
               </p>
             </section>
           )}
@@ -370,7 +364,7 @@ export const B2BRegistration: React.FC = () => {
                        border-b-4 border-red-800 active:border-b-0 active:translate-y-[4px]"
           >
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
-            {submitting ? 'Илгээж байна...' : 'Бүртгэлээ илгээх'}
+            {submitting ? t('b2b_submitting') : t('b2b_submit')}
           </button>
         </form>
       </div>
