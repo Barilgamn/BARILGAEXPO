@@ -30,6 +30,7 @@ const GuidePage = lazy(() => import('./components/GuidePage').then(m => ({ defau
 const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({ default: m.BoothBooking })));
 const PosterMaker = lazy(() => import('./components/PosterMaker').then(m => ({ default: m.PosterMaker })));
 const B2BRegistration = lazy(() => import('./components/B2BRegistration').then(m => ({ default: m.B2BRegistration })));
+const ProgramPage = lazy(() => import('./components/ProgramPage').then(m => ({ default: m.ProgramPage })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({ default: m.AuthCallback })));
 
@@ -802,6 +803,11 @@ export default function App() {
             <B2BRegistration />
           </Suspense>
         } />
+        <Route path="/program" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <ProgramPage />
+          </Suspense>
+        } />
       </Routes>
 
       {/* Footer & Contact */}
@@ -954,7 +960,38 @@ export default function App() {
               ></iframe>
             </div>
           </div>
-          
+
+          {/* Хэрэгтэй холбоосууд */}
+          <div className="mb-12">
+            <h4 className="font-heading font-bold text-white text-sm uppercase tracking-widest mb-5">
+              {t('links_title')}
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { to: '/program', label: t('link_program'), icon: Calendar },
+                { to: '/guide',   label: t('link_guide'),   icon: CheckCircle2 },
+                { to: '/b2b',     label: t('link_b2b'),     icon: User },
+                { to: '/poster',  label: t('link_poster'),  icon: ArrowRight },
+              ].map(l => {
+                const Icon = l.icon;
+                return (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => window.scrollTo({ top: 0 })}
+                    className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10
+                               hover:border-red-400/40 rounded-xl px-4 py-3.5 transition-colors group"
+                  >
+                    <span className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-red-400" />
+                    </span>
+                    <span className="text-sm text-blue-100 group-hover:text-white font-medium">{l.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="text-center text-sm text-gray-400 pt-6 border-t border-white/10">
             <div>&copy; {new Date().getFullYear()} {t('copyright')}</div>
           </div>
