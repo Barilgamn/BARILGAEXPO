@@ -136,7 +136,7 @@ export const GuidePage: React.FC = () => {
               <User className="w-64 h-64" />
             </div>
             <div className="relative z-10">
-              <h3 className="text-5xl font-black font-heading mb-4 text-red-400">40,000+</h3>
+              <h3 className="text-5xl font-black font-heading mb-4 text-red-400">30,000+</h3>
               <h4 className="text-2xl font-bold mb-3">{t('gd_v_t')}</h4>
               <p className="text-blue-100/80 leading-relaxed font-light">
                 {t('gd_v_d')}
@@ -245,7 +245,7 @@ export const GuidePage: React.FC = () => {
                   <Eye className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <div>
-                  <p className="text-xl md:text-2xl font-black text-gray-900 leading-tight">40,000+</p>
+                  <p className="text-xl md:text-2xl font-black text-gray-900 leading-tight">30,000+</p>
                   <p className="text-xs text-gray-500 font-medium leading-tight">{t('gd_v_t')}</p>
                 </div>
               </div>
