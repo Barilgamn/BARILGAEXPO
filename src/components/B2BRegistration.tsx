@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import {
-  Building2, User, Phone, Mail, Handshake, CheckCircle2, Loader2,
-  AlertTriangle, CreditCard, Search, CalendarDays, MapPin,
+  Building2, User, Phone, Mail, CheckCircle2, Loader2,
+  AlertTriangle, CreditCard, Search,
 } from 'lucide-react';
 import { supabase } from '../supabase';
+import { useAdmin } from '../context/AdminContext';
 
 const ORG_FIELDS = [
   'Үйлдвэрлэл',
@@ -41,6 +42,7 @@ const input =
   'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow';
 
 export const B2BRegistration: React.FC = () => {
+  const { data } = useAdmin();
   const [orgName, setOrgName] = useState('');
   const [orgField, setOrgField] = useState('');
   const [orgFieldOther, setOrgFieldOther] = useState('');
@@ -128,31 +130,58 @@ export const B2BRegistration: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-28 pb-20">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Толгой нь зурагт хуудас шиг өргөн туузан хэлбэртэй тул маягтаас
+          илүү өргөн контейнерт байрлана. */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Толгой — албан ёсны зурагт хуудасны загвараар:
+            цагаан дэвсгэр, зүүн талд улаан BARILGA EXPO, баруун талд
+            уулзалтын нэр, доор нь улаан/хөх огноо-байршлын хос. */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
+          <div className="h-1.5 bg-gradient-to-r from-[#C4161C] via-[#C4161C] to-[#1B3281]" />
+          <div className="p-6 sm:p-9">
+            <div className="grid md:grid-cols-2 gap-7 md:gap-8 items-center">
 
-        {/* Толгой */}
-        <div className="bg-blue-950 rounded-2xl p-6 sm:p-9 text-white mb-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-blueprint opacity-20 pointer-events-none" />
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/25
-                            text-red-300 font-semibold text-[11px] uppercase tracking-widest mb-4">
-              <Handshake className="w-3.5 h-3.5" /> Бизнес уулзалтын бүртгэл
+              <div className="text-center md:text-left">
+                <p className="font-heading font-black text-[#00337F] uppercase leading-tight mb-3
+                              text-[10px] sm:text-[11px] tracking-[0.16em]">
+                  <span className="text-xl sm:text-2xl align-middle mr-1.5">40</span>
+                  TH · International Construction Fair
+                </p>
+                <img
+                  src={data.logoUrl}
+                  alt="BARILGA EXPO"
+                  referrerPolicy="no-referrer"
+                  className="h-14 sm:h-20 object-contain mx-auto md:mx-0"
+                />
+              </div>
+
+              <div className="md:border-l-2 md:border-gray-200 md:pl-8 text-center md:text-left">
+                <h1 className="font-heading font-black uppercase leading-[0.9] tracking-tight
+                               text-3xl sm:text-4xl md:text-[1.9rem] lg:text-[2.6rem]">
+                  <span className="block text-[#1B3281]">International</span>
+                  <span className="block text-[#1B3281]">Business</span>
+                  <span className="block text-[#C4161C]">Meeting</span>
+                </h1>
+              </div>
             </div>
-            <h1 className="font-heading text-xl sm:text-3xl font-black leading-tight mb-4">
-              “{EVENT}”
-            </h1>
 
-            {/* Хэзээ, хаана — хамгийн түрүүнд харагдах ёстой мэдээлэл */}
-            <div className="flex flex-wrap gap-2.5 mb-5">
-              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3.5 py-2 text-sm font-semibold">
-                <CalendarDays className="w-4 h-4 text-red-300" /> 9 сарын 11, 16:00–18:00
+            {/* Огноо · байршил — зурагт хуудасны улаан/хөх хос тэмдэг */}
+            <div className="mt-7 flex flex-wrap items-stretch justify-center md:justify-start gap-y-2">
+              <span className="bg-[#C4161C] text-white font-heading font-black
+                               text-sm sm:text-lg px-4 sm:px-5 py-2.5 rounded-l-lg whitespace-nowrap">
+                2026.09.11
               </span>
-              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3.5 py-2 text-sm font-semibold">
-                <MapPin className="w-4 h-4 text-red-300" /> “Буянт-Ухаа” ордон
+              <span className="bg-[#1B3281] text-white font-heading font-bold
+                               text-sm sm:text-lg px-4 sm:px-5 py-2.5 whitespace-nowrap">
+                BUYANT UKHAA PALACE
+              </span>
+              <span className="bg-gray-100 text-[#1B3281] font-heading font-bold border border-gray-200
+                               text-sm sm:text-lg px-4 sm:px-5 py-2.5 rounded-r-lg whitespace-nowrap">
+                16:00–18:00
               </span>
             </div>
 
-            <p className="text-blue-100/85 text-sm sm:text-[15px] leading-relaxed">
+            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mt-6 max-w-3xl">
               40 дэх удаагийн “BARILGA EXPO” олон улсын барилгын үзэсгэлэн яармагийн хүрээнд
               “{EVENT}” бизнес уулзалт зохион байгуулагдана. Энэхүү бүртгэлийн формоор
               дамжуулан таны бизнесийн хэрэгцээ, сонирхлыг тодорхойлж, тохирох түншүүдтэй
@@ -161,6 +190,9 @@ export const B2BRegistration: React.FC = () => {
           </div>
         </div>
 
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Санамж */}
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-8 flex gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
