@@ -701,9 +701,11 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
             {(() => {
               const groups = [
-                { type: 'main' as const,      label: t('spon_main'),      size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56' },
-                { type: 'sponsor' as const,   label: t('spon_sponsor'),   size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40' },
-                { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36' },
+                { type: 'main' as const,      label: t('spon_main'),      size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56', offset: '' },
+                // Ерөнхий ивээн тэтгэгчийн хайрцаг өндөр тул зэрэгцүүлэхэд энэ нь
+                // дээшээ суудаг. Зөрүүний хагасаар (24/32px) доошлуулж төвийг нь тааруулна.
+                { type: 'sponsor' as const,   label: t('spon_sponsor'),   size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40', offset: 'sm:mt-6 lg:mt-8' },
+                { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36', offset: '' },
               ];
 
               const renderGroup = (group: typeof groups[number]) => {
@@ -712,7 +714,7 @@ export default function App() {
                 return (
                   <div key={group.type} className="flex flex-col items-center">
                     <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
-                    <div className="flex flex-wrap justify-center gap-8 sm:gap-12 items-center">
+                    <div className={`flex flex-wrap justify-center gap-8 sm:gap-12 items-center ${group.offset}`}>
                       {items.map(s => {
                         const Tag: any = s.url ? 'a' : 'div';
                         const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
