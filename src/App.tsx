@@ -699,33 +699,56 @@ export default function App() {
       {data.sponsors && data.sponsors.length > 0 && (
         <section className="bg-white pb-16 pt-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-            {([
-              { type: 'main' as const, label: t('spon_main'), size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56' },
-              { type: 'sponsor' as const, label: t('spon_sponsor'), size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40' },
-              { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36' },
-            ]).map(group => {
-              const items = data.sponsors.filter(s => s.type === group.type && s.logo);
-              if (items.length === 0) return null;
-              return (
-                <div key={group.type} className="flex flex-col items-center">
-                  <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
-                  <div className="flex flex-wrap justify-center gap-8 sm:gap-12 items-center">
-                    {items.map(s => {
-                      const Tag: any = s.url ? 'a' : 'div';
-                      const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
-                      return (
-                        <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
-                          <div className={`${group.size} w-full flex items-center justify-center`}>
-                            <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
-                          </div>
-                          <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
-                        </Tag>
-                      );
-                    })}
+            {(() => {
+              const groups = [
+                { type: 'main' as const,      label: t('spon_main'),      size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56' },
+                { type: 'sponsor' as const,   label: t('spon_sponsor'),   size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40' },
+                { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36' },
+              ];
+
+              const renderGroup = (group: typeof groups[number]) => {
+                const items = data.sponsors.filter(s => s.type === group.type && s.logo);
+                if (items.length === 0) return null;
+                return (
+                  <div key={group.type} className="flex flex-col items-center">
+                    <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
+                    <div className="flex flex-wrap justify-center gap-8 sm:gap-12 items-center">
+                      {items.map(s => {
+                        const Tag: any = s.url ? 'a' : 'div';
+                        const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
+                        return (
+                          <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
+                            <div className={`${group.size} w-full flex items-center justify-center`}>
+                              <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                            </div>
+                            <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
+                          </Tag>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                );
+              };
+
+              const main = renderGroup(groups[0]);
+              const sponsor = renderGroup(groups[1]);
+              const supporter = renderGroup(groups[2]);
+
+              return (
+                <>
+                  {/* Ерөнхий ивээн тэтгэгч ба ивээн тэтгэгчийг зурагт хуудасны
+                      адил зэрэгцүүлж, шошгуудыг нь нэг эгнээнд тавина.
+                      Нарийн дэлгэцэд өөрөө доошоо эвхэгдэнэ. */}
+                  {(main || sponsor) && (
+                    <div className="flex flex-wrap justify-center items-start gap-y-10 gap-x-12 sm:gap-x-20 lg:gap-x-28">
+                      {main}
+                      {sponsor}
+                    </div>
+                  )}
+                  {supporter}
+                </>
               );
-            })}
+            })()}
           </div>
         </section>
       )}
