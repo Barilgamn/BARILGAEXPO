@@ -58,6 +58,14 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
 
   const program = data.program || [];
 
+  /** Админаас огноог "2026-09-11 / Төсөл хэрэгжүүлэгчдийн өдөр" гэж бичсэн
+   *  байж болно. Товч дээр зөвхөн огноо нь, өдрийн тайлбар нь доор гарчиг
+   *  болж харагдана — эсрэг тохиолдолд товчнууд хэт өргөн болж эвгүй. */
+  const splitDate = (raw: string) => {
+    const [date, ...rest] = (raw || '').split('/');
+    return { date: date.trim(), theme: rest.join('/').trim() };
+  };
+
   return (
     <section id="program" className={`relative bg-gray-900 ${hideHeading ? 'py-16' : 'py-24'} flex items-center justify-center overflow-hidden min-h-[500px]`}>
       {/* Background Image with Overlay */}
@@ -100,7 +108,7 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
                       : 'bg-white/10 hover:bg-white/20 text-gray-300'
                   }`}
                 >
-                  <div className="text-sm uppercase tracking-wider mb-1 opacity-80">{day.date}</div>
+                  <div className="text-sm uppercase tracking-wider mb-1 opacity-80">{splitDate(day.date).date}</div>
                   <div className="text-xl">{day.day}</div>
                 </button>
               ))}
@@ -108,6 +116,21 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
 
             {/* Events List */}
             <div className="max-w-4xl mx-auto space-y-6">
+              {/* Тухайн өдрийн сэдэв */}
+              {(() => {
+                const day = program[activeDay];
+                const theme = day ? splitDate(day.date).theme : '';
+                if (!theme) return null;
+                return (
+                  <div className="text-center pb-2">
+                    <h3 className="font-heading text-xl sm:text-2xl lg:text-3xl font-bold uppercase leading-snug">
+                      {theme}
+                    </h3>
+                    <div className="w-16 h-1 bg-red-500 mx-auto rounded-full mt-4" />
+                  </div>
+                );
+              })()}
+
               {program[activeDay]?.events.map((ev, idx) => (
                 <EventCard key={idx} ev={ev} onOpen={setZoom} />
               ))}
