@@ -1,15 +1,44 @@
 import React, { useState } from 'react';
-import { CalendarDays, Clock, MapPin } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Mic } from 'lucide-react';
 import { useTranslation } from '../i18n';
-import { useAdmin, defaultProgram } from '../context/AdminContext';
+import { useAdmin, seminarProgram, type ProgramEvent } from '../context/AdminContext';
+
+const EventCard: React.FC<{ ev: ProgramEvent }> = ({ ev }) => (
+  <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-center hover:bg-white/20 transition-colors">
+    {ev.time && (
+      <div className="flex items-center gap-3 text-red-400 font-mono text-xl md:w-32 shrink-0">
+        <Clock size={20} />
+        {ev.time}
+      </div>
+    )}
+    <div className="flex-1">
+      <h3 className="text-xl font-bold mb-2">{ev.title}</h3>
+      {ev.desc && <p className="text-gray-300 mb-3 text-sm">{ev.desc}</p>}
+      {ev.loc && (
+        <div className="flex items-center gap-2 text-blue-300 text-sm">
+          <MapPin size={16} />
+          {ev.loc}
+        </div>
+      )}
+    </div>
+  </div>
+);
 
 export const ProgramSection: React.FC = () => {
   const { t } = useTranslation();
   const { data } = useAdmin();
   const [activeDay, setActiveDay] = useState(0);
 
-  // Админаас хөтөлбөр хоосон хадгалагдсан үед ч суурь хөтөлбөр харагдана.
-  const program = data.program && data.program.length > 0 ? data.program : defaultProgram;
+  // Админаас хөтөлбөр оруулаагүй бол зөвхөн семинарын хөтөлбөрийг харуулна.
+  const program = data.program && data.program.length > 0 ? data.program : seminarProgram;
+
+  /** Тухайн өдрийн семинарууд. Огноог 2026.09.11 / 2026-09-11 хоёр хэлбэрээр
+   *  бичсэн байж болох тул зөвхөн цифрээр нь тааруулна. */
+  const digits = (v: string) => (v || '').replace(/\D/g, '');
+  const seminarsFor = (date: string) =>
+    (data.program && data.program.length > 0
+      ? seminarProgram.find(d => digits(d.date) === digits(date))?.events
+      : undefined) || [];
   
   return (
     <section id="program" className="relative py-24 bg-gray-900 flex items-center justify-center overflow-hidden min-h-[500px]">
@@ -60,25 +89,26 @@ export const ProgramSection: React.FC = () => {
             {/* Events List */}
             <div className="max-w-4xl mx-auto space-y-6">
               {program[activeDay]?.events.map((ev, idx) => (
-                <div key={idx} className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-center hover:bg-white/20 transition-colors">
-                  {ev.time && (
-                    <div className="flex items-center gap-3 text-red-400 font-mono text-xl md:w-32 shrink-0">
-                      <Clock size={20} />
-                      {ev.time}
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-2">{ev.title}</h3>
-                    {ev.desc && <p className="text-gray-300 mb-3 text-sm">{ev.desc}</p>}
-                    {ev.loc && (
-                      <div className="flex items-center gap-2 text-blue-300 text-sm">
-                        <MapPin size={16} />
-                        {ev.loc}
-                      </div>
-                    )}
+                <EventCard key={idx} ev={ev} />
+              ))}
+
+              {/* Тухайн өдрийн илтгэл, семинарын дэлгэрэнгүй */}
+              {seminarsFor(program[activeDay]?.date || '').length > 0 && (
+                <div className="pt-6">
+                  <div className="flex items-center gap-3 mb-5">
+                    <Mic className="w-5 h-5 text-red-400 shrink-0" />
+                    <h3 className="font-heading text-lg md:text-xl font-bold uppercase tracking-wide">
+                      {t('prog_seminars')}
+                    </h3>
+                    <div className="flex-1 h-px bg-white/20" />
+                  </div>
+                  <div className="space-y-6">
+                    {seminarsFor(program[activeDay]?.date || '').map((ev, idx) => (
+                      <EventCard key={idx} ev={ev} />
+                    ))}
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         ) : (

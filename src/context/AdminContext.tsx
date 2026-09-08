@@ -136,11 +136,11 @@ const defaultGallery = [
 const LOC = 'Буянт-Ухаа ордон /төв тайз/';
 
 /** Үзэсгэлэнгийн илтгэл, семинарын хөтөлбөр (2026.09.11–13).
- *  Админаас хөтөлбөр оруулаагүй үед энэ жагсаалт харагдана. */
-export const defaultProgram: ProgramDay[] = [
+ *  Админаас оруулсан өдрийн хөтөлбөрийн доор нэмэлт блок болж харагдана. */
+export const seminarProgram: ProgramDay[] = [
   {
     id: 'd1',
-    date: '2026.09.11',
+    date: '2026-09-11',
     day: 'Баасан гараг',
     events: [
       { time: '14:00', title: 'Барилгын чанар, аюулгүй байдал, баталгаажуулалтын үйл ажиллагаа', desc: 'Э.Энхжин — Барилгын материалын үйлдвэрлэлийн технологийн заавар хариуцсан мэргэжилтэн', loc: LOC },
@@ -153,7 +153,7 @@ export const defaultProgram: ProgramDay[] = [
   },
   {
     id: 'd2',
-    date: '2026.09.12',
+    date: '2026-09-12',
     day: 'Бямба гараг',
     events: [
       { time: '11:50', title: 'Хариуцлага, хяналт ба өдөр тутмын аюулгүй ажиллагаа', desc: 'Ч.Чинзориг — ХАБЭА-ын сургагч багш, Монгол Улсын зөвлөх инженер', loc: LOC },
@@ -166,7 +166,7 @@ export const defaultProgram: ProgramDay[] = [
   },
   {
     id: 'd3',
-    date: '2026.09.13',
+    date: '2026-09-13',
     day: 'Ням гараг',
     events: [
       { time: '11:00', title: 'Барилгын салбарын мэргэжилтнүүдэд зориулсан номын танилцуулга', desc: 'М.Гандорж — Массбетон Барилгын Чанарын Холбооны гүйцэтгэх захирал', loc: LOC },
@@ -192,7 +192,7 @@ const defaultData: SiteData = {
   organizers: defaultOrganizers,
   sponsors: [],
   gallery: defaultGallery,
-  program: defaultProgram,
+  program: [],
   news: initialNews,
   boothBookedPercent: 50,
   showFloorPlan: false,
