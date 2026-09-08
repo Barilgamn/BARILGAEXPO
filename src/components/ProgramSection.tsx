@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { CalendarDays, Clock, MapPin } from 'lucide-react';
 import { useTranslation } from '../i18n';
-import { useAdmin } from '../context/AdminContext';
+import { useAdmin, defaultProgram } from '../context/AdminContext';
 
 export const ProgramSection: React.FC = () => {
   const { t } = useTranslation();
   const { data } = useAdmin();
   const [activeDay, setActiveDay] = useState(0);
+
+  // Админаас хөтөлбөр хоосон хадгалагдсан үед ч суурь хөтөлбөр харагдана.
+  const program = data.program && data.program.length > 0 ? data.program : defaultProgram;
   
   return (
     <section id="program" className="relative py-24 bg-gray-900 flex items-center justify-center overflow-hidden min-h-[500px]">
@@ -34,11 +37,11 @@ export const ProgramSection: React.FC = () => {
           <div className="w-24 h-1.5 bg-red-600 mx-auto rounded-full mb-8" />
         </div>
 
-        {data.program && data.program.length > 0 ? (
+        {program.length > 0 ? (
           <div className="w-full">
             {/* Days Tabs */}
             <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {data.program.map((day, idx) => (
+              {program.map((day, idx) => (
                 <button
                   key={day.id}
                   onClick={() => setActiveDay(idx)}
@@ -56,12 +59,14 @@ export const ProgramSection: React.FC = () => {
 
             {/* Events List */}
             <div className="max-w-4xl mx-auto space-y-6">
-              {data.program[activeDay]?.events.map((ev, idx) => (
+              {program[activeDay]?.events.map((ev, idx) => (
                 <div key={idx} className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-center hover:bg-white/20 transition-colors">
-                  <div className="flex items-center gap-3 text-red-400 font-mono text-xl md:w-32 shrink-0">
-                    <Clock size={20} />
-                    {ev.time}
-                  </div>
+                  {ev.time && (
+                    <div className="flex items-center gap-3 text-red-400 font-mono text-xl md:w-32 shrink-0">
+                      <Clock size={20} />
+                      {ev.time}
+                    </div>
+                  )}
                   <div className="flex-1">
                     <h3 className="text-xl font-bold mb-2">{ev.title}</h3>
                     {ev.desc && <p className="text-gray-300 mb-3 text-sm">{ev.desc}</p>}
