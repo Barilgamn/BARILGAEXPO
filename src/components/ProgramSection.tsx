@@ -97,19 +97,23 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
         {program.length > 0 ? (
           <div className="w-full">
             {/* Days Tabs */}
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
+            {/* Утсан дээр 2+1 болж эмх замбараагүй эгнэхээс сэргийлж
+                өдрүүдийг тэнцүү өргөнтэй багана болгоно. */}
+            <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-4 mb-10 sm:mb-12">
               {program.map((day, idx) => (
                 <button
                   key={day.id}
                   onClick={() => setActiveDay(idx)}
-                  className={`px-8 py-4 rounded-xl font-bold transition-all ${
+                  className={`px-2 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all ${
                     activeDay === idx
                       ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
                       : 'bg-white/10 hover:bg-white/20 text-gray-300'
                   }`}
                 >
-                  <div className="text-sm uppercase tracking-wider mb-1 opacity-80">{splitDate(day.date).date}</div>
-                  <div className="text-xl">{day.day}</div>
+                  <div className="text-[11px] sm:text-sm uppercase tracking-wider mb-1 opacity-80 tabular-nums">
+                    {splitDate(day.date).date}
+                  </div>
+                  <div className="text-sm sm:text-xl leading-tight">{day.day}</div>
                 </button>
               ))}
             </div>
@@ -123,7 +127,7 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
                 if (!theme) return null;
                 return (
                   <div className="text-center pb-2">
-                    <h3 className="font-heading text-xl sm:text-2xl lg:text-3xl font-bold uppercase leading-snug">
+                    <h3 className="font-heading text-lg sm:text-2xl lg:text-3xl font-bold uppercase leading-snug">
                       {theme}
                     </h3>
                     <div className="w-16 h-1 bg-red-500 mx-auto rounded-full mt-4" />
