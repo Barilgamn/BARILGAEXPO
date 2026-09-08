@@ -40,7 +40,9 @@ const EventCard: React.FC<{ ev: ProgramEvent; onOpen?: (src: string) => void }> 
   );
 };
 
-export const ProgramSection: React.FC = () => {
+/** hideHeading — /program хуудсанд толгой хэсэг нь дээр нь тусад нь
+ *  байдаг тул хэсгийн доторх гарчгийг давхардуулахгүй. */
+export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }) => {
   const { t } = useTranslation();
   const { data } = useAdmin();
   const [activeDay, setActiveDay] = useState(0);
@@ -49,7 +51,7 @@ export const ProgramSection: React.FC = () => {
   const program = data.program || [];
 
   return (
-    <section id="program" className="relative py-24 bg-gray-900 flex items-center justify-center overflow-hidden min-h-[500px]">
+    <section id="program" className={`relative bg-gray-900 ${hideHeading ? 'py-16' : 'py-24'} flex items-center justify-center overflow-hidden min-h-[500px]`}>
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
@@ -64,15 +66,17 @@ export const ProgramSection: React.FC = () => {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
-        <div className="text-center mb-16">
-          <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/20 shadow-xl">
-            <CalendarDays className="w-10 h-10 text-red-400" />
+        {!hideHeading && (
+          <div className="text-center mb-16">
+            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/20 shadow-xl">
+              <CalendarDays className="w-10 h-10 text-red-400" />
+            </div>
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-6 drop-shadow-lg">
+              {t('prog_title')}
+            </h2>
+            <div className="w-24 h-1.5 bg-red-600 mx-auto rounded-full mb-8" />
           </div>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-6 drop-shadow-lg">
-            {t('prog_title')}
-          </h2>
-          <div className="w-24 h-1.5 bg-red-600 mx-auto rounded-full mb-8" />
-        </div>
+        )}
 
         {program.length > 0 ? (
           <div className="w-full">
