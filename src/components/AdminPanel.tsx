@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote, Languages, Building2 } from 'lucide-react';
+import { Settings, Image, Menu, Users, Star, FileText, Calendar, Plus, Trash2, LogOut, Lock, Loader2, Shield, RefreshCw, Download, Save, MapPin, BarChart3, UserCog, ChevronUp, ChevronDown, Video, Upload, Quote, Languages, Building2, X } from 'lucide-react';
 import { BoothRequestsTab } from './BoothRequestsTab';
 import { B2BRequestsTab } from './B2BRequestsTab';
 import { BoothInfoContent } from './BoothInfoContent';
@@ -404,6 +404,25 @@ export const AdminPanel: React.FC = () => {
     if (uploadErr) throw uploadErr;
     const { data: publicUrlData } = supabase.storage.from('media').getPublicUrl(path);
     return publicUrlData.publicUrl;
+  };
+
+  /** Хөтөлбөрийн илтгэлийн зурагт хуудас. Эх файл нь ихэвчлэн 2000px, 1-2MB
+   *  байдаг ч картан дээр 300px орчим л харагддаг тул 900px болгож багасгана. */
+  const uploadProgramImage = async (file: File, dayId: string, idx: number) => {
+    setUploadError('');
+    setUploadingImage(true);
+    try {
+      const url = await uploadFileToMedia(await asWebp(file, 900), 'program', `${dayId}-${idx}`);
+      updateData(prev => ({
+        program: prev.program.map(p =>
+          p.id !== dayId ? p : { ...p, events: p.events.map((e, i) => (i === idx ? { ...e, img: url } : e)) },
+        ),
+      }));
+    } catch (err: any) {
+      setUploadError(err?.message || 'Зураг байршуулж чадсангүй');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const uploadNewsImage = async (file: File, newsId: number) => {
@@ -1762,6 +1781,30 @@ export const AdminPanel: React.FC = () => {
                                const newProg = data.program.map(p => p.id === prog.id ? {...p, events: newEvents} : p);
                                updateData({ program: newProg });
                              }} placeholder="Location" className="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                           </div>
+                           {/* Илтгэлийн зурагт хуудас */}
+                           <div className="w-28 shrink-0">
+                             {ev.img ? (
+                               <div className="relative group">
+                                 <img src={ev.img} alt="" className="w-28 h-28 object-cover rounded border border-gray-200" />
+                                 <button
+                                   onClick={() => {
+                                     const newEvents = prog.events.map((e, i) => i === idx ? { ...e, img: undefined } : e);
+                                     const newProg = data.program.map(p => p.id === prog.id ? {...p, events: newEvents} : p);
+                                     updateData({ program: newProg });
+                                   }}
+                                   title="Зургийг устгах"
+                                   className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                                 ><X size={14} /></button>
+                               </div>
+                             ) : (
+                               <label className="w-28 h-28 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-300 rounded text-gray-400 hover:border-blue-400 hover:text-blue-500 cursor-pointer text-[11px] text-center px-1">
+                                 <Upload size={16} />
+                                 Зурагт хуудас
+                                 <input type="file" accept="image/*" className="hidden"
+                                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadProgramImage(f, prog.id, idx); e.target.value = ''; }} />
+                               </label>
+                             )}
                            </div>
                            <button onClick={() => {
                              const newEvents = prog.events.filter((_, i) => i !== idx);

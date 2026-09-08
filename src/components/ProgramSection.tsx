@@ -3,17 +3,28 @@ import { CalendarDays, Clock, MapPin, Mic, X } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin, seminarProgram, type ProgramEvent } from '../context/AdminContext';
 
-/** Зурагт хуудас нь public/seminars/ дотор байхгүй бол (өшөө байршуулаагүй)
- *  эвдэрсэн зураг харагдахгүйн тулд бүрэн нуугдана. */
+/** Зурагт хуудсыг гарчгийн хажууд томоор харуулна. Зураг нь байхгүй/эвдэрсэн
+ *  тохиолдолд (админаас өшөө оруулаагүй) картыг эвдэлгүй бүрэн нуугдана. */
 const EventCard: React.FC<{ ev: ProgramEvent; onOpen?: (src: string) => void }> = ({ ev, onOpen }) => {
   const [noImg, setNoImg] = useState(false);
   return (
-  <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-center hover:bg-white/20 transition-colors">
+  <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 md:items-center hover:bg-white/20 transition-colors">
     {ev.time && (
-      <div className="flex items-center gap-3 text-red-400 font-mono text-xl md:w-32 shrink-0">
+      <div className="flex items-center gap-3 text-red-400 font-mono text-xl md:w-28 shrink-0">
         <Clock size={20} />
         {ev.time}
       </div>
+    )}
+    {ev.img && !noImg && (
+      <button
+        type="button"
+        onClick={() => onOpen?.(ev.img!)}
+        className="shrink-0 w-full sm:w-72 md:w-64 lg:w-72 rounded-xl overflow-hidden border border-white/15
+                   hover:border-white/40 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+      >
+        <img src={ev.img} alt={ev.title} loading="lazy" onError={() => setNoImg(true)}
+             className="w-full aspect-square object-cover" />
+      </button>
     )}
     <div className="flex-1">
       <h3 className="text-xl font-bold mb-2">{ev.title}</h3>
@@ -25,17 +36,6 @@ const EventCard: React.FC<{ ev: ProgramEvent; onOpen?: (src: string) => void }> 
         </div>
       )}
     </div>
-    {ev.img && !noImg && (
-      <button
-        type="button"
-        onClick={() => onOpen?.(ev.img!)}
-        className="shrink-0 w-full md:w-40 rounded-xl overflow-hidden border border-white/15
-                   hover:border-white/40 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-      >
-        <img src={ev.img} alt={ev.title} loading="lazy" onError={() => setNoImg(true)}
-             className="w-full aspect-square object-cover" />
-      </button>
-    )}
     </div>
   );
 };
