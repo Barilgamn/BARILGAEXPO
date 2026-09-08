@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { CalendarDays, Clock, MapPin, Mic, X } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, X } from 'lucide-react';
 import { useTranslation } from '../i18n';
-import { useAdmin, seminarProgram, type ProgramEvent } from '../context/AdminContext';
+import { useAdmin, type ProgramEvent } from '../context/AdminContext';
 
 /** Зурагт хуудсыг гарчгийн хажууд томоор харуулна. Зураг нь байхгүй/эвдэрсэн
  *  тохиолдолд (админаас өшөө оруулаагүй) картыг эвдэлгүй бүрэн нуугдана. */
@@ -46,17 +46,8 @@ export const ProgramSection: React.FC = () => {
   const [activeDay, setActiveDay] = useState(0);
   const [zoom, setZoom] = useState<string | null>(null);
 
-  // Админаас хөтөлбөр оруулаагүй бол зөвхөн семинарын хөтөлбөрийг харуулна.
-  const program = data.program && data.program.length > 0 ? data.program : seminarProgram;
+  const program = data.program || [];
 
-  /** Тухайн өдрийн семинарууд. Огноог 2026.09.11 / 2026-09-11 хоёр хэлбэрээр
-   *  бичсэн байж болох тул зөвхөн цифрээр нь тааруулна. */
-  const digits = (v: string) => (v || '').replace(/\D/g, '');
-  const seminarsFor = (date: string) =>
-    (data.program && data.program.length > 0
-      ? seminarProgram.find(d => digits(d.date) === digits(date))?.events
-      : undefined) || [];
-  
   return (
     <section id="program" className="relative py-24 bg-gray-900 flex items-center justify-center overflow-hidden min-h-[500px]">
       {/* Background Image with Overlay */}
@@ -108,24 +99,6 @@ export const ProgramSection: React.FC = () => {
               {program[activeDay]?.events.map((ev, idx) => (
                 <EventCard key={idx} ev={ev} onOpen={setZoom} />
               ))}
-
-              {/* Тухайн өдрийн илтгэл, семинарын дэлгэрэнгүй */}
-              {seminarsFor(program[activeDay]?.date || '').length > 0 && (
-                <div className="pt-6">
-                  <div className="flex items-center gap-3 mb-5">
-                    <Mic className="w-5 h-5 text-red-400 shrink-0" />
-                    <h3 className="font-heading text-lg md:text-xl font-bold uppercase tracking-wide">
-                      {t('prog_seminars')}
-                    </h3>
-                    <div className="flex-1 h-px bg-white/20" />
-                  </div>
-                  <div className="space-y-6">
-                    {seminarsFor(program[activeDay]?.date || '').map((ev, idx) => (
-                      <EventCard key={idx} ev={ev} onOpen={setZoom} />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         ) : (
