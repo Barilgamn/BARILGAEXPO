@@ -10,9 +10,17 @@ const EventCard: React.FC<{ ev: ProgramEvent; onOpen?: (src: string) => void }> 
   return (
   <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 md:items-center hover:bg-white/20 transition-colors">
     {ev.time && (
-      <div className="flex items-center gap-3 text-red-400 font-mono text-xl md:w-28 shrink-0">
-        <Clock size={20} />
-        {ev.time}
+      /* Цагийн муж ("14:25-14:45") хоёр мөр болж тасрахгүйн тулд зураасны
+         дараа зөөлөн таслалт (\u200b) тавьж, мөр бүрийг бүтнээр нь үлдээнэ. */
+      <div className="shrink-0 md:w-44">
+        <span className="inline-flex items-center gap-2 rounded-lg bg-red-500/15 border border-red-400/25
+                         px-3 py-1.5 text-red-300 font-heading font-bold tabular-nums leading-tight
+                         text-base sm:text-lg">
+          <Clock size={16} className="shrink-0 opacity-80" />
+          <span className="whitespace-nowrap">
+            {ev.time.replace(/\s*[-–—]\s*/g, '–\u200b')}
+          </span>
+        </span>
       </div>
     )}
     {ev.img && !noImg && (

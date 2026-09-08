@@ -148,6 +148,13 @@ export default function App() {
       ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2'
       : 'bg-transparent py-4';
 
+  /** Хөтөлбөр одоо бие даасан хуудастай боллоо. Баазад хуучин "/#program"
+   *  гэж хадгалагдсан байж болзошгүй тул цэсний холбоосыг /program руу
+   *  залруулж харуулна (админаас засах шаардлагагүй). */
+  const menus = data.menus.map(m =>
+    m.path === '/#program' || m.path === '#program' ? { ...m, path: '/program' } : m,
+  );
+
   const handleMenuClick = (path: string, e: React.MouseEvent) => {
     const isHashPath = path.includes('#');
     if (isHashPath) {
@@ -277,7 +284,7 @@ export default function App() {
             <div className="flex flex-1 items-center justify-end">
               {/* Desktop Menu */}
               <div className="hidden lg:flex items-center space-x-6 mr-6">
-                {data.menus.map(menu => (
+                {menus.map(menu => (
                   menu.path.startsWith('/') ? (
                     <Link key={menu.id} to={menu.path} onClick={(e) => handleMenuClick(menu.path, e)} className="text-sm font-medium text-white/90 hover:text-white transition-colors uppercase">
                       {lang === 'mn' ? menu.labelMn : menu.labelEn}
@@ -343,7 +350,7 @@ export default function App() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="lg:hidden absolute inset-x-0 top-full max-h-[calc(100svh-4.5rem)] bg-blue-950 overflow-y-auto border-t border-white/10 px-4 pt-2 pb-6 space-y-1 shadow-xl">
-            {data.menus.map(menu => (
+            {menus.map(menu => (
               menu.path.startsWith('/') ? (
                 <Link key={menu.id} to={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
                   {lang === 'mn' ? menu.labelMn : menu.labelEn}
