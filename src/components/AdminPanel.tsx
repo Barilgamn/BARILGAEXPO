@@ -406,6 +406,20 @@ export const AdminPanel: React.FC = () => {
     return publicUrlData.publicUrl;
   };
 
+  /** Илтгэлийн байрыг дээш/доош нэг алхмаар зөөнө (dir: -1 = дээш). */
+  const moveProgramEvent = (dayId: string, idx: number, dir: -1 | 1) => {
+    updateData(prev => ({
+      program: prev.program.map(p => {
+        if (p.id !== dayId) return p;
+        const to = idx + dir;
+        if (to < 0 || to >= p.events.length) return p;
+        const events = [...p.events];
+        [events[idx], events[to]] = [events[to], events[idx]];
+        return { ...p, events };
+      }),
+    }));
+  };
+
   /** Хөтөлбөрийн илтгэлийн зурагт хуудас. Эх файл нь ихэвчлэн 2000px, 1-2MB
    *  байдаг ч картан дээр 300px орчим л харагддаг тул 900px болгож багасгана. */
   const uploadProgramImage = async (file: File, dayId: string, idx: number) => {
@@ -1760,6 +1774,21 @@ export const AdminPanel: React.FC = () => {
 
                       {prog.events.map((ev, idx) => (
                         <div key={idx} className="flex flex-wrap md:flex-nowrap gap-3 items-start bg-white p-4 border border-gray-200 rounded shadow-sm">
+                           {/* Байрыг солих */}
+                           <div className="flex md:flex-col gap-1 shrink-0">
+                             <button
+                               onClick={() => moveProgramEvent(prog.id, idx, -1)}
+                               disabled={idx === 0}
+                               title="Дээш зөөх"
+                               className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                             ><ChevronUp size={16} /></button>
+                             <button
+                               onClick={() => moveProgramEvent(prog.id, idx, 1)}
+                               disabled={idx === prog.events.length - 1}
+                               title="Доош зөөх"
+                               className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                             ><ChevronDown size={16} /></button>
+                           </div>
                            <input type="text" value={ev.time} onChange={e => {
                              const newEvents = [...prog.events]; newEvents[idx].time = e.target.value;
                              const newProg = data.program.map(p => p.id === prog.id ? {...p, events: newEvents} : p);
