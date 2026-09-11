@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CalendarDays, Clock, MapPin, X } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin, type ProgramEvent } from '../context/AdminContext';
 
 /** Зурагт хуудсыг гарчгийн хажууд томоор харуулна. Зураг нь байхгүй/эвдэрсэн
- *  тохиолдолд (админаас өшөө оруулаагүй) картыг эвдэлгүй бүрэн нуугдана. */
-const EventCard: React.FC<{ ev: ProgramEvent; onOpen?: (src: string) => void }> = ({ ev, onOpen }) => {
+ *  тохиолдолд (админаас өшөө оруулаагүй) картыг эвдэлгүй бүрэн нуугдана.
+ *
+ *  dimmed — цаг нь өнгөрсөн (явагдаад дууссан) арга хэмжээг бүдгэрүүлж,
+ *  болох гэж буй нь тод хэвээр үлдэнэ. Хулганаа аваачихад буцаад тодорно. */
+const EventCard: React.FC<{ ev: ProgramEvent; dimmed?: boolean; onOpen?: (src: string) => void }> = ({ ev, dimmed, onOpen }) => {
   const [noImg, setNoImg] = useState(false);
   return (
-  <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 md:items-center hover:bg-white/20 transition-colors">
+  <div className={`bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 md:items-center transition-all duration-300 ${
+    dimmed ? 'opacity-40 saturate-50 hover:opacity-100 hover:saturate-100' : 'hover:bg-white/20'
+  }`}>
     {ev.time && (
       /* Цагийн муж ("14:25-14:45") хоёр мөр болж тасрахгүйн тулд зураасны
          дараа зөөлөн таслалт (\u200b) тавьж, мөр бүрийг бүтнээр нь үлдээнэ. */
@@ -48,6 +53,35 @@ const EventCard: React.FC<{ ev: ProgramEvent; onOpen?: (src: string) => void }> 
   );
 };
 
+/** Улаанбаатарын цагаар одоог "YYYYMMDDHHmm" хэлбэрийн харьцуулж болох
+ *  тоогоор буцаана. Хөтчийн цагийн бүсээс хамаарахгүй тул гадаадаас үзэж
+ *  байгаа хүнд ч үзэсгэлэнгийн цагаар зөв харагдана. */
+const ubNow = () => {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Ulaanbaatar',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find(p => p.type === type)?.value || '00';
+  return Number(`${get('year')}${get('month')}${get('day')}${get('hour')}${get('minute')}`);
+};
+
+/** Арга хэмжээ дуусчихсан эсэх. Цагийн муж ("11:00–11:20") бол төгсгөлөөр,
+ *  ганц цаг ("09:00") бол мөнөөх цагаар нь шийднэ. Огноо/цагийг нь уншиж
+ *  чадаагүй тохиолдолд бүдгэрүүлэхгүй — андуурч нуухаас болгоомжилно. */
+const isFinished = (rawDate: string, time: string | undefined, now: number) => {
+  const d = String(rawDate || '').match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+  if (!d) return false;
+  const dayNum = Number(`${d[1]}${d[2].padStart(2, '0')}${d[3].padStart(2, '0')}`);
+  const today = Math.floor(now / 10000);
+  if (dayNum !== today) return dayNum < today;
+
+  const times = String(time || '').match(/\d{1,2}:\d{2}/g);
+  if (!times) return false;
+  const [h, m] = times[times.length - 1].split(':');
+  return now % 10000 > Number(h) * 100 + Number(m);
+};
+
 /** hideHeading — /program хуудсанд толгой хэсэг нь дээр нь тусад нь
  *  байдаг тул хэсгийн доторх гарчгийг давхардуулахгүй. */
 export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }) => {
@@ -55,6 +89,12 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
   const { data } = useAdmin();
   const [activeDay, setActiveDay] = useState(0);
   const [zoom, setZoom] = useState<string | null>(null);
+  // Цаг урсахад бүдгэрсэн байдал нь өөрөө шинэчлэгдэж байхаар минут тутам шалгана
+  const [now, setNow] = useState(ubNow);
+  useEffect(() => {
+    const id = setInterval(() => setNow(ubNow()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const program = data.program || [];
 
@@ -136,7 +176,12 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
               })()}
 
               {program[activeDay]?.events.map((ev, idx) => (
-                <EventCard key={idx} ev={ev} onOpen={setZoom} />
+                <EventCard
+                  key={idx}
+                  ev={ev}
+                  dimmed={isFinished(program[activeDay].date, ev.time, now)}
+                  onOpen={setZoom}
+                />
               ))}
             </div>
           </div>
