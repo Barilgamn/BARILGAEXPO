@@ -31,6 +31,7 @@ const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({
 const PosterMaker = lazy(() => import('./components/PosterMaker').then(m => ({ default: m.PosterMaker })));
 const B2BRegistration = lazy(() => import('./components/B2BRegistration').then(m => ({ default: m.B2BRegistration })));
 const ProgramPage = lazy(() => import('./components/ProgramPage').then(m => ({ default: m.ProgramPage })));
+const NewsPage = lazy(() => import('./components/NewsPage').then(m => ({ default: m.NewsPage })));
 const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m => ({ default: m.NewsArticlePage })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({ default: m.AuthCallback })));
@@ -149,11 +150,17 @@ export default function App() {
       ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2'
       : 'bg-transparent py-4';
 
-  /** Хөтөлбөр одоо бие даасан хуудастай боллоо. Баазад хуучин "/#program"
-   *  гэж хадгалагдсан байж болзошгүй тул цэсний холбоосыг /program руу
-   *  залруулж харуулна (админаас засах шаардлагагүй). */
+  /** Хөтөлбөр, мэдээ хоёр одоо бие даасан хуудастай боллоо. Баазад хуучин
+   *  "/#program", "/#news" гэж хадгалагдсан байж болзошгүй тул цэсний
+   *  холбоосыг залруулж харуулна (админаас засах шаардлагагүй). */
+  const PAGE_PATHS: Record<string, string> = {
+    '/#program': '/program',
+    '#program': '/program',
+    '/#news': '/news',
+    '#news': '/news',
+  };
   const menus = data.menus.map(m =>
-    m.path === '/#program' || m.path === '#program' ? { ...m, path: '/program' } : m,
+    PAGE_PATHS[m.path] ? { ...m, path: PAGE_PATHS[m.path] } : m,
   );
 
   const handleMenuClick = (path: string, e: React.MouseEvent) => {
@@ -849,6 +856,11 @@ export default function App() {
         <Route path="/program" element={
           <Suspense fallback={<LoadingPlaceHolder />}>
             <ProgramPage />
+          </Suspense>
+        } />
+        <Route path="/news" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <NewsPage />
           </Suspense>
         } />
         <Route path="/news/:id" element={

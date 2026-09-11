@@ -6,7 +6,9 @@ import { useAdmin } from '../context/AdminContext';
 import { NewsArticleBody } from './NewsArticleBody';
 import { localizeNews, newsPath, stripAndTruncate } from '../utils/news';
 
-export const NewsSection: React.FC = () => {
+/** hideHeading — /news хуудсанд толгой хэсэг нь дээр нь тусад нь байдаг тул
+ *  хэсгийн доторх гарчгийг давхардуулахгүй. */
+export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }) => {
   const { data } = useAdmin();
   const newsItems = data.news;
   const { t, lang } = useTranslation();
@@ -29,15 +31,17 @@ export const NewsSection: React.FC = () => {
   }, [selectedNews]);
 
   return (
-    <section id="news" className="py-24 bg-gray-50 relative">
+    <section id="news" className={`relative bg-gray-50 ${hideHeading ? 'py-16' : 'py-24'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h3 className="text-red-600 font-bold uppercase tracking-wider text-sm mb-3">{t('news_pre')}</h3>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-blue-900 mb-6">
-            {t('news_title')}
-          </h2>
-          <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full"></div>
-        </div>
+        {!hideHeading && (
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h3 className="text-red-600 font-bold uppercase tracking-wider text-sm mb-3">{t('news_pre')}</h3>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-blue-900 mb-6">
+              {t('news_title')}
+            </h2>
+            <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full"></div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {newsItems.map((news) => {

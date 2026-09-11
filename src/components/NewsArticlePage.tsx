@@ -46,7 +46,7 @@ export const NewsArticlePage: React.FC = () => {
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/20 blur-3xl" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
           <Link
-            to="/#news"
+            to="/news"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-semibold transition-colors"
           >
             <ChevronLeft size={16} /> {t('news_title')}
@@ -62,7 +62,7 @@ export const NewsArticlePage: React.FC = () => {
             <div className="p-10 sm:p-16 text-center">
               <p className="text-lg font-semibold text-gray-900">{t('news_notfound')}</p>
               <Link
-                to="/#news"
+                to="/news"
                 className="inline-flex items-center gap-1.5 mt-4 text-red-600 font-semibold hover:text-red-700"
               >
                 <ChevronLeft size={16} /> {t('news_title')}
