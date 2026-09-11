@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, X } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import { useAdmin } from '../context/AdminContext';
-import { newsTranslations, NewsTranslationLang } from '../data/newsTranslations';
-import ReactMarkdown from 'react-markdown';
-import { ImageSlider } from './ImageSlider';
+import { NewsArticleBody } from './NewsArticleBody';
+import { localizeNews, newsPath, stripAndTruncate } from '../utils/news';
 
 export const NewsSection: React.FC = () => {
   const { data } = useAdmin();
@@ -14,28 +14,7 @@ export const NewsSection: React.FC = () => {
 
   // Сонгосон хэл дээр орчуулга байвал title/description-ийг түүгээр сольж харуулна.
   // Монгол хэл болон орчуулгагүй мэдээний хувьд эх хувилбараа харуулна.
-  const stripAndTruncate = (text: string, max = 150) => {
-    const stripped = text
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&hellip;/g, '…')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&#8220;|&#8221;|&ldquo;|&rdquo;/g, '"')
-      .replace(/&#8216;|&#8217;|&lsquo;|&rsquo;/g, "'")
-      .replace(/\s+/g, ' ')
-      .trim();
-    return stripped.length > max ? stripped.slice(0, max) + '…' : stripped;
-  };
-
-  const getLocalizedNews = (news: typeof newsItems[0]) => {
-    if (lang === 'mn') return news;
-    // Админаас үүсгэсэн орчуулга эхний ээлжинд, дараа нь бэлэн (static) орчуулга
-    const translation =
-      news.i18n?.[lang as NewsTranslationLang] ||
-      newsTranslations[news.id]?.[lang as NewsTranslationLang];
-    if (!translation) return news;
-    return { ...news, title: translation.title, description: translation.description, content: translation.content || news.content };
-  };
+  const getLocalizedNews = (news: typeof newsItems[0]) => localizeNews(news, lang);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -64,9 +43,16 @@ export const NewsSection: React.FC = () => {
           {newsItems.map((news) => {
             const localized = getLocalizedNews(news);
             return (
-            <div
+            // Карт нь /news/:id холбоос — товшиход дэлгэрэнгүй цонх нээгдэнэ, харин
+            // хуулж авах/шинэ цонхонд нээхэд хуваалцах боломжтой хаяг үлдэнэ.
+            <Link
               key={news.id}
-              onClick={() => setSelectedNews(news)}
+              to={newsPath(news.id)}
+              onClick={e => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+                e.preventDefault();
+                setSelectedNews(news);
+              }}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer"
             >
               <div className="relative h-36 sm:h-56 overflow-hidden">
@@ -96,7 +82,7 @@ export const NewsSection: React.FC = () => {
                   {t('news_more')} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
-            </div>
+            </Link>
             );
           })}
         </div>
@@ -104,9 +90,7 @@ export const NewsSection: React.FC = () => {
       </div>
 
       {/* Detail Modal */}
-      {selectedNews && (() => {
-        const localizedSelected = getLocalizedNews(selectedNews);
-        return (
+      {selectedNews && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6">
           <div
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
@@ -121,54 +105,11 @@ export const NewsSection: React.FC = () => {
             </button>
 
             <div className="overflow-y-auto w-full flex-grow relative pb-10">
-              {/* Мэдээний зураг — банер (гарчигтай давхцахгүй) */}
-              {selectedNews.image && (
-                <div className="w-full h-56 sm:h-72 md:h-80 bg-gray-100">
-                  <img
-                    src={selectedNews.image}
-                    alt={localizedSelected.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: selectedNews.imagePosition || '50% 50%' }}
-                  />
-                </div>
-              )}
-
-              <div className="p-6 md:p-10 max-w-3xl mx-auto">
-                {/* Огноо + гарчиг — зургийн доор тусдаа */}
-                <div className="flex items-center gap-2 text-red-600 mb-3 text-sm font-medium">
-                  <Calendar className="w-4 h-4" />
-                  {selectedNews.date}
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 leading-tight break-words">
-                  {localizedSelected.title}
-                </h2>
-
-                <div className="mt-6 border-t border-gray-100 pt-6 text-gray-700 overflow-x-hidden leading-relaxed [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-blue-900 [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-blue-900 [&_h3]:mt-5 [&_h3]:mb-2 [&_p]:mb-4 [&_a]:text-red-600 [&_a]:underline [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_li]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-red-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:rounded-xl [&_img]:my-4 [&_strong]:font-bold">
-                  {(() => {
-                    // Хуучин агуулгад жирийн зайны оронд non-breaking space (U+00A0/&nbsp;)
-                    // ашиглагдсанаас мөр таслахгүй байсныг хэвийн зай болгож засна.
-                    const normalized = (localizedSelected.content || '')
-                      .replace(/[\u00a0\u2007\u202f]/g, ' ')
-                      .replace(/&nbsp;/gi, ' ');
-                    const isHtml = /(^|\s)<[a-z!/]/i.test(normalized.trim().slice(0, 40));
-                    return isHtml
-                      ? <div dangerouslySetInnerHTML={{ __html: normalized }} />
-                      : <ReactMarkdown>{normalized}</ReactMarkdown>;
-                  })()}
-                </div>
-
-                {selectedNews.images && selectedNews.images.length > 0 && (
-                  <div className="mt-8">
-                    <ImageSlider images={selectedNews.images} />
-                  </div>
-                )}
-              </div>
+              <NewsArticleBody news={selectedNews} />
             </div>
           </div>
         </div>
-        );
-      })()}
+      )}
     </section>
   );
 };

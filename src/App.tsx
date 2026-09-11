@@ -31,6 +31,7 @@ const BoothBooking = lazy(() => import('./components/BoothBooking').then(m => ({
 const PosterMaker = lazy(() => import('./components/PosterMaker').then(m => ({ default: m.PosterMaker })));
 const B2BRegistration = lazy(() => import('./components/B2BRegistration').then(m => ({ default: m.B2BRegistration })));
 const ProgramPage = lazy(() => import('./components/ProgramPage').then(m => ({ default: m.ProgramPage })));
+const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m => ({ default: m.NewsArticlePage })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({ default: m.AuthCallback })));
 
@@ -850,6 +851,11 @@ export default function App() {
             <ProgramPage />
           </Suspense>
         } />
+        <Route path="/news/:id" element={
+          <Suspense fallback={<LoadingPlaceHolder />}>
+            <NewsArticlePage />
+          </Suspense>
+        } />
       </Routes>
 
       {/* Footer & Contact */}
@@ -1213,7 +1219,8 @@ export default function App() {
       {!isAdminRoute && <ChatWidget />}
 
       {/* Сүүлийн мэдээний popup (нэг удаа) */}
-      {!isAdminRoute && <NewsPopup />}
+      {/* Мэдээний хуудсанд байхад ижил мэдээг дахин санал болгох шаардлагагүй */}
+      {!isAdminRoute && !location.pathname.startsWith('/news') && <NewsPopup />}
     </div>
   );
 }
