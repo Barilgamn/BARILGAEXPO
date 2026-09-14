@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Award } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { useTranslation } from '../i18n';
 
 /** 40 дэх удаагийн BARILGA EXPO-гийн шилдэг байгууллагууд.
@@ -46,10 +46,17 @@ export const WinnersSection: React.FC = () => {
             {/* 7 ангилал тул сүүлийн мөрийн ганц картыг голлуулна */}
             <ul className="flex flex-wrap justify-center gap-4">
               {AWARDS.map(a => (
-                <li key={a.key} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc((100%-2rem)/3)] bg-white border border-gray-200 rounded-xl p-4 sm:p-5 flex gap-4 shadow-sm">
-                  <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center">
-                    <Award className="w-5 h-5 text-amber-600" />
-                  </div>
+                <li key={a.key} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc((100%-2rem)/3)] bg-white border border-gray-200 rounded-xl p-4 sm:p-5 flex items-center gap-4 shadow-sm">
+                  {/* Шагналын цом — ил тод дэвсгэртэй */}
+                  <img
+                    src="/trophy.webp"
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    width={320}
+                    height={186}
+                    className="w-16 sm:w-20 h-auto shrink-0 self-center drop-shadow-md"
+                  />
                   <div className="min-w-0">
                     <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-red-600 mb-1">
                       {t(a.key as any)}
