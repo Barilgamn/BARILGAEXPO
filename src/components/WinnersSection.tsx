@@ -30,8 +30,8 @@ export const WinnersSection: React.FC = () => {
           <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full mt-5" />
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-          <figure className="rounded-2xl overflow-hidden shadow-xl border border-gray-200 lg:sticky lg:top-28">
+        <div className="space-y-10">
+          <figure className="max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200">
             <img
               src="/winners-2026.webp"
               alt={t('win_title')}
@@ -42,10 +42,11 @@ export const WinnersSection: React.FC = () => {
             />
           </figure>
 
-          <div>
-            <ul className="space-y-3">
+          <div className="max-w-6xl mx-auto">
+            {/* 7 ангилал тул сүүлийн мөрийн ганц картыг голлуулна */}
+            <ul className="flex flex-wrap justify-center gap-4">
               {AWARDS.map(a => (
-                <li key={a.key} className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 flex gap-4 shadow-sm">
+                <li key={a.key} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc((100%-2rem)/3)] bg-white border border-gray-200 rounded-xl p-4 sm:p-5 flex gap-4 shadow-sm">
                   <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center">
                     <Award className="w-5 h-5 text-amber-600" />
                   </div>
@@ -60,7 +61,7 @@ export const WinnersSection: React.FC = () => {
                 </li>
               ))}
             </ul>
-            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mt-6">
+            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mt-8 text-center max-w-3xl mx-auto">
               {t('win_note')}
             </p>
           </div>
