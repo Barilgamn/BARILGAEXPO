@@ -21,6 +21,7 @@ import { trackVisit } from './utils/analytics';
 const VideoSection = lazy(() => import('./components/VideoSection').then(m => ({ default: m.VideoSection })));
 const StatsSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.StatsSection })));
 const ReelsSection = lazy(() => import('./components/ReelsSection').then(m => ({ default: m.ReelsSection })));
+const WinnersSection = lazy(() => import('./components/WinnersSection').then(m => ({ default: m.WinnersSection })));
 const ParticipantsSection = lazy(() => import('./components/ParticipantsSection').then(m => ({ default: m.ParticipantsSection })));
 const NewsSection = lazy(() => import('./components/NewsSection').then(m => ({ default: m.NewsSection })));
 const ProgramSection = lazy(() => import('./components/ProgramSection').then(m => ({ default: m.ProgramSection })));
@@ -830,6 +831,11 @@ export default function App() {
       {/* Оролцогч байгууллагуудын лого */}
       <Suspense fallback={<LoadingPlaceHolder />}>
         <ParticipantsSection />
+      </Suspense>
+
+      {/* Үзэсгэлэнгийн шилдэг байгууллагууд */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <WinnersSection />
       </Suspense>
 
       {/* News Section */}
