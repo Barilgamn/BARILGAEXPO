@@ -9,7 +9,8 @@ const AWARDS: { key: string; winners: string[] }[] = [
   { key: 'win_cat_2', winners: ['Н Эй Би Трэйд ХХК – “HÖRMANN” брэнд'] },
   { key: 'win_cat_3', winners: ['Глобал Бридж Констракшн ХХК – “Global Mall”'] },
   { key: 'win_cat_4', winners: ['Эй Жи Жи Эс ХХК'] },
-  { key: 'win_cat_5', winners: ['Энгүүн Технологи ХХК', 'Глобал Браун Солюушн ХХК – IFE брэнд'] },
+  { key: 'win_cat_5', winners: ['Энгүүн Технологи ХХК'] },
+  { key: 'win_cat_5', winners: ['Глобал Браун Солюушн ХХК – IFE брэнд'] },
   { key: 'win_cat_6', winners: ['MMS LLC /MyMonSource LLC/'] },
   { key: 'win_cat_7', winners: ['Агуур Арт ХХК'] },
 ];
@@ -32,10 +33,10 @@ export const WinnersSection: React.FC = () => {
 
         <div>
           <div className="max-w-6xl mx-auto">
-            {/* 7 ангилал тул сүүлийн мөрийн ганц картыг голлуулна */}
+            {/* Сондгой тоотой болбол сүүлийн ганц картыг голлуулна */}
             <ul className="flex flex-wrap justify-center gap-5">
               {AWARDS.map(a => (
-                <li key={a.key} className="w-full md:w-[calc(50%-0.625rem)] bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 flex items-center gap-5 sm:gap-6 shadow-sm hover:shadow-md transition-shadow">
+                <li key={a.key + a.winners[0]} className="w-full md:w-[calc(50%-0.625rem)] bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 flex items-center gap-5 sm:gap-6 shadow-sm hover:shadow-md transition-shadow">
                   {/* Шагналын цом — ил тод дэвсгэртэй */}
                   <img
                     src="/trophy.webp"
