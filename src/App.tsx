@@ -561,6 +561,11 @@ export default function App() {
         </div>
       </section>
 
+      {/* Үзэсгэлэнгийн шилдэг байгууллагууд */}
+      <Suspense fallback={<LoadingPlaceHolder />}>
+        <WinnersSection />
+      </Suspense>
+
       {/* Reel бичлэгүүд — story маягаар */}
       <Suspense fallback={null}>
         <ReelsSection />
@@ -831,11 +836,6 @@ export default function App() {
       {/* Оролцогч байгууллагуудын лого */}
       <Suspense fallback={<LoadingPlaceHolder />}>
         <ParticipantsSection />
-      </Suspense>
-
-      {/* Үзэсгэлэнгийн шилдэг байгууллагууд */}
-      <Suspense fallback={<LoadingPlaceHolder />}>
-        <WinnersSection />
       </Suspense>
 
       {/* News Section */}
