@@ -30,23 +30,12 @@ export const WinnersSection: React.FC = () => {
           <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full mt-5" />
         </div>
 
-        <div className="space-y-10">
-          <figure className="max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200">
-            <img
-              src="/winners-2026.webp"
-              alt={t('win_title')}
-              loading="lazy"
-              width={1600}
-              height={1067}
-              className="w-full h-auto block"
-            />
-          </figure>
-
+        <div>
           <div className="max-w-6xl mx-auto">
             {/* 7 ангилал тул сүүлийн мөрийн ганц картыг голлуулна */}
-            <ul className="flex flex-wrap justify-center gap-4">
+            <ul className="flex flex-wrap justify-center gap-5">
               {AWARDS.map(a => (
-                <li key={a.key} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc((100%-2rem)/3)] bg-white border border-gray-200 rounded-xl p-4 sm:p-5 flex items-center gap-4 shadow-sm">
+                <li key={a.key} className="w-full md:w-[calc(50%-0.625rem)] bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 flex items-center gap-5 sm:gap-6 shadow-sm hover:shadow-md transition-shadow">
                   {/* Шагналын цом — ил тод дэвсгэртэй */}
                   <img
                     src="/trophy.webp"
@@ -55,14 +44,14 @@ export const WinnersSection: React.FC = () => {
                     loading="lazy"
                     width={320}
                     height={186}
-                    className="w-16 sm:w-20 h-auto shrink-0 self-center drop-shadow-md"
+                    className="w-24 sm:w-32 h-auto shrink-0 self-center drop-shadow-lg"
                   />
                   <div className="min-w-0">
-                    <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-red-600 mb-1">
+                    <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-600 mb-1.5">
                       {t(a.key as any)}
                     </p>
                     {a.winners.map(w => (
-                      <p key={w} className="font-semibold text-gray-900 leading-snug">{w}</p>
+                      <p key={w} className="font-bold text-gray-900 text-base sm:text-lg leading-snug">{w}</p>
                     ))}
                   </div>
                 </li>
