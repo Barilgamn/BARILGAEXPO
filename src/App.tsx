@@ -411,152 +411,105 @@ export default function App() {
         <Route path="/" element={
           <>
             {/* Hero Section */}
-            <section id="home" className="relative pt-28 pb-12 md:pb-0 md:pt-20 min-h-[100svh] md:min-h-[85vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0 w-full h-full bg-blue-950">
-          <div className="absolute inset-0 bg-blueprint z-10 opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/50 via-blue-900/35 to-blue-900/10 mix-blend-multiply z-10" />
-          <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-blue-950/80 to-transparent z-10" />
-          {/* Дэвсгэр — Улаанбаатарын зургийг timelapse мэт удаан хөдөлгөөнтэй болгосон */}
-          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-90 blur-[1.5px]" />
-          {/* Текст уншигдахуйц байхын тулд зүүн талд харанхуй давхарга (баруун тал ил тод) */}
-          <div className="absolute inset-0 z-[15] bg-gradient-to-r from-blue-950/85 via-blue-950/40 to-transparent" />
+            <section id="home" className="relative surface min-h-[100svh] flex flex-col justify-end overflow-hidden pt-28 pb-0">
+        {/* Дэвсгэр: хотын зураг гүн харанхуй давхаргын доор */}
+        <div className="absolute inset-0 w-full h-full">
+          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-45" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#070707]/85 via-[#070707]/70 to-[#070707]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#070707] via-[#070707]/45 to-transparent" />
         </div>
-        
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10">
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-7 xl:col-span-8 relative">
-              {/* Construction Accent Line */}
-              <div className="absolute -left-6 md:-left-10 top-2 bottom-4 w-1 bg-gradient-to-b from-red-500 rounded-full via-red-400 to-transparent hidden md:block"></div>
-              
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 font-medium text-xs uppercase tracking-widest mb-6">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                The 40th International Exhibition
-              </div>
 
-              <h1 className="font-heading text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.1] mb-4 drop-shadow-2xl">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">{t('hero_title')}</span>
-              </h1>
-              
-              <h2 className="text-xl sm:text-2xl md:text-3xl text-red-400 font-bold tracking-wide mb-6 flex items-center gap-3">
-                {t('hero_subtitle')}
-              </h2>
-              
-              <p className="text-base sm:text-lg md:text-xl text-blue-100/80 leading-relaxed mb-8 md:mb-10 max-w-2xl font-light">
-                {t('hero_desc')}
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 mb-12">
-                <div className="glow-card flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-red-500/20 border border-red-500/30">
-                    <Calendar className="h-6 w-6 text-red-400" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-blue-200/60 uppercase tracking-widest font-semibold">{t('when')}</div>
-                    <div className="font-bold text-white text-lg">{t('when_date')}</div>
-                  </div>
-                </div>
-                
-                <div className="glow-card flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full sm:w-auto">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-red-500/20 border border-red-500/30">
-                    <MapPin className="h-6 w-6 text-red-400" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-blue-200/60 uppercase tracking-widest font-semibold">{t('where')}</div>
-                    <div className="font-bold text-white text-lg">{t('where_loc')}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Картын хүрээг тойрон эргэлддэг гэрэлтэх анимэйшн */}
-              <style>{`
-                @property --glow-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-                .glow-card { position: relative; isolation: isolate; }
-                .glow-card::before {
-                  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
-                  background: conic-gradient(from var(--glow-angle),
-                    transparent 0deg, transparent 250deg,
-                    #f87171 300deg, #fca5a5 330deg, #fca5a5 345deg, transparent 360deg);
-                  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-                  -webkit-mask-composite: xor; mask-composite: exclude;
-                  pointer-events: none;
-                  animation: glowSpin 5s linear infinite;
-                }
-                @keyframes glowSpin { to { --glow-angle: 360deg; } }
-                @media (prefers-reduced-motion: reduce) { .glow-card::before { animation: none; } }
-              `}</style>
+        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 flex-1 flex flex-col justify-center pt-10">
+          <div className="max-w-5xl">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="eyebrow">The 40th International Exhibition</span>
             </div>
 
-            <div className="lg:col-span-5 xl:col-span-4 mt-8 lg:mt-0 relative z-30">
+            <h1 className="display text-[2.6rem] sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6">
+              {t('hero_title')}
+            </h1>
 
+            <p className="text-red-500 display text-lg sm:text-2xl md:text-3xl mb-7">
+              {t('hero_subtitle')}
+            </p>
 
-              <div className="bg-blue-900/40 backdrop-blur-xl border border-blue-400/20 rounded-2xl p-6 sm:p-8 shadow-[0_0_40px_rgba(0,0,0,0.3)] relative overflow-hidden group">
-                <div className="absolute inset-0 bg-blueprint z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-1000"></div>
-                
-                <h3 className="text-red-400 font-bold mb-6 flex items-center gap-2 relative z-10 text-sm tracking-widest uppercase">
-                  {phase === 'live'
-                    ? <span className="relative flex h-3 w-3 shrink-0">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-                      </span>
-                    : <Timer className="h-5 w-5" />}
-                  {phase === 'before' ? t('starts_in') : phase === 'live' ? t('expo_live') : t('expo_ended')}
-                </h3>
+            <p className="text-white/55 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-10">
+              {t('hero_desc')}
+            </p>
 
-                {phase !== 'before' ? (
-                  <div className="relative z-10 bg-blue-950/60 rounded-xl p-5 border border-blue-400/20 backdrop-blur-sm text-center">
-                    <p className="text-2xl sm:text-3xl font-black text-white mb-2">
-                      {t('when_date')}
-                    </p>
-                    <p className="text-sm text-blue-200/80">
-                      {phase === 'live' ? t('expo_live_note') : t('expo_ended_note')}
-                    </p>
-                  </div>
-                ) : (
-                <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center relative z-10">
-                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.days}</div>
-                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('days')}</div>
-                  </div>
-                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.hours.toString().padStart(2, '0')}</div>
-                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('hours')}</div>
-                  </div>
-                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.minutes.toString().padStart(2, '0')}</div>
-                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('minutes')}</div>
-                  </div>
-                  <div className="bg-blue-950/60 rounded-xl p-3 border border-blue-400/20 backdrop-blur-sm shadow-inner group-hover:border-red-500/30 transition-colors duration-500">
-                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mb-1">{timeLeft.seconds.toString().padStart(2, '0')}</div>
-                    <div className="text-[8px] sm:text-[10px] text-blue-200/60 uppercase tracking-wider font-semibold">{t('seconds')}</div>
-                  </div>
-                </div>
-                )}
-                
-                <div className="mt-6 pt-6 border-t border-blue-400/20 text-center relative z-10">
-                  {(() => {
-                    const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 50)));
-                    return (
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs text-blue-200/80 font-medium">{t('space_booked')}</span>
-                          <span className="text-sm font-black text-white">{pct}%</span>
-                        </div>
-                        <div className="w-full h-2.5 bg-blue-950/60 rounded-full overflow-hidden border border-blue-400/20">
-                          <div
-                            className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all duration-700"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <Link to="/booking" onClick={askBeforeBooking} className="bg-red-500 hover:bg-red-600 text-white px-8 py-3.5 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:shadow-red-500/25 active:scale-95 flex items-center justify-center gap-2 group border-b-4 border-red-700 active:border-b-0 active:translate-y-[4px] w-full">
-                    {t('book_booth')}
-                    <CheckCircle2 className="h-5 w-5 opacity-80" />
-                  </Link>
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/booking"
+                onClick={askBeforeBooking}
+                className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-7 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
+              >
+                {t('book_booth')}
+                <CheckCircle2 className="h-4 w-4 opacity-80" />
+              </Link>
+              <Link
+                to="/program"
+                className="inline-flex items-center gap-2 border hairline text-white/90 hover:text-white hover:bg-white/5 px-7 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
+              >
+                {t('link_program')}
+              </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Доод мөр: хэзээ / хаана / countdown / талбайн дүүргэлт */}
+        <div className="relative z-20 w-full border-t hairline bg-[#070707]/70 backdrop-blur-md">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+            <div className="py-5 lg:py-7 lg:pr-8">
+              <div className="eyebrow mb-2 flex items-center gap-1.5"><Calendar className="h-3 w-3" /> {t('when')}</div>
+              <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('when_date')}</div>
+            </div>
+
+            <div className="py-5 lg:py-7 lg:px-8">
+              <div className="eyebrow mb-2 flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {t('where')}</div>
+              <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('where_loc')}</div>
+            </div>
+
+            <div className="py-5 lg:py-7 lg:px-8 border-t lg:border-t-0 hairline">
+              <div className="eyebrow mb-2 flex items-center gap-1.5">
+                {phase === 'live'
+                  ? <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                  : <Timer className="h-3 w-3" />}
+                {phase === 'before' ? t('starts_in') : phase === 'live' ? t('expo_live') : t('expo_ended')}
+              </div>
+              {phase === 'before' ? (
+                <div className="flex items-end gap-3 text-white tabular-nums">
+                  {([[timeLeft.days, t('days')], [timeLeft.hours, t('hours')], [timeLeft.minutes, t('minutes')], [timeLeft.seconds, t('seconds')]] as const).map(([v, lab]) => (
+                    <div key={lab}>
+                      <div className="display text-2xl sm:text-3xl">{String(v).padStart(2, '0')}</div>
+                      <div className="text-[9px] uppercase tracking-wider text-white/40">{lab}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-white/70 text-sm">
+                  {phase === 'live' ? t('expo_live_note') : t('expo_ended_note')}
+                </div>
+              )}
+            </div>
+
+            {(() => {
+              const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 50)));
+              return (
+                <div className="py-5 lg:py-7 lg:pl-8 border-t lg:border-t-0 hairline">
+                  <div className="eyebrow mb-2">{t('space_booked')}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="display text-2xl sm:text-3xl text-white">{pct}%</div>
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-red-500 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </section>
