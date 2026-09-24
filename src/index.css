@@ -33,13 +33,25 @@
 }
 
 @layer utilities {
+  /* Жижиг, олон мөр болж эвхэгддэг гарчиг. Кирилл үсгийн Ү, Ө, Ц-ийн сүүл
+     мөр хооронд оръё гэдэг тул .display-ээс сул мөрийн зайтай. */
+  .display-sm {
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+
   /* Том зузаан гарчиг — нягт зайтай, бүх үсэг том */
   .display {
     font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: -0.03em;
-    line-height: 0.9;
+    /* Кирилл үсгийн Ү, Ө, Ц, Д-ийн сүүл доод мөрөнд оръё гэдэг тул
+       латин загварын 0.9 биш, бага зэрэг сул зай өгнө. */
+    line-height: 1.05;
   }
   /* Гарчгийн дээрх жижиг тэмдэглэгээ */
   .eyebrow {

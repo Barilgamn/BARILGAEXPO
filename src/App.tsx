@@ -589,7 +589,7 @@ export default function App() {
                       <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${cat.accent} text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300`}>
                         <CatIcon className="h-7 w-7" strokeWidth={2} />
                       </div>
-                      <h3 className="display text-lg lg:text-xl text-blue-950 leading-snug">
+                      <h3 className="display-sm text-lg lg:text-xl text-blue-950">
                         {t(cat.titleKey)}
                       </h3>
                     </div>
@@ -849,7 +849,7 @@ export default function App() {
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col justify-center gap-5">
               <div>
                 <div className="eyebrow eyebrow-light mb-2">{t('venue_title')}</div>
-                <p className="display text-xl sm:text-3xl text-white leading-snug">
+                <p className="display-sm text-xl sm:text-3xl text-white">
                   {t('venue_subtitle')}
                 </p>
               </div>
