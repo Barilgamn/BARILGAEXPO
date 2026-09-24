@@ -629,20 +629,20 @@ export default function App() {
       </Suspense>
 
       {/* Organizers Section */}
-      <section className="surface pt-16 pb-8 border-t hairline">
+      <section className="bg-white pt-16 pb-8 border-t hairline">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="surface-card p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
-              <div className="eyebrow mb-6">{t('org_main')}</div>
+              <div className="eyebrow mb-6 !text-gray-500">{t('org_main')}</div>
               <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain brightness-0 invert" />
+                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain" />
               </a>
             </div>
 
-            <div className="w-full h-px lg:w-px lg:h-24 bg-white/10 my-8 lg:my-0"></div>
+            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-200 my-8 lg:my-0"></div>
 
             <div className="lg:w-2/3 flex flex-col items-center">
-              <div className="eyebrow mb-6">{t('org_co')}</div>
+              <div className="eyebrow mb-6 !text-gray-500">{t('org_co')}</div>
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 items-start">
                 {data.organizers.map(org => {
                   const resolveOrgUrl = (o: typeof org): string | undefined => {
@@ -665,7 +665,7 @@ export default function App() {
                       <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
                         <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                       </div>
-                      <span className="text-[11px] text-white/50 uppercase leading-snug font-semibold">{org.name}</span>
+                      <span className="text-[11px] text-gray-600 uppercase leading-snug font-semibold">{org.name}</span>
                     </a>
                   );
                 })}
@@ -677,7 +677,7 @@ export default function App() {
 
       {/* Sponsors Section */}
       {data.sponsors && data.sponsors.length > 0 && (
-        <section className="surface pb-16 pt-4">
+        <section className="bg-white pb-16 pt-4">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 space-y-10">
             {(() => {
               const groups = [
@@ -693,7 +693,7 @@ export default function App() {
                 if (items.length === 0) return null;
                 return (
                   <div key={group.type} className="flex flex-col items-center">
-                    <div className="eyebrow mb-6 text-center">{group.label}</div>
+                    <div className="eyebrow mb-6 text-center !text-gray-500">{group.label}</div>
                     <div className={`flex flex-wrap justify-center gap-8 sm:gap-12 items-center ${group.offset}`}>
                       {items.map(s => {
                         const Tag: any = s.url ? 'a' : 'div';
@@ -703,7 +703,7 @@ export default function App() {
                             <div className={`${group.size} w-full flex items-center justify-center`}>
                               <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                             </div>
-                            <span className="text-[11px] text-white/50 leading-snug font-semibold">{s.name}</span>
+                            <span className="text-[11px] text-gray-600 leading-snug font-semibold">{s.name}</span>
                           </Tag>
                         );
                       })}
