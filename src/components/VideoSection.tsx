@@ -14,7 +14,7 @@ export const VideoSection: React.FC = () => {
   return (
     <section id="video" className="surface pt-12 sm:pt-16 border-t hairline">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-        <h2 className="display text-2xl sm:text-4xl md:text-5xl text-white mb-6 sm:mb-10">
+        <h2 className="display text-2xl sm:text-4xl md:text-5xl text-blue-950 mb-6 sm:mb-10">
           {t('video_title')}
         </h2>
 

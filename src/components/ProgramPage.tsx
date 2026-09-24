@@ -25,41 +25,41 @@ export const ProgramPage: React.FC = () => {
         
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/10 blur-3xl" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-blue-950">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-semibold mb-6 transition-colors"
+            className="inline-flex items-center gap-1.5 text-blue-950/70 hover:text-blue-950 text-sm font-semibold mb-6 transition-colors"
           >
             <ChevronLeft size={16} /> {t('pgp_back')}
           </Link>
 
           <div className="flex items-start gap-5">
-            <div className="w-16 h-16 shrink-0 bg-white/10 backdrop-blur-md rounded-2xl hidden sm:flex items-center justify-center border border-white/20">
-              <CalendarDays className="w-8 h-8 text-red-400" />
+            <div className="w-16 h-16 shrink-0 bg-gray-100 backdrop-blur-md rounded-2xl hidden sm:flex items-center justify-center border border-white/20">
+              <CalendarDays className="w-8 h-8 text-red-600" />
             </div>
             <div className="min-w-0">
               <h1 className="display text-4xl sm:text-5xl lg:text-6xl">
                 {t('link_program')}
               </h1>
-              <p className="text-white/70 mt-2 text-sm sm:text-base">{t('prog_title')}</p>
+              <p className="text-blue-950/70 mt-2 text-sm sm:text-base">{t('prog_title')}</p>
             </div>
           </div>
 
           {/* Товч мэдээлэл */}
           <div className="flex flex-wrap gap-x-8 gap-y-3 mt-8 text-sm">
             {days.length > 0 && (
-              <span className="text-white/80">
-                <b className="text-white text-lg font-heading">{days.length}</b> {t('pgp_days')}
-                <span className="text-white/40 mx-2">·</span>
-                <b className="text-white text-lg font-heading">{eventCount}</b> {t('pgp_events')}
+              <span className="text-blue-950/80">
+                <b className="text-blue-950 text-lg font-heading">{days.length}</b> {t('pgp_days')}
+                <span className="text-gray-400 mx-2">·</span>
+                <b className="text-blue-950 text-lg font-heading">{eventCount}</b> {t('pgp_events')}
               </span>
             )}
-            <span className="flex items-center gap-2 text-white/80">
-              <Clock size={16} className="text-red-400 shrink-0" /> {t('venue_hours')}
+            <span className="flex items-center gap-2 text-blue-950/80">
+              <Clock size={16} className="text-red-600 shrink-0" /> {t('venue_hours')}
             </span>
             {venue && (
-              <span className="flex items-center gap-2 text-white/80">
-                <MapPin size={16} className="text-red-400 shrink-0" /> {venue}
+              <span className="flex items-center gap-2 text-blue-950/80">
+                <MapPin size={16} className="text-red-600 shrink-0" /> {venue}
               </span>
             )}
           </div>

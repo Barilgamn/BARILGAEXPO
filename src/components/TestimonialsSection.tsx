@@ -63,7 +63,7 @@ export const TestimonialsSection: React.FC = () => {
         <div className="flex items-end justify-between gap-6 mb-10">
           <div className="max-w-2xl">
             <div className="eyebrow mb-4">BARILGA EXPO</div>
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950">
               {t('testi_title')}
             </h2>
           </div>
@@ -74,7 +74,7 @@ export const TestimonialsSection: React.FC = () => {
               onClick={() => scrollBy(-1)}
               disabled={atStart}
               aria-label={t('testi_prev')}
-              className={`${navBtn} ${atStart ? 'border-white/10 text-white/25' : 'border-white/25 text-white hover:bg-white hover:text-black'}`}
+              className={`${navBtn} ${atStart ? 'border-gray-200 text-blue-950/25' : 'border-white/25 text-blue-950 hover:bg-white hover:text-black'}`}
             >
               <ChevronLeft size={20} />
             </button>
@@ -82,7 +82,7 @@ export const TestimonialsSection: React.FC = () => {
               onClick={() => scrollBy(1)}
               disabled={atEnd}
               aria-label={t('testi_next')}
-              className={`${navBtn} ${atEnd ? 'border-white/10 text-white/25' : 'border-white/25 text-white hover:bg-white hover:text-black'}`}
+              className={`${navBtn} ${atEnd ? 'border-gray-200 text-blue-950/25' : 'border-white/25 text-blue-950 hover:bg-white hover:text-black'}`}
             >
               <ChevronRight size={20} />
             </button>
@@ -103,15 +103,15 @@ export const TestimonialsSection: React.FC = () => {
             className="snap-start shrink-0 w-[85vw] sm:w-[420px] surface-card p-7 flex flex-col"
           >
             <Quote className="w-8 h-8 text-red-500/70 mb-4 shrink-0" />
-            <p className="text-white/60 leading-relaxed text-[15px] flex-1">{item.text}</p>
-            <div className="flex items-center gap-3 mt-6 pt-5 border-t border-white/10">
+            <p className="text-gray-600 leading-relaxed text-[15px] flex-1">{item.text}</p>
+            <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gray-200">
               <div className="w-11 h-11 rounded-full bg-red-500 text-white flex items-center justify-center font-black shrink-0">
                 {initial(item.name)}
               </div>
               <div className="min-w-0">
-                <p className="font-bold text-white leading-tight">{item.name}</p>
-                <p className="text-xs text-white/45 leading-snug mt-0.5">{item.role}</p>
-                <p className="text-xs font-semibold text-red-400 leading-snug">{item.org}</p>
+                <p className="font-bold text-blue-950 leading-tight">{item.name}</p>
+                <p className="text-xs text-gray-500 leading-snug mt-0.5">{item.role}</p>
+                <p className="text-xs font-semibold text-red-600 leading-snug">{item.org}</p>
               </div>
             </div>
           </article>

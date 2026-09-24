@@ -19,11 +19,14 @@
    Хар суурьтай, нимгэн хүрээтэй, том зузаан том үсгийн гарчигтай орчин
    үеийн загвар. Өнгө нь BARILGA EXPO-гийн улаан/хөх хэвээр. */
 :root {
-  --surface:      #070707;  /* хамгийн гүн дэвсгэр */
-  --surface-2:    #0e0e10;  /* карт */
-  --line:         rgba(255, 255, 255, 0.11);
-  --line-soft:    rgba(255, 255, 255, 0.05);
-  --muted:        #8a8a8a;
+  --surface:      #ffffff;  /* үндсэн дэвсгэр */
+  --surface-2:    #fafafa;  /* карт */
+  --line:         rgba(0, 0, 0, 0.10);
+  --line-soft:    rgba(0, 0, 0, 0.05);
+  --muted:        #6b7280;
+  /* Нүүрний дээд хэсэг зэрэг бараан блокуудад */
+  --surface-dark: #070707;
+  --line-dark:    rgba(255, 255, 255, 0.11);
   --accent:       #FF2233;  /* брэндийн улаан */
   --radius-card:  16px;
   --sec-pad:      clamp(56px, 8vh, 110px);
@@ -47,6 +50,10 @@
     color: var(--muted);
   }
   .surface { background: var(--surface); }
+  .surface-dark { background: var(--surface-dark); }
+  .hairline-dark { border-color: var(--line-dark); }
+  /* Бараан блок доторх жижиг тэмдэглэгээ */
+  .eyebrow-light { color: rgba(255, 255, 255, 0.55); }
   .surface-card {
     background: var(--surface-2);
     border: 1px solid var(--line);

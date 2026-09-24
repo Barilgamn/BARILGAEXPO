@@ -12,14 +12,14 @@ const EventCard: React.FC<{ ev: ProgramEvent; dimmed?: boolean; onOpen?: (src: s
   const [noImg, setNoImg] = useState(false);
   return (
   <div className={`surface-card p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 md:items-center transition-all duration-300 ${
-    dimmed ? 'opacity-40 saturate-50 hover:opacity-100 hover:saturate-100' : 'hover:border-white/25'
+    dimmed ? 'opacity-40 saturate-50 hover:opacity-100 hover:saturate-100' : 'hover:border-gray-300'
   }`}>
     {ev.time && (
       /* Цагийн муж ("14:25-14:45") хоёр мөр болж тасрахгүйн тулд зураасны
          дараа зөөлөн таслалт (\u200b) тавьж, мөр бүрийг бүтнээр нь үлдээнэ. */
       <div className="shrink-0 md:w-44">
         <span className="inline-flex items-center gap-2 rounded-lg bg-red-500/15 border border-red-400/25
-                         px-3 py-1.5 text-red-300 font-heading font-bold tabular-nums leading-tight
+                         px-3 py-1.5 text-red-600 font-heading font-bold tabular-nums leading-tight
                          text-base sm:text-lg">
           <Clock size={16} className="shrink-0 opacity-80" />
           <span className="whitespace-nowrap">
@@ -32,8 +32,8 @@ const EventCard: React.FC<{ ev: ProgramEvent; dimmed?: boolean; onOpen?: (src: s
       <button
         type="button"
         onClick={() => onOpen?.(ev.img!)}
-        className="shrink-0 w-full sm:w-72 md:w-64 lg:w-72 rounded-xl overflow-hidden border border-white/15
-                   hover:border-white/40 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+        className="shrink-0 w-full sm:w-72 md:w-64 lg:w-72 rounded-xl overflow-hidden border border-gray-200
+                   hover:border-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
       >
         <img src={ev.img} alt={ev.title} loading="lazy" onError={() => setNoImg(true)}
              className="w-full aspect-square object-cover" />
@@ -108,13 +108,13 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
 
   return (
     <section id="program" className={`relative surface border-t hairline ${hideHeading ? 'py-16' : 'section-pad'} overflow-hidden`}>
-      <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 w-full text-white">
+      <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 w-full text-gray-800">
         {!hideHeading && (
           <div className="mb-12 md:mb-16">
             <div className="eyebrow mb-4 flex items-center gap-2">
               <CalendarDays className="w-3 h-3" /> BARILGA EXPO
             </div>
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950">
               {t('prog_title')}
             </h2>
           </div>
@@ -133,7 +133,7 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
                   className={`px-2 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all ${
                     activeDay === idx
                       ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
-                      : 'bg-white/10 hover:bg-white/20 text-gray-300'
+                      : 'bg-gray-100 hover:bg-white/20 text-gray-300'
                   }`}
                 >
                   <div className="text-[11px] sm:text-sm uppercase tracking-wider mb-1 opacity-80 tabular-nums">
@@ -173,8 +173,8 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
           </div>
         ) : (
           <div className="text-center">
-            <div className="inline-block bg-black/40 px-8 py-4 rounded-full backdrop-blur-md border border-white/10 shadow-2xl">
-              <p className="text-xl md:text-2xl text-red-400 font-medium tracking-wide">
+            <div className="inline-block bg-black/40 px-8 py-4 rounded-full backdrop-blur-md border border-gray-200 shadow-2xl">
+              <p className="text-xl md:text-2xl text-red-600 font-medium tracking-wide">
                 {t('prog_soon')}
               </p>
             </div>

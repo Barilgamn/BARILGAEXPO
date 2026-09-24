@@ -68,7 +68,7 @@ const AnimatedCounter: React.FC<CounterProps> = ({ end, duration = 2000, suffix 
   };
 
   return (
-    <span ref={elementRef} className="font-heading font-black tracking-tight text-white">
+    <span ref={elementRef} className="font-heading font-black tracking-tight text-blue-950">
       {prefix}{formatNumber(count)}{suffix}
     </span>
   );
@@ -120,7 +120,7 @@ export const StatsSection: React.FC = () => {
     <section id="stats" className="relative z-30 surface border-t hairline section-pad">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
       <div className="surface-card p-5 sm:p-8 md:p-12 relative overflow-hidden group">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-6 sm:gap-8 md:gap-12 relative z-10 lg:divide-x divide-white/10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-6 sm:gap-8 md:gap-12 relative z-10 lg:divide-x divide-gray-200">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -129,16 +129,16 @@ export const StatsSection: React.FC = () => {
                 id={stat.id}
                 className="flex flex-col items-center text-center px-2 py-2 sm:p-6 lg:px-8"
               >
-                <div className="mb-2 sm:mb-4 p-2.5 sm:p-4 rounded-xl bg-white/5 border border-white/10 transition-colors duration-300">
-                  <Icon className="h-5 w-5 sm:h-8 sm:w-8 text-red-400" />
+                <div className="mb-2 sm:mb-4 p-2.5 sm:p-4 rounded-xl bg-gray-50 border border-gray-200 transition-colors duration-300">
+                  <Icon className="h-5 w-5 sm:h-8 sm:w-8 text-red-600" />
                 </div>
-                <div className="display text-3xl sm:text-5xl md:text-6xl mb-1 sm:mb-2 text-white tabular-nums">
+                <div className="display text-3xl sm:text-5xl md:text-6xl mb-1 sm:mb-2 text-blue-950 tabular-nums">
                   <AnimatedCounter end={stat.end} suffix={stat.suffix} />
                 </div>
-                <div className="text-red-400 font-bold text-[10px] sm:text-xs tracking-[0.18em] uppercase mb-1 sm:mb-2">
+                <div className="text-red-600 font-bold text-[10px] sm:text-xs tracking-[0.18em] uppercase mb-1 sm:mb-2">
                   {stat.label}
                 </div>
-                <p className="text-white/45 text-xs sm:text-sm leading-snug sm:leading-relaxed max-w-[220px]">
+                <p className="text-gray-500 text-xs sm:text-sm leading-snug sm:leading-relaxed max-w-[220px]">
                   {stat.description}
                 </p>
               </div>

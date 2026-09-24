@@ -25,7 +25,7 @@ export const WinnersSection: React.FC = () => {
           <div className="inline-flex items-center gap-2 eyebrow mb-4">
             <Trophy size={14} /> 40th BARILGA EXPO
           </div>
-          <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
+          <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950">
             {t('win_title')}
           </h2>
           
@@ -36,7 +36,7 @@ export const WinnersSection: React.FC = () => {
             {/* Сондгой тоотой болбол сүүлийн ганц картыг голлуулна */}
             <ul className="flex flex-wrap justify-center gap-5">
               {AWARDS.map(a => (
-                <li key={a.key + a.winners[0]} className="w-full md:w-[calc(50%-0.625rem)] surface-card p-5 sm:p-6 flex items-center gap-5 sm:gap-6 hover:border-white/25 transition-colors">
+                <li key={a.key + a.winners[0]} className="w-full md:w-[calc(50%-0.625rem)] surface-card p-5 sm:p-6 flex items-center gap-5 sm:gap-6 hover:border-gray-300 transition-colors">
                   {/* Шагналын цом — ил тод дэвсгэртэй */}
                   <img
                     src="/trophy.webp"
@@ -48,17 +48,17 @@ export const WinnersSection: React.FC = () => {
                     className="w-24 sm:w-32 h-auto shrink-0 self-center drop-shadow-lg"
                   />
                   <div className="min-w-0">
-                    <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-400 mb-1.5">
+                    <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-600 mb-1.5">
                       {t(a.key as any)}
                     </p>
                     {a.winners.map(w => (
-                      <p key={w} className="font-bold text-white text-base sm:text-lg leading-snug">{w}</p>
+                      <p key={w} className="font-bold text-blue-950 text-base sm:text-lg leading-snug">{w}</p>
                     ))}
                   </div>
                 </li>
               ))}
             </ul>
-            <p className="text-white/50 text-sm sm:text-[15px] leading-relaxed mt-8 text-center max-w-3xl mx-auto">
+            <p className="text-gray-500 text-sm sm:text-[15px] leading-relaxed mt-8 text-center max-w-3xl mx-auto">
               {t('win_note')}
             </p>
           </div>

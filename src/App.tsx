@@ -411,7 +411,7 @@ export default function App() {
         <Route path="/" element={
           <>
             {/* Hero Section */}
-            <section id="home" className="relative surface min-h-[100svh] flex flex-col justify-end overflow-hidden pt-28 pb-0">
+            <section id="home" className="relative surface-dark min-h-[100svh] flex flex-col justify-end overflow-hidden pt-28 pb-0">
         {/* Дэвсгэр: хотын зураг гүн харанхуй давхаргын доор */}
         <div className="absolute inset-0 w-full h-full">
           <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-45" />
@@ -423,7 +423,7 @@ export default function App() {
           <div className="max-w-5xl">
             <div className="flex items-center gap-3 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span className="eyebrow">The 40th International Exhibition</span>
+              <span className="eyebrow eyebrow-light">The 40th International Exhibition</span>
             </div>
 
             <h1 className="display text-[2.6rem] sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6">
@@ -449,7 +449,7 @@ export default function App() {
               </Link>
               <Link
                 to="/program"
-                className="inline-flex items-center gap-2 border hairline text-white/90 hover:text-white hover:bg-white/5 px-7 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
+                className="inline-flex items-center gap-2 border hairline-dark text-white/90 hover:text-white hover:bg-white/5 px-7 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
               >
                 {t('link_program')}
               </Link>
@@ -458,20 +458,20 @@ export default function App() {
         </div>
 
         {/* Доод мөр: хэзээ / хаана / countdown / талбайн дүүргэлт */}
-        <div className="relative z-20 w-full border-t hairline bg-[#070707]/70 backdrop-blur-md">
+        <div className="relative z-20 w-full border-t hairline-dark bg-[#070707]/70 backdrop-blur-md">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
             <div className="py-5 lg:py-7 lg:pr-8">
-              <div className="eyebrow mb-2 flex items-center gap-1.5"><Calendar className="h-3 w-3" /> {t('when')}</div>
+              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><Calendar className="h-3 w-3" /> {t('when')}</div>
               <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('when_date')}</div>
             </div>
 
             <div className="py-5 lg:py-7 lg:px-8">
-              <div className="eyebrow mb-2 flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {t('where')}</div>
+              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {t('where')}</div>
               <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('where_loc')}</div>
             </div>
 
-            <div className="py-5 lg:py-7 lg:px-8 border-t lg:border-t-0 hairline">
-              <div className="eyebrow mb-2 flex items-center gap-1.5">
+            <div className="py-5 lg:py-7 lg:px-8 border-t lg:border-t-0 hairline-dark">
+              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5">
                 {phase === 'live'
                   ? <span className="relative flex h-2 w-2 shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
@@ -499,8 +499,8 @@ export default function App() {
             {(() => {
               const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 50)));
               return (
-                <div className="py-5 lg:py-7 lg:pl-8 border-t lg:border-t-0 hairline">
-                  <div className="eyebrow mb-2">{t('space_booked')}</div>
+                <div className="py-5 lg:py-7 lg:pl-8 border-t lg:border-t-0 hairline-dark">
+                  <div className="eyebrow eyebrow-light mb-2">{t('space_booked')}</div>
                   <div className="flex items-center gap-3">
                     <div className="display text-2xl sm:text-3xl text-white">{pct}%</div>
                     <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -529,7 +529,7 @@ export default function App() {
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 relative z-10">
           <div className="mb-12 md:mb-16">
             <div className="eyebrow mb-4">{t('cat_pre')}</div>
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white max-w-3xl">
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 max-w-3xl">
               {t('cat_title')}
             </h2>
           </div>
@@ -581,7 +581,7 @@ export default function App() {
               return (
                 <div
                   key={cat.titleKey}
-                  className="group relative surface-card hover:border-white/25 transition-colors duration-300 overflow-hidden flex flex-col"
+                  className="group relative surface-card hover:border-gray-300 transition-colors duration-300 overflow-hidden flex flex-col"
                 >
 
                   <div className="p-7 lg:p-8 flex flex-col flex-grow">
@@ -589,7 +589,7 @@ export default function App() {
                       <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${cat.accent} text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300`}>
                         <CatIcon className="h-7 w-7" strokeWidth={2} />
                       </div>
-                      <h3 className="display text-lg lg:text-xl text-white leading-snug">
+                      <h3 className="display text-lg lg:text-xl text-blue-950 leading-snug">
                         {t(cat.titleKey)}
                       </h3>
                     </div>
@@ -600,12 +600,12 @@ export default function App() {
                         return (
                           <li
                             key={item.key}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/5 transition-colors"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50 transition-colors"
                           >
                             <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${cat.accent} bg-opacity-10 flex items-center justify-center shrink-0`}>
                               <ItemIcon className="h-4 w-4 text-white" strokeWidth={2.2} />
                             </span>
-                            <span className="text-white/65 font-medium text-sm sm:text-[15px]">{t(item.key)}</span>
+                            <span className="text-gray-600 font-medium text-sm sm:text-[15px]">{t(item.key)}</span>
                           </li>
                         );
                       })}
@@ -634,12 +634,12 @@ export default function App() {
           <div className="surface-card p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
               <div className="eyebrow mb-6 ">{t('org_main')}</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-white rounded-xl px-6 py-4 hover:opacity-85 transition-opacity" title="BARILGA.MN">
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-inline-flex items-center justify-center hover:opacity-80 transition-opacity" title="BARILGA.MN">
                 <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain" />
               </a>
             </div>
 
-            <div className="w-full h-px lg:w-px lg:h-24 bg-white/10 my-8 lg:my-0"></div>
+            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-100 my-8 lg:my-0"></div>
 
             <div className="lg:w-2/3 flex flex-col items-center">
               <div className="eyebrow mb-6 ">{t('org_co')}</div>
@@ -662,10 +662,10 @@ export default function App() {
                       className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group"
                       title={org.name}
                     >
-                      <div className="h-20 w-20 lg:h-24 lg:w-24 flex items-center justify-center bg-white rounded-xl p-3">
+                      <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
                         <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                       </div>
-                      <span className="text-[11px] text-white/50 uppercase leading-snug font-semibold">{org.name}</span>
+                      <span className="text-[11px] text-gray-500 uppercase leading-snug font-semibold">{org.name}</span>
                     </a>
                   );
                 })}
@@ -700,10 +700,10 @@ export default function App() {
                         const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
                         return (
                           <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
-                            <div className={`${group.size} w-full flex items-center justify-center bg-white rounded-xl p-3 sm:p-4`}>
+                            <div className={`${group.size} w-full flex items-center justify-center`}>
                               <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                             </div>
-                            <span className="text-[11px] text-white/50 leading-snug font-semibold">{s.name}</span>
+                            <span className="text-[11px] text-gray-500 leading-snug font-semibold">{s.name}</span>
                           </Tag>
                         );
                       })}
@@ -741,10 +741,10 @@ export default function App() {
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="mb-12">
             <div className="eyebrow mb-4">BARILGA EXPO 2026</div>
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white mb-4 max-w-3xl">
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 mb-4 max-w-3xl">
               {t('plan_title')}
             </h2>
-            <p className="text-white/50 text-sm md:text-base max-w-2xl">
+            <p className="text-gray-500 text-sm md:text-base max-w-2xl">
               {t('plan_desc')}
             </p>
           </div>
@@ -834,7 +834,7 @@ export default function App() {
 
       {/* Footer & Contact */}
       {!isAdminRoute && (
-        <footer id="contact" className="surface text-white pt-16 pb-10 border-t hairline">
+        <footer id="contact" className="surface-dark text-white pt-16 pb-10 border-t hairline">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Venue Highlight */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 items-stretch">
@@ -846,9 +846,9 @@ export default function App() {
                 className="w-full h-full object-cover min-h-[220px]"
               />
             </div>
-            <div className="surface-card p-6 sm:p-8 flex flex-col justify-center gap-5">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col justify-center gap-5">
               <div>
-                <div className="eyebrow mb-2">{t('venue_title')}</div>
+                <div className="eyebrow eyebrow-light mb-2">{t('venue_title')}</div>
                 <p className="display text-xl sm:text-3xl text-white leading-snug">
                   {t('venue_subtitle')}
                 </p>
@@ -983,7 +983,7 @@ export default function App() {
 
           {/* Хэрэгтэй холбоосууд */}
           <div className="mb-12">
-            <h4 className="eyebrow text-white/80 mb-5">
+            <h4 className="eyebrow eyebrow-light mb-5">
               {t('links_title')}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

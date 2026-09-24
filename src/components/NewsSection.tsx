@@ -36,7 +36,7 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
         {!hideHeading && (
           <div className="mb-12 md:mb-16">
             <div className="eyebrow mb-4">{t('news_pre')}</div>
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950">
               {t('news_title')}
             </h2>
           </div>
@@ -56,7 +56,7 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
                 e.preventDefault();
                 setSelectedNews(news);
               }}
-              className="surface-card overflow-hidden group hover:border-white/25 transition-colors duration-300 flex flex-col h-full cursor-pointer"
+              className="surface-card overflow-hidden group hover:border-gray-300 transition-colors duration-300 flex flex-col h-full cursor-pointer"
             >
               <div className="relative h-36 sm:h-56 overflow-hidden">
                 {news.image && (
@@ -71,17 +71,17 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
                 )}
               </div>
               <div className="p-3 sm:p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-2 text-red-400 mb-3 text-sm font-medium">
+                <div className="flex items-center gap-2 text-red-600 mb-3 text-sm font-medium">
                   <Calendar className="w-4 h-4" />
                   {news.date}
                 </div>
-                <h3 className="text-sm sm:text-xl font-bold font-heading text-white mb-2 sm:mb-3 group-hover:text-red-400 transition-colors">
+                <h3 className="text-sm sm:text-xl font-bold font-heading text-blue-950 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors">
                   {localized.title}
                 </h3>
-                <p className="text-white/50 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 flex-grow hidden sm:block">
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 flex-grow hidden sm:block">
                   {stripAndTruncate(localized.description)}
                 </p>
-                <div className="flex items-center text-red-400 font-semibold text-sm group-hover:text-red-300">
+                <div className="flex items-center text-red-600 font-semibold text-sm group-hover:text-red-600">
                   {t('news_more')} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
@@ -102,7 +102,7 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
           <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative z-10 flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
             <button
               onClick={() => setSelectedNews(null)}
-              className="absolute top-4 right-4 z-20 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
+              className="absolute top-4 right-4 z-20 p-2 bg-black/20 hover:bg-black/40 text-blue-950 rounded-full transition-colors backdrop-blur-md"
             >
               <X className="w-6 h-6" />
             </button>
