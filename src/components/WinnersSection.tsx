@@ -19,16 +19,16 @@ export const WinnersSection: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <section id="winners" className="py-20 sm:py-24 bg-gradient-to-b from-white to-amber-50/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="winners" className="section-pad surface border-t hairline">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4">
+          <div className="inline-flex items-center gap-2 eyebrow mb-4">
             <Trophy size={14} /> 40th BARILGA EXPO
           </div>
-          <h2 className="font-heading text-3xl md:text-4xl font-black text-blue-950">
+          <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
             {t('win_title')}
           </h2>
-          <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full mt-5" />
+          
         </div>
 
         <div>
@@ -36,7 +36,7 @@ export const WinnersSection: React.FC = () => {
             {/* Сондгой тоотой болбол сүүлийн ганц картыг голлуулна */}
             <ul className="flex flex-wrap justify-center gap-5">
               {AWARDS.map(a => (
-                <li key={a.key + a.winners[0]} className="w-full md:w-[calc(50%-0.625rem)] bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 flex items-center gap-5 sm:gap-6 shadow-sm hover:shadow-md transition-shadow">
+                <li key={a.key + a.winners[0]} className="w-full md:w-[calc(50%-0.625rem)] surface-card p-5 sm:p-6 flex items-center gap-5 sm:gap-6 hover:border-white/25 transition-colors">
                   {/* Шагналын цом — ил тод дэвсгэртэй */}
                   <img
                     src="/trophy.webp"
@@ -48,17 +48,17 @@ export const WinnersSection: React.FC = () => {
                     className="w-24 sm:w-32 h-auto shrink-0 self-center drop-shadow-lg"
                   />
                   <div className="min-w-0">
-                    <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-600 mb-1.5">
+                    <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-400 mb-1.5">
                       {t(a.key as any)}
                     </p>
                     {a.winners.map(w => (
-                      <p key={w} className="font-bold text-gray-900 text-base sm:text-lg leading-snug">{w}</p>
+                      <p key={w} className="font-bold text-white text-base sm:text-lg leading-snug">{w}</p>
                     ))}
                   </div>
                 </li>
               ))}
             </ul>
-            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mt-8 text-center max-w-3xl mx-auto">
+            <p className="text-white/50 text-sm sm:text-[15px] leading-relaxed mt-8 text-center max-w-3xl mx-auto">
               {t('win_note')}
             </p>
           </div>

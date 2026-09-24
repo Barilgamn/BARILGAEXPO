@@ -31,15 +31,14 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
   }, [selectedNews]);
 
   return (
-    <section id="news" className={`relative bg-gray-50 ${hideHeading ? 'py-16' : 'py-24'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="news" className={`relative surface border-t hairline ${hideHeading ? 'py-16' : 'section-pad'}`}>
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
         {!hideHeading && (
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h3 className="text-red-600 font-bold uppercase tracking-wider text-sm mb-3">{t('news_pre')}</h3>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-blue-900 mb-6">
+          <div className="mb-12 md:mb-16">
+            <div className="eyebrow mb-4">{t('news_pre')}</div>
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
               {t('news_title')}
             </h2>
-            <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full"></div>
           </div>
         )}
 
@@ -57,7 +56,7 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
                 e.preventDefault();
                 setSelectedNews(news);
               }}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer"
+              className="surface-card overflow-hidden group hover:border-white/25 transition-colors duration-300 flex flex-col h-full cursor-pointer"
             >
               <div className="relative h-36 sm:h-56 overflow-hidden">
                 {news.image && (
@@ -72,17 +71,17 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
                 )}
               </div>
               <div className="p-3 sm:p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-2 text-red-600 mb-3 text-sm font-medium">
+                <div className="flex items-center gap-2 text-red-400 mb-3 text-sm font-medium">
                   <Calendar className="w-4 h-4" />
                   {news.date}
                 </div>
-                <h3 className="text-sm sm:text-xl font-bold font-heading text-gray-900 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors">
+                <h3 className="text-sm sm:text-xl font-bold font-heading text-white mb-2 sm:mb-3 group-hover:text-red-400 transition-colors">
                   {localized.title}
                 </h3>
-                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 flex-grow hidden sm:block">
+                <p className="text-white/50 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 flex-grow hidden sm:block">
                   {stripAndTruncate(localized.description)}
                 </p>
-                <div className="flex items-center text-red-600 font-semibold text-sm group-hover:text-red-700">
+                <div className="flex items-center text-red-400 font-semibold text-sm group-hover:text-red-300">
                   {t('news_more')} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>

@@ -12,13 +12,13 @@ export const VideoSection: React.FC = () => {
   const [playing, setPlaying] = useState(false);
 
   return (
-    <section id="video" className="bg-white pt-12 sm:pt-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading text-xl sm:text-3xl md:text-4xl font-black text-blue-950 text-center mb-6 sm:mb-10">
+    <section id="video" className="surface pt-12 sm:pt-16 border-t hairline">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
+        <h2 className="display text-2xl sm:text-4xl md:text-5xl text-white mb-6 sm:mb-10">
           {t('video_title')}
         </h2>
 
-        <div className="relative w-full rounded-2xl overflow-hidden bg-blue-950 shadow-xl ring-1 ring-black/5"
+        <div className="relative w-full rounded-2xl overflow-hidden bg-[#0e0e10] border hairline"
              style={{ aspectRatio: '16 / 9' }}>
           {playing ? (
             <iframe

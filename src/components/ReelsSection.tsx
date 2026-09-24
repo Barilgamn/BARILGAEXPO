@@ -90,10 +90,10 @@ export const ReelsSection: React.FC = () => {
   const navBtn = 'w-9 h-9 rounded-full border flex items-center justify-center transition-colors';
 
   return (
-    <section className="bg-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <section className="surface border-t hairline">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 py-8">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white font-bold text-sm tracking-wide uppercase">{t('reels_title')}</h2>
+          <h2 className="eyebrow text-white/80">{t('reels_title')}</h2>
           <div className="hidden md:flex items-center gap-2">
             <button
               onClick={() => scrollByCard(-1)} disabled={atStart} aria-label={t('reels_prev')}

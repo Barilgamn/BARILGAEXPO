@@ -117,24 +117,10 @@ export const StatsSection: React.FC = () => {
   ];
 
   return (
-    <section id="stats" className="relative z-30 mt-8 lg:mt-20 mb-8 lg:mb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="bg-blue-950 rounded-3xl lg:rounded-[2.5rem] p-5 sm:p-8 md:p-12 shadow-2xl border border-blue-800/50 relative overflow-hidden group">
-        {/* Architectural Background */}
-        <div className="absolute inset-0 bg-blueprint z-0 opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-blue-950/80 z-0" />
-
-        {/* Warning Tape Top Border */}
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 via-red-400 to-red-500 z-10" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px)" }} />
-
-        {/* Decorative Grid Lines */}
-        <div className="absolute top-0 right-1/4 w-px h-full bg-blue-500/10 z-0" />
-        <div className="absolute top-0 left-1/4 w-px h-full bg-blue-500/10 z-0" />
-        <div className="absolute top-1/2 left-0 w-full h-px bg-blue-500/10 z-0" />
-
-        <div className="absolute top-0 left-0 w-64 h-64 bg-red-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-6 sm:gap-8 md:gap-12 relative z-10 lg:divide-x divide-blue-800/50">
+    <section id="stats" className="relative z-30 surface border-t hairline section-pad">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
+      <div className="surface-card p-5 sm:p-8 md:p-12 relative overflow-hidden group">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-6 sm:gap-8 md:gap-12 relative z-10 lg:divide-x divide-white/10">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -143,21 +129,22 @@ export const StatsSection: React.FC = () => {
                 id={stat.id}
                 className="flex flex-col items-center text-center px-2 py-2 sm:p-6 lg:px-8"
               >
-                <div className="mb-2 sm:mb-4 p-2.5 sm:p-4 rounded-xl bg-blue-900/40 border border-blue-700/50 shadow-inner group-hover:bg-blue-800/50 transition-colors duration-300">
+                <div className="mb-2 sm:mb-4 p-2.5 sm:p-4 rounded-xl bg-white/5 border border-white/10 transition-colors duration-300">
                   <Icon className="h-5 w-5 sm:h-8 sm:w-8 text-red-400" />
                 </div>
-                <div className="text-2xl sm:text-4xl md:text-5xl font-black mb-1 sm:mb-2 font-mono text-white">
+                <div className="display text-3xl sm:text-5xl md:text-6xl mb-1 sm:mb-2 text-white tabular-nums">
                   <AnimatedCounter end={stat.end} suffix={stat.suffix} />
                 </div>
-                <div className="text-red-400 font-heading font-bold text-[10px] sm:text-sm tracking-widest uppercase mb-1 sm:mb-2">
+                <div className="text-red-400 font-bold text-[10px] sm:text-xs tracking-[0.18em] uppercase mb-1 sm:mb-2">
                   {stat.label}
                 </div>
-                <p className="text-blue-200/60 text-xs sm:text-sm leading-snug sm:leading-relaxed max-w-[220px]">
+                <p className="text-white/45 text-xs sm:text-sm leading-snug sm:leading-relaxed max-w-[220px]">
                   {stat.description}
                 </p>
               </div>
             );
           })}
+        </div>
         </div>
       </div>
     </section>

@@ -41,7 +41,7 @@ const AuthCallback = lazy(() => import('./components/AuthCallback').then(m => ({
 // Loading placeholder component for clean layout transition
 function LoadingPlaceHolder() {
   return (
-    <div className="py-12 flex flex-col items-center justify-center space-y-4 animate-pulse bg-gray-50/50">
+    <div className="py-12 flex flex-col items-center justify-center space-y-4 animate-pulse">
       <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
       <div className="h-3 w-36 bg-gray-200 rounded"></div>
     </div>
@@ -147,9 +147,9 @@ export default function App() {
   // хуудсууд цайвар дэвсгэртэй — тэнд заавал бүтэн бараан дэвсгэр өгнө.
   const isHomePage = location.pathname === '/';
   const navStyle = !isHomePage
-    ? 'bg-blue-950 shadow-lg border-b border-white/10 py-2'
+    ? 'bg-[#070707] border-b hairline py-2'
     : isScrolled
-      ? 'bg-blue-900/40 backdrop-blur-md shadow-lg border-b border-white/10 py-2'
+      ? 'bg-[#070707]/80 backdrop-blur-md border-b hairline py-2'
       : 'bg-transparent py-4';
 
   /** Хөтөлбөр, мэдээ хоёр одоо бие даасан хуудастай боллоо. Баазад хуучин
@@ -284,11 +284,11 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-800">
+    <div className="min-h-screen surface font-sans text-white">
       {/* Navbar segment */}
       {!isAdminRoute && (
         <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center min-w-0">
@@ -377,7 +377,7 @@ export default function App() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden absolute inset-x-0 top-full max-h-[calc(100svh-4.5rem)] bg-blue-950 overflow-y-auto border-t border-white/10 px-4 pt-2 pb-6 space-y-1 shadow-xl">
+          <div className="lg:hidden absolute inset-x-0 top-full max-h-[calc(100svh-4.5rem)] bg-[#070707] overflow-y-auto border-t hairline px-4 pt-2 pb-6 space-y-1 shadow-xl">
             {menus.map(menu => (
               menu.path.startsWith('/') ? (
                 <Link key={menu.id} to={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
@@ -525,24 +525,13 @@ export default function App() {
       </Suspense>
 
       {/* Categories */}
-      <section id="categories" className="py-16 md:py-24 bg-gray-50 relative overflow-hidden">
-        {/* Subtle grid background */}
-        <div className="absolute inset-0 bg-blueprint-dark opacity-40 z-0"></div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-red-400 to-red-500 z-10 opacity-70"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16 px-4">
-            <h3 className="text-red-500 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 mb-3">
-              <span className="w-8 h-px bg-red-500"></span>
-              {t('cat_pre')}
-              <span className="w-8 h-px bg-red-500"></span>
-            </h3>
-            <h2 className="font-heading text-3xl md:text-5xl font-black text-blue-950 mb-6 tracking-tight">
+      <section id="categories" className="section-pad surface border-t hairline relative overflow-hidden">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 relative z-10">
+          <div className="mb-12 md:mb-16">
+            <div className="eyebrow mb-4">{t('cat_pre')}</div>
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white max-w-3xl">
               {t('cat_title')}
             </h2>
-            <div className="w-16 h-1.5 bg-blue-900 mx-auto rounded-none group">
-              <div className="w-8 h-full bg-red-500 rounded-none group-hover:w-full transition-all duration-300"></div>
-            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
@@ -592,17 +581,15 @@ export default function App() {
               return (
                 <div
                   key={cat.titleKey}
-                  className={`group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-2xl ring-1 ring-transparent ${cat.ring} transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col`}
+                  className="group relative surface-card hover:border-white/25 transition-colors duration-300 overflow-hidden flex flex-col"
                 >
-                  {/* Top accent bar */}
-                  <div className={`h-1.5 w-full bg-gradient-to-r ${cat.accent}`} />
 
                   <div className="p-7 lg:p-8 flex flex-col flex-grow">
                     <div className="flex items-center gap-4 mb-6">
                       <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${cat.accent} text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300`}>
                         <CatIcon className="h-7 w-7" strokeWidth={2} />
                       </div>
-                      <h3 className="font-heading text-lg lg:text-xl font-black text-gray-900 tracking-tight leading-snug">
+                      <h3 className="display text-lg lg:text-xl text-white leading-snug">
                         {t(cat.titleKey)}
                       </h3>
                     </div>
@@ -613,12 +600,12 @@ export default function App() {
                         return (
                           <li
                             key={item.key}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/5 transition-colors"
                           >
                             <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${cat.accent} bg-opacity-10 flex items-center justify-center shrink-0`}>
                               <ItemIcon className="h-4 w-4 text-white" strokeWidth={2.2} />
                             </span>
-                            <span className="text-gray-700 font-medium text-sm sm:text-[15px]">{t(item.key)}</span>
+                            <span className="text-white/65 font-medium text-sm sm:text-[15px]">{t(item.key)}</span>
                           </li>
                         );
                       })}
@@ -642,20 +629,20 @@ export default function App() {
       </Suspense>
 
       {/* Organizers Section */}
-      <section className="bg-white pt-16 pb-8 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gray-50 rounded-2xl p-8 lg:p-12 border border-gray-100 lg:flex lg:justify-between lg:items-center gap-8 shadow-sm">
+      <section className="surface pt-16 pb-8 border-t hairline">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="surface-card p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
-              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_main')}</div>
+              <div className="eyebrow mb-6">{t('org_main')}</div>
               <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain" />
+                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain brightness-0 invert" />
               </a>
             </div>
 
-            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-200 my-8 lg:my-0"></div>
+            <div className="w-full h-px lg:w-px lg:h-24 bg-white/10 my-8 lg:my-0"></div>
 
             <div className="lg:w-2/3 flex flex-col items-center">
-              <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{t('org_co')}</div>
+              <div className="eyebrow mb-6">{t('org_co')}</div>
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 items-start">
                 {data.organizers.map(org => {
                   const resolveOrgUrl = (o: typeof org): string | undefined => {
@@ -678,7 +665,7 @@ export default function App() {
                       <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
                         <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                       </div>
-                      <span className="text-[11px] text-gray-700 uppercase leading-snug font-semibold">{org.name}</span>
+                      <span className="text-[11px] text-white/50 uppercase leading-snug font-semibold">{org.name}</span>
                     </a>
                   );
                 })}
@@ -690,8 +677,8 @@ export default function App() {
 
       {/* Sponsors Section */}
       {data.sponsors && data.sponsors.length > 0 && (
-        <section className="bg-white pb-16 pt-4">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <section className="surface pb-16 pt-4">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 space-y-10">
             {(() => {
               const groups = [
                 { type: 'main' as const,      label: t('spon_main'),      size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56', offset: '' },
@@ -706,7 +693,7 @@ export default function App() {
                 if (items.length === 0) return null;
                 return (
                   <div key={group.type} className="flex flex-col items-center">
-                    <div className="text-red-600 font-bold text-sm uppercase tracking-wider mb-6 text-center">{group.label}</div>
+                    <div className="eyebrow mb-6 text-center">{group.label}</div>
                     <div className={`flex flex-wrap justify-center gap-8 sm:gap-12 items-center ${group.offset}`}>
                       {items.map(s => {
                         const Tag: any = s.url ? 'a' : 'div';
@@ -716,7 +703,7 @@ export default function App() {
                             <div className={`${group.size} w-full flex items-center justify-center`}>
                               <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                             </div>
-                            <span className="text-[11px] text-gray-700 leading-snug font-semibold">{s.name}</span>
+                            <span className="text-[11px] text-white/50 leading-snug font-semibold">{s.name}</span>
                           </Tag>
                         );
                       })}
@@ -750,18 +737,14 @@ export default function App() {
 
       {/* Талбайн сонголт — изометрик зураглал */}
       {data.showFloorPlan && (
-      <section id="floorplan" className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12 px-4">
-            <h3 className="text-red-500 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 mb-3">
-              <span className="w-8 h-px bg-red-500"></span>
-              BARILGA EXPO 2026
-              <span className="w-8 h-px bg-red-500"></span>
-            </h3>
-            <h2 className="font-heading text-3xl md:text-5xl font-black text-blue-950 mb-4 tracking-tight">
+      <section id="floorplan" className="section-pad surface border-t hairline">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="mb-12">
+            <div className="eyebrow mb-4">BARILGA EXPO 2026</div>
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white mb-4 max-w-3xl">
               {t('plan_title')}
             </h2>
-            <p className="text-gray-500 text-sm md:text-base">
+            <p className="text-white/50 text-sm md:text-base max-w-2xl">
               {t('plan_desc')}
             </p>
           </div>
@@ -851,7 +834,7 @@ export default function App() {
 
       {/* Footer & Contact */}
       {!isAdminRoute && (
-        <footer id="contact" className="bg-blue-900 text-white pt-16 pb-10 border-t-4 border-red-500">
+        <footer id="contact" className="surface text-white pt-16 pb-10 border-t hairline">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Venue Highlight */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 items-stretch">
@@ -863,12 +846,10 @@ export default function App() {
                 className="w-full h-full object-cover min-h-[220px]"
               />
             </div>
-            <div className="bg-white/5 rounded-2xl border border-white/10 p-6 sm:p-8 flex flex-col justify-center gap-5">
+            <div className="surface-card p-6 sm:p-8 flex flex-col justify-center gap-5">
               <div>
-                <h3 className="text-red-400 font-bold uppercase tracking-widest text-xs mb-2">
-                  {t('venue_title')}
-                </h3>
-                <p className="text-xl sm:text-2xl font-extrabold text-white leading-snug">
+                <div className="eyebrow mb-2">{t('venue_title')}</div>
+                <p className="display text-xl sm:text-3xl text-white leading-snug">
                   {t('venue_subtitle')}
                 </p>
               </div>
@@ -879,7 +860,7 @@ export default function App() {
                   </span>
                   <div className="text-sm">
                     <p className="text-white font-semibold">{t('venue_dates')}</p>
-                    <p className="text-blue-200">{t('venue_hours')}</p>
+                    <p className="text-white/45">{t('venue_hours')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -924,7 +905,7 @@ export default function App() {
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-red-400 mt-1 shrink-0" />
-                  <div className="text-blue-100 text-sm">
+                  <div className="text-white/60 text-sm">
                     <p className="text-white/60 text-xs uppercase tracking-wider mb-0.5">{t('contact_office_addr')}</p>
                     <p>{data.contact.address}</p>
                   </div>
@@ -933,7 +914,7 @@ export default function App() {
                 {data.contact.venueAddress && (
                   <div className="flex items-start gap-3">
                     <Building2 className="h-5 w-5 text-red-400 mt-1 shrink-0" />
-                    <div className="text-blue-100 text-sm">
+                    <div className="text-white/60 text-sm">
                       <p className="text-white/60 text-xs uppercase tracking-wider mb-0.5">{t('contact_venue_addr')}</p>
                       <p>{data.contact.venueAddress}</p>
                     </div>
@@ -942,7 +923,7 @@ export default function App() {
 
                 <div className="flex items-start gap-3">
                   <Calendar className="h-5 w-5 text-red-400 mt-1 shrink-0" />
-                  <div className="text-blue-100 text-sm">
+                  <div className="text-white/60 text-sm">
                     <p>{t('contact_hours')}</p>
                     <p>{t('contact_days')}</p>
                     <p>{t('contact_time')}</p>
@@ -951,14 +932,14 @@ export default function App() {
 
                 <div className="flex items-center gap-3">
                   <Mail className="h-5 w-5 text-red-400 shrink-0" />
-                  <a href={`mailto:${data.contact.email}`} className="text-blue-100 text-sm hover:text-white transition-colors">
+                  <a href={`mailto:${data.contact.email}`} className="text-white/60 text-sm hover:text-white transition-colors">
                     {data.contact.email}
                   </a>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <Phone className="h-5 w-5 text-red-400 mt-1 shrink-0" />
-                  <div className="text-blue-100 text-sm space-y-0.5">
+                  <div className="text-white/60 text-sm space-y-0.5">
                     <p>{t('contact_phone')}</p>
                     <a href={`tel:${data.contact.phone1}`} className="block hover:text-white transition-colors">{data.contact.phone1}</a>
                     <a href={`tel:${data.contact.phone2}`} className="block hover:text-white transition-colors">{data.contact.phone2}</a>
@@ -1002,7 +983,7 @@ export default function App() {
 
           {/* Хэрэгтэй холбоосууд */}
           <div className="mb-12">
-            <h4 className="font-heading font-bold text-white text-sm uppercase tracking-widest mb-5">
+            <h4 className="eyebrow text-white/80 mb-5">
               {t('links_title')}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -1024,7 +1005,7 @@ export default function App() {
                     <span className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4 text-red-400" />
                     </span>
-                    <span className="text-sm text-blue-100 group-hover:text-white font-medium">{l.label}</span>
+                    <span className="text-sm text-white/60 group-hover:text-white font-medium">{l.label}</span>
                   </Link>
                 );
               })}

@@ -52,9 +52,9 @@ export const ParticipantsSection: React.FC = () => {
   if (!logos.length) return null;
 
   return (
-    <section id="participants" className="py-12 sm:py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading text-xl sm:text-3xl md:text-4xl font-black text-blue-950 text-center mb-8 sm:mb-12">
+    <section id="participants" className="section-pad surface border-t hairline">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
+        <h2 className="display text-2xl sm:text-4xl md:text-5xl text-white mb-8 sm:mb-12">
           {t('part_title')}
         </h2>
 
@@ -65,7 +65,7 @@ export const ParticipantsSection: React.FC = () => {
           {logos.map((logo, i) => (
             <div
               key={`${logo}-${i}`}
-              className={`aspect-[4/3] rounded-xl border border-gray-200 bg-white p-2 sm:p-3
+              className={`aspect-[4/3] rounded-xl border border-white/10 bg-white p-2 sm:p-3
                           flex items-center justify-center shadow-sm hover:shadow-md hover:border-blue-200
                           transition-[opacity,scale,translate,box-shadow,border-color] duration-[380ms]
                           ${revealed ? 'opacity-100 scale-100 translate-y-0 hover:-translate-y-1' : 'opacity-0 scale-50 translate-y-4'}`}

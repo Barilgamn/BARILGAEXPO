@@ -50,17 +50,17 @@ export function GallerySection() {
   }, [lightboxOpen]);
 
   return (
-    <section id="gallery" className="py-24 bg-gray-50 border-t border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-800 font-medium text-sm mb-6">
-            <Camera className="w-4 h-4" />
+    <section id="gallery" className="section-pad surface border-t hairline">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
+        <div className="mb-12 md:mb-16">
+          <div className="eyebrow mb-4 flex items-center gap-2">
+            <Camera className="w-3 h-3" />
             {t('gallery_title')}
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold font-heading text-gray-900 mb-6 tracking-tight">
+          <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white mb-5">
             {t('gallery_title')}
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-white/50 text-base max-w-2xl leading-relaxed">
             {t('gallery_desc')}
           </p>
         </div>
@@ -69,7 +69,7 @@ export function GallerySection() {
           {IMAGES.map((src, idx) => (
             <div 
               key={idx} 
-              className="relative group cursor-pointer overflow-hidden rounded-2xl aspect-[4/3] shadow-sm hover:shadow-xl transition-all"
+              className="relative group cursor-pointer overflow-hidden rounded-2xl aspect-[4/3] border hairline transition-all"
               onClick={() => openLightbox(idx)}
             >
               <img

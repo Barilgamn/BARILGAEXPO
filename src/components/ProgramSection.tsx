@@ -11,8 +11,8 @@ import { useAdmin, type ProgramEvent } from '../context/AdminContext';
 const EventCard: React.FC<{ ev: ProgramEvent; dimmed?: boolean; onOpen?: (src: string) => void }> = ({ ev, dimmed, onOpen }) => {
   const [noImg, setNoImg] = useState(false);
   return (
-  <div className={`bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 md:items-center transition-all duration-300 ${
-    dimmed ? 'opacity-40 saturate-50 hover:opacity-100 hover:saturate-100' : 'hover:bg-white/20'
+  <div className={`surface-card p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 md:items-center transition-all duration-300 ${
+    dimmed ? 'opacity-40 saturate-50 hover:opacity-100 hover:saturate-100' : 'hover:border-white/25'
   }`}>
     {ev.time && (
       /* Цагийн муж ("14:25-14:45") хоёр мөр болж тасрахгүйн тулд зураасны
@@ -107,30 +107,16 @@ export const ProgramSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeadin
   };
 
   return (
-    <section id="program" className={`relative bg-gray-900 ${hideHeading ? 'py-16' : 'py-24'} flex items-center justify-center overflow-hidden min-h-[500px]`}>
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="/program-bg.jpg"
-          alt="Exhibition Stage"
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-[#1e3a63]/80 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
+    <section id="program" className={`relative surface border-t hairline ${hideHeading ? 'py-16' : 'section-pad'} overflow-hidden`}>
+      <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 w-full text-white">
         {!hideHeading && (
-          <div className="text-center mb-16">
-            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/20 shadow-xl">
-              <CalendarDays className="w-10 h-10 text-red-400" />
+          <div className="mb-12 md:mb-16">
+            <div className="eyebrow mb-4 flex items-center gap-2">
+              <CalendarDays className="w-3 h-3" /> BARILGA EXPO
             </div>
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-6 drop-shadow-lg">
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
               {t('prog_title')}
             </h2>
-            <div className="w-24 h-1.5 bg-red-600 mx-auto rounded-full mb-8" />
           </div>
         )}
 

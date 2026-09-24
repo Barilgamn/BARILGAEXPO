@@ -58,15 +58,12 @@ export const TestimonialsSection: React.FC = () => {
   const navBtn = 'w-11 h-11 rounded-full border flex items-center justify-center transition-colors';
 
   return (
-    <section id="testimonials" className="py-16 md:py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="testimonials" className="section-pad surface border-t hairline">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
         <div className="flex items-end justify-between gap-6 mb-10">
           <div className="max-w-2xl">
-            <h3 className="text-red-500 font-bold uppercase tracking-widest text-xs flex items-center gap-2 mb-3">
-              <span className="w-8 h-px bg-red-500"></span>
-              BARILGA EXPO
-            </h3>
-            <h2 className="font-heading text-3xl md:text-5xl font-black text-blue-950 tracking-tight">
+            <div className="eyebrow mb-4">BARILGA EXPO</div>
+            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-white">
               {t('testi_title')}
             </h2>
           </div>
@@ -77,7 +74,7 @@ export const TestimonialsSection: React.FC = () => {
               onClick={() => scrollBy(-1)}
               disabled={atStart}
               aria-label={t('testi_prev')}
-              className={`${navBtn} ${atStart ? 'border-gray-200 text-gray-300' : 'border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white'}`}
+              className={`${navBtn} ${atStart ? 'border-white/10 text-white/25' : 'border-white/25 text-white hover:bg-white hover:text-black'}`}
             >
               <ChevronLeft size={20} />
             </button>
@@ -85,7 +82,7 @@ export const TestimonialsSection: React.FC = () => {
               onClick={() => scrollBy(1)}
               disabled={atEnd}
               aria-label={t('testi_next')}
-              className={`${navBtn} ${atEnd ? 'border-gray-200 text-gray-300' : 'border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white'}`}
+              className={`${navBtn} ${atEnd ? 'border-white/10 text-white/25' : 'border-white/25 text-white hover:bg-white hover:text-black'}`}
             >
               <ChevronRight size={20} />
             </button>
@@ -97,25 +94,24 @@ export const TestimonialsSection: React.FC = () => {
       <div
         ref={trackRef}
         className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4
-                   px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto
+                   px-4 sm:px-8 lg:px-16 max-w-[1440px] mx-auto
                    [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
           <article
             key={i}
-            className="snap-start shrink-0 w-[85vw] sm:w-[420px] bg-white rounded-2xl border border-gray-100
-                       shadow-sm p-7 flex flex-col"
+            className="snap-start shrink-0 w-[85vw] sm:w-[420px] surface-card p-7 flex flex-col"
           >
             <Quote className="w-8 h-8 text-red-500/70 mb-4 shrink-0" />
-            <p className="text-gray-600 leading-relaxed text-[15px] flex-1">{item.text}</p>
-            <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gray-100">
-              <div className="w-11 h-11 rounded-full bg-blue-900 text-white flex items-center justify-center font-black shrink-0">
+            <p className="text-white/60 leading-relaxed text-[15px] flex-1">{item.text}</p>
+            <div className="flex items-center gap-3 mt-6 pt-5 border-t border-white/10">
+              <div className="w-11 h-11 rounded-full bg-red-500 text-white flex items-center justify-center font-black shrink-0">
                 {initial(item.name)}
               </div>
               <div className="min-w-0">
-                <p className="font-bold text-blue-950 leading-tight">{item.name}</p>
-                <p className="text-xs text-gray-500 leading-snug mt-0.5">{item.role}</p>
-                <p className="text-xs font-semibold text-red-600 leading-snug">{item.org}</p>
+                <p className="font-bold text-white leading-tight">{item.name}</p>
+                <p className="text-xs text-white/45 leading-snug mt-0.5">{item.role}</p>
+                <p className="text-xs font-semibold text-red-400 leading-snug">{item.org}</p>
               </div>
             </div>
           </article>
