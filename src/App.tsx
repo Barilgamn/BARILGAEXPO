@@ -423,7 +423,7 @@ export default function App() {
           <div className="max-w-5xl">
             <div className="flex items-center gap-3 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span className="eyebrow eyebrow-light">The 41st International Exhibition</span>
+              <span className="eyebrow eyebrow-light">{t('expo_edition')}</span>
             </div>
 
             <h1 className="display text-[2.6rem] sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6">
@@ -740,7 +740,7 @@ export default function App() {
       <section id="floorplan" className="section-pad surface border-t hairline">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="mb-12">
-            <div className="eyebrow mb-4">BARILGA EXPO 2027</div>
+            <div className="eyebrow mb-4">{t('expo_edition')}</div>
             <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 mb-4 max-w-3xl">
               {t('plan_title')}
             </h2>
