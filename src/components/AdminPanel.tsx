@@ -1068,26 +1068,45 @@ export const AdminPanel: React.FC = () => {
                 </div>
               </div>
 
-              {/* "Талбайн сонголт" хэсгийг нүүрэнд харуулах эсэх */}
+              {/* Нүүр хуудасны хэсгүүдийг харуулах / нуух */}
               <div className="pt-6 mt-6 border-t border-gray-200">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Талбайн сонголт (танхимын зураглал)</label>
-                <p className="text-xs text-gray-500 mb-3">
-                  Асаавал нүүр хуудсанд 3D танхимын зураглал харагдана. Унтраасан үед нүүрэнд огт харагдахгүй.
+                <label className="block text-sm font-medium text-gray-700 mb-2">Нүүр хуудсанд харагдах хэсгүүд</label>
+                <p className="text-xs text-gray-500 mb-4">
+                  Унтраасан хэсэг нүүр хуудсанд харагдахгүй. Мэдээлэл нь устахгүй тул
+                  дахин асаахад хэвээрээ буцаж гарч ирнэ.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => updateData({ showFloorPlan: !data.showFloorPlan })}
-                  className={`inline-flex items-center gap-3 px-4 py-2.5 rounded-xl border font-semibold text-sm transition-colors ${
-                    data.showFloorPlan
-                      ? 'bg-green-50 border-green-300 text-green-700'
-                      : 'bg-gray-50 border-gray-300 text-gray-600'
-                  }`}
-                >
-                  <span className={`w-10 h-6 rounded-full p-0.5 transition-colors ${data.showFloorPlan ? 'bg-green-500' : 'bg-gray-300'}`}>
-                    <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform ${data.showFloorPlan ? 'translate-x-4' : ''}`} />
-                  </span>
-                  {data.showFloorPlan ? 'Нүүрэнд харагдана' : 'Нүүрэнд харагдахгүй'}
-                </button>
+                <div className="grid sm:grid-cols-2 gap-2 max-w-2xl">
+                  {([
+                    { key: 'showFloorPlan',    label: 'Талбайн сонголт (танхимын зураглал)' },
+                    { key: 'showVideo',        label: 'Үзэсгэлэнгийн танилцуулга видео' },
+                    { key: 'showParticipants', label: 'Оролцогч байгууллагуудын лого' },
+                    { key: 'showWinners',      label: 'Шилдэг байгууллагууд' },
+                    { key: 'showProgram',      label: 'Хөтөлбөр' },
+                  ] as const).map(row => {
+                    const on = data[row.key] === true;
+                    return (
+                      <button
+                        key={row.key}
+                        type="button"
+                        onClick={() => updateData({ [row.key]: !on } as any)}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border font-semibold text-sm text-left transition-colors ${
+                          on ? 'bg-green-50 border-green-300 text-green-700'
+                             : 'bg-gray-50 border-gray-300 text-gray-500'
+                        }`}
+                      >
+                        <span className={`shrink-0 w-10 h-6 rounded-full p-0.5 transition-colors ${on ? 'bg-green-500' : 'bg-gray-300'}`}>
+                          <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform ${on ? 'translate-x-4' : ''}`} />
+                        </span>
+                        <span className="min-w-0">
+                          {row.label}
+                          <span className="block text-[11px] font-medium opacity-70">
+                            {on ? 'Харагдана' : 'Нуусан'}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

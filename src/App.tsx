@@ -515,9 +515,11 @@ export default function App() {
       </section>
 
       {/* Үзэсгэлэнгийн шилдэг байгууллагууд */}
-      <Suspense fallback={<LoadingPlaceHolder />}>
-        <WinnersSection />
-      </Suspense>
+      {data.showWinners === true && (
+        <Suspense fallback={<LoadingPlaceHolder />}>
+          <WinnersSection />
+        </Suspense>
+      )}
 
       {/* Reel бичлэгүүд — story маягаар */}
       <Suspense fallback={null}>
@@ -619,9 +621,11 @@ export default function App() {
       </section>
 
       {/* Үзэсгэлэнгийн танилцуулга бичлэг */}
-      <Suspense fallback={<LoadingPlaceHolder />}>
-        <VideoSection />
-      </Suspense>
+      {data.showVideo === true && (
+        <Suspense fallback={<LoadingPlaceHolder />}>
+          <VideoSection />
+        </Suspense>
+      )}
 
       {/* Stats Counters Section */}
       <Suspense fallback={<LoadingPlaceHolder />}>
@@ -770,9 +774,11 @@ export default function App() {
       )}
 
       {/* Оролцогч байгууллагуудын лого */}
-      <Suspense fallback={<LoadingPlaceHolder />}>
-        <ParticipantsSection />
-      </Suspense>
+      {data.showParticipants === true && (
+        <Suspense fallback={<LoadingPlaceHolder />}>
+          <ParticipantsSection />
+        </Suspense>
+      )}
 
       {/* News Section */}
       <Suspense fallback={<LoadingPlaceHolder />}>
@@ -785,9 +791,11 @@ export default function App() {
       </Suspense>
 
       {/* Program Section */}
-      <Suspense fallback={<LoadingPlaceHolder />}>
-        <ProgramSection />
-      </Suspense>
+      {data.showProgram === true && (
+        <Suspense fallback={<LoadingPlaceHolder />}>
+          <ProgramSection />
+        </Suspense>
+      )}
 
       {/* Оролцогчдын сэтгэгдэл */}
       <Suspense fallback={<LoadingPlaceHolder />}>

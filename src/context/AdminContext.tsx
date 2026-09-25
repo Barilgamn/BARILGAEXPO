@@ -90,6 +90,13 @@ export interface SiteData {
   news: NewsItem[];
   boothBookedPercent?: number; // Талбайн захиалгын дүүргэлтийн хувь (0-100)
   showFloorPlan?: boolean;     // "Талбайн сонголт" хэсгийг нүүрэнд харуулах эсэх
+  /** Нүүр хуудасны хэсгүүдийг харуулах эсэх. Зөвхөн true үед харагдана —
+   *  баазад хадгалсан хуучин тохиргоонд эдгээр талбар байхгүй тул анхдагчаар
+   *  нуугдаж, админаас асаахад гарч ирнэ. */
+  showProgram?: boolean;
+  showWinners?: boolean;
+  showVideo?: boolean;
+  showParticipants?: boolean;
   reels?: Reel[];              // Нүүрэнд story маягаар харагдах Facebook reel-үүд
   testimonials?: Testimonial[]; // Оролцогчдын сэтгэгдэл
   participants?: string[];      // Оролцогч байгууллагуудын лого (зөвхөн зураг)
@@ -152,6 +159,10 @@ const defaultData: SiteData = {
   news: initialNews,
   boothBookedPercent: 50,
   showFloorPlan: false,
+  showProgram: false,
+  showWinners: false,
+  showVideo: false,
+  showParticipants: false,
   reels: [],
   testimonials: defaultTestimonials,
   participants: [],
