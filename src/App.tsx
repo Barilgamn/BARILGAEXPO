@@ -160,9 +160,11 @@ export default function App() {
     '/#news': '/news',
     '#news': '/news',
   };
-  const menus = data.menus.map(m =>
-    PAGE_PATHS[m.path] ? { ...m, path: PAGE_PATHS[m.path] } : m,
-  );
+  const menus = data.menus
+    .map(m => (PAGE_PATHS[m.path] ? { ...m, path: PAGE_PATHS[m.path] } : m))
+    // Хөтөлбөр түр нуугдсан тул цэснээс нь мөн хасна. Хуудас өөрөө
+    // ажилласаар байгаа — дахин нээхэд энэ шүүлтүүрийг авахад хангалттай.
+    .filter(m => m.path !== '/program');
 
   /** 41 дэх удаагийн үзэсгэлэнгийн талбайн захиалга нээлттэй тул "Талбай
    *  захиалах" дээр дарахад шууд захиалгын хуудас руу оруулна. Дээд талд нь
@@ -423,27 +425,12 @@ export default function App() {
               {t('hero_desc')}
             </p>
 
-            <div className="flex flex-wrap gap-3">
-              <Link
-                to="/booking"
-                className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-7 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
-              >
-                {t('book_booth')}
-                <CheckCircle2 className="h-4 w-4 opacity-80" />
-              </Link>
-              <Link
-                to="/program"
-                className="inline-flex items-center gap-2 border hairline-dark text-white/90 hover:text-white hover:bg-white/5 px-7 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
-              >
-                {t('link_program')}
-              </Link>
-            </div>
           </div>
         </div>
 
-        {/* Доод мөр: хэзээ / хаана / countdown / талбайн дүүргэлт */}
+        {/* Доод мөр: хэзээ / хаана / талбайн захиалга */}
         <div className="relative z-20 w-full border-t hairline-dark bg-[#070707]/70 backdrop-blur-md">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
             <div className="py-5 lg:py-7 lg:pr-8">
               <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><Calendar className="h-3 w-3" /> {t('when')}</div>
               <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('when_date')}</div>
@@ -454,36 +441,11 @@ export default function App() {
               <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('where_loc')}</div>
             </div>
 
-            <div className="py-5 lg:py-7 lg:px-8 border-t lg:border-t-0 hairline-dark">
-              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5">
-                {phase === 'live'
-                  ? <span className="relative flex h-2 w-2 shrink-0">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-                    </span>
-                  : <Timer className="h-3 w-3" />}
-                {phase === 'before' ? t('starts_in') : phase === 'live' ? t('expo_live') : t('expo_ended')}
-              </div>
-              {phase === 'before' ? (
-                <div className="flex items-end gap-3 text-white tabular-nums">
-                  {([[timeLeft.days, t('days')], [timeLeft.hours, t('hours')], [timeLeft.minutes, t('minutes')], [timeLeft.seconds, t('seconds')]] as const).map(([v, lab]) => (
-                    <div key={lab}>
-                      <div className="display text-2xl sm:text-3xl">{String(v).padStart(2, '0')}</div>
-                      <div className="text-[9px] uppercase tracking-wider text-white/40">{lab}</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-white/70 text-sm">
-                  {phase === 'live' ? t('expo_live_note') : t('expo_ended_note')}
-                </div>
-              )}
-            </div>
-
+            {/* Хуучин countdown байсан байрлалд — талбайн захиалгын дүүргэлт */}
             {(() => {
-              const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 50)));
+              const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 0)));
               return (
-                <div className="py-5 lg:py-7 lg:pl-8 border-t lg:border-t-0 hairline-dark">
+                <div className="py-5 lg:py-7 lg:px-8 sm:border-t lg:border-t-0 hairline-dark">
                   <div className="eyebrow eyebrow-light mb-2">{t('space_booked')}</div>
                   <div className="flex items-center gap-3">
                     <div className="display text-2xl sm:text-3xl text-white">{pct}%</div>
@@ -494,6 +456,17 @@ export default function App() {
                 </div>
               );
             })()}
+
+            {/* Талбай захиалах товч */}
+            <div className="py-5 lg:py-7 lg:pl-8 sm:border-t lg:border-t-0 hairline-dark flex items-center">
+              <Link
+                to="/booking"
+                className="w-full inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-6 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
+              >
+                {t('book_booth')}
+                <CheckCircle2 className="h-4 w-4 opacity-80" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -979,7 +952,6 @@ export default function App() {
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { to: '/program', label: t('link_program'), icon: Calendar },
                 { to: '/guide',   label: t('link_guide'),   icon: CheckCircle2 },
                 { to: '/b2b',     label: t('link_b2b'),     icon: User },
                 { to: '/poster',  label: t('link_poster'),  icon: ArrowRight },
