@@ -13,7 +13,6 @@ import { useAdmin } from './context/AdminContext';
 import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
 import { NewsPopup } from './components/NewsPopup';
-import { BoothClosedNotice } from './components/BoothClosedNotice';
 import { CityTimelapse } from './components/CityTimelapse';
 import { trackVisit } from './utils/analytics';
 
@@ -165,23 +164,9 @@ export default function App() {
     PAGE_PATHS[m.path] ? { ...m, path: PAGE_PATHS[m.path] } : m,
   );
 
-  /** 40 дэх удаагийн үзэсгэлэнгийн талбайн захиалга хаагдсан тул "Талбай
-   *  захиалах" дээр дарахад эхлээд мэдэгдэл гарч, зөвшөөрвөл 41 дэх
-   *  удаагийн захиалгын хүсэлтийн хуудас руу оруулна. */
-  const [isBoothNoticeOpen, setIsBoothNoticeOpen] = useState(false);
-
-  const askBeforeBooking = (e: React.MouseEvent) => {
-    // Шинэ цонхонд нээх (cmd/ctrl+click) гэвэл саад болохгүй
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    e.preventDefault();
-    setIsBoothNoticeOpen(true);
-  };
-
-  const goToBooking = () => {
-    setIsBoothNoticeOpen(false);
-    navigate('/booking');
-    window.scrollTo({ top: 0 });
-  };
+  /** 41 дэх удаагийн үзэсгэлэнгийн талбайн захиалга нээлттэй тул "Талбай
+   *  захиалах" дээр дарахад шууд захиалгын хуудас руу оруулна. Дээд талд нь
+   *  гардаг байсан "захиалга хаагдсан" мэдэгдлийг хассан. */
 
   const handleMenuClick = (path: string, e: React.MouseEvent) => {
     const isHashPath = path.includes('#');
@@ -441,7 +426,6 @@ export default function App() {
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/booking"
-                onClick={askBeforeBooking}
                 className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-7 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
               >
                 {t('book_booth')}
@@ -763,7 +747,6 @@ export default function App() {
           <div className="text-center mt-8">
             <Link
               to="/booking"
-              onClick={askBeforeBooking}
               className="inline-block bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-900/20"
             >
               {t('plan_cta')} →
@@ -1068,7 +1051,7 @@ export default function App() {
                   </button>
                   
                   <button
-                    onClick={() => { setIsRegModalOpen(false); setRegType(null); setIsBoothNoticeOpen(true); }}
+                    onClick={() => { setIsRegModalOpen(false); setRegType(null); navigate('/booking'); window.scrollTo({ top: 0 }); }}
                     className="flex flex-col items-center justify-center p-6 border-2 border-gray-100 py-10 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all group">
                     <div className="w-16 h-16 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
                        <Building2 className="h-8 w-8" />
@@ -1197,13 +1180,6 @@ export default function App() {
 
       {/* AI Chat Widget */}
       {!isAdminRoute && <ChatWidget />}
-
-      {/* Сүүлийн мэдээний popup (нэг удаа) */}
-      <BoothClosedNotice
-        open={isBoothNoticeOpen}
-        onClose={() => setIsBoothNoticeOpen(false)}
-        onConfirm={goToBooking}
-      />
 
       {/* Мэдээний хуудсанд байхад ижил мэдээг дахин санал болгох шаардлагагүй */}
       {!isAdminRoute && !location.pathname.startsWith('/news') && <NewsPopup />}
