@@ -150,7 +150,7 @@ export const B2BRegistration: React.FC = () => {
             <div className="mt-7 flex flex-wrap items-stretch justify-center gap-y-2">
               <span className="bg-[#C4161C] text-white font-heading font-black
                                text-sm sm:text-lg px-4 sm:px-5 py-2.5 rounded-l-lg whitespace-nowrap">
-                2026.09.11
+                2027.03.26
               </span>
               <span className="bg-[#1B3281] text-white font-heading font-bold
                                text-sm sm:text-lg px-4 sm:px-5 py-2.5 whitespace-nowrap">

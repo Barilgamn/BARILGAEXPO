@@ -257,8 +257,8 @@ export default function App() {
     // Улаанбаатарын цагаар (UTC+8) — эс бөгөөс зочны цагийн бүсээс хамаарч
     // тоолуур өөр өөр утга харуулна.
     // Хаалга нээгдэх/хаагдах яг мөч (Улаанбаатарын цагаар, UTC+8).
-    const startDate = new Date('2026-09-11T09:00:00+08:00').getTime();
-    const endDate   = new Date('2026-09-13T18:00:00+08:00').getTime();
+    const startDate = new Date('2027-03-26T09:00:00+08:00').getTime();
+    const endDate   = new Date('2027-03-28T18:00:00+08:00').getTime();
 
     const updateTimer = () => {
       const now = new Date().getTime();
@@ -423,7 +423,7 @@ export default function App() {
           <div className="max-w-5xl">
             <div className="flex items-center gap-3 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span className="eyebrow eyebrow-light">The 40th International Exhibition</span>
+              <span className="eyebrow eyebrow-light">The 41st International Exhibition</span>
             </div>
 
             <h1 className="display text-[2.6rem] sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6">
@@ -740,7 +740,7 @@ export default function App() {
       <section id="floorplan" className="section-pad surface border-t hairline">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="mb-12">
-            <div className="eyebrow mb-4">BARILGA EXPO 2026</div>
+            <div className="eyebrow mb-4">BARILGA EXPO 2027</div>
             <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 mb-4 max-w-3xl">
               {t('plan_title')}
             </h2>

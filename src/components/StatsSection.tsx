@@ -107,7 +107,7 @@ export const StatsSection: React.FC = () => {
     },
     {
       id: "stat-editions",
-      end: 40,
+      end: 41,
       suffix: <span className="block text-base sm:text-2xl md:text-3xl mt-0.5 sm:mt-1 tracking-normal font-bold">{t('stat4_suf')}</span>,
       label: t('stat4_lab'),
       description: t('stat4_desc'),
