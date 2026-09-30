@@ -23,7 +23,7 @@ export const WinnersSection: React.FC = () => {
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 eyebrow mb-4">
-            <Trophy size={14} /> 40th BARILGA EXPO
+            <Trophy size={14} /> 2026
           </div>
           <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950">
             {t('win_title')}

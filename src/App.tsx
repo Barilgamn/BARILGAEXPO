@@ -487,7 +487,7 @@ export default function App() {
       <section id="categories" className="section-pad surface border-t hairline relative overflow-hidden">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 relative z-10">
           <div className="mb-12 md:mb-16">
-            <div className="eyebrow mb-4">{t('cat_pre')}</div>
+            <div className="eyebrow mb-4">{t('expo_edition')}</div>
             <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 max-w-3xl">
               {t('cat_title')}
             </h2>

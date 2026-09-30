@@ -55,7 +55,7 @@ export function GallerySection() {
         <div className="mb-12 md:mb-16">
           <div className="eyebrow mb-4 flex items-center gap-2">
             <Camera className="w-3 h-3" />
-            {t('gallery_title')}
+            2026
           </div>
           <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 mb-5">
             {t('gallery_title')}
