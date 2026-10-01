@@ -731,7 +731,7 @@ export default function App() {
 
       {/* News Section */}
       <Suspense fallback={<LoadingPlaceHolder />}>
-        <NewsSection />
+        <NewsSection limit={8} />
       </Suspense>
 
       {/* Gallery Section */}

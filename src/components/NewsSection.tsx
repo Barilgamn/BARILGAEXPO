@@ -7,10 +7,15 @@ import { NewsArticleBody } from './NewsArticleBody';
 import { localizeNews, newsPath, stripAndTruncate } from '../utils/news';
 
 /** hideHeading — /news хуудсанд толгой хэсэг нь дээр нь тусад нь байдаг тул
- *  хэсгийн доторх гарчгийг давхардуулахгүй. */
-export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }) => {
+ *  хэсгийн доторх гарчгийг давхардуулахгүй.
+ *  limit — нүүр хуудсанд хамгийн сүүлийн хэдэн мэдээг харуулах. Тавьсан үед
+ *  "Бүх мэдээг үзэх" товч гарч /news руу хөтөлнө. */
+export const NewsSection: React.FC<{ hideHeading?: boolean; limit?: number }> = ({ hideHeading, limit }) => {
   const { data } = useAdmin();
-  const newsItems = data.news;
+  const allNews = data.news;
+  // Шинэ мэдээ жагсаалтын эхэнд нэмэгддэг тул эхнийхийг нь авна.
+  const newsItems = limit ? allNews.slice(0, limit) : allNews;
+  const hasMore = !!limit && allNews.length > limit;
   const { t, lang } = useTranslation();
   const [selectedNews, setSelectedNews] = useState<typeof newsItems[0] | null>(null);
 
@@ -88,6 +93,19 @@ export const NewsSection: React.FC<{ hideHeading?: boolean }> = ({ hideHeading }
             );
           })}
         </div>
+
+        {hasMore && (
+          <div className="mt-10 md:mt-14 flex justify-center">
+            <Link
+              to="/news"
+              onClick={() => window.scrollTo({ top: 0 })}
+              className="inline-flex items-center gap-2 border hairline text-blue-950 hover:bg-gray-50 px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
+            >
+              {t('news_all')} ({allNews.length})
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
 
       </div>
 
