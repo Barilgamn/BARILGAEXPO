@@ -271,7 +271,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen surface font-sans text-white">
+    <div className="min-h-screen surface font-sans text-gray-800">
       {/* Navbar segment */}
       {!isAdminRoute && (
         <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle}`}>
@@ -391,7 +391,7 @@ export default function App() {
         <Route path="/" element={
           <>
             {/* Hero Section */}
-            <section id="home" className="relative surface-dark min-h-[100svh] flex flex-col justify-end overflow-hidden pt-28 pb-0">
+            <section id="home" className="relative surface-dark text-white min-h-[100svh] flex flex-col justify-end overflow-hidden pt-28 pb-0">
         {/* Дэвсгэр: хотын зураг гүн харанхуй давхаргын доор */}
         <div className="absolute inset-0 w-full h-full">
           <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-45" />
