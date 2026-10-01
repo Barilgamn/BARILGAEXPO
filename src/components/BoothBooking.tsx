@@ -75,20 +75,17 @@ export const BoothBooking: React.FC = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800">
       {/* Header */}
-      <div className="relative pt-24 pb-16 bg-blue-900 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-red-900 opacity-90"></div>
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        </div>
+      <div className="relative pt-24 pb-16 surface-dark border-b hairline-dark overflow-hidden">
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/10 blur-3xl" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white mt-10">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/20 text-red-300 font-medium text-sm mb-6 border border-red-500/30">
             <MapPin className="w-4 h-4" />
             {t('bb_badge')}
           </span>
-          <h1 className="text-3xl md:text-5xl font-bold font-heading mb-6 tracking-tight drop-shadow-md">
+          <h1 className="display text-3xl md:text-5xl mb-6">
             {t('bb_title')}
           </h1>
-          <p className="text-base md:text-lg text-blue-100 max-w-3xl mx-auto font-light leading-relaxed">
+          <p className="text-base md:text-lg text-white/60 max-w-3xl mx-auto font-light leading-relaxed">
             {t('bb_desc')}
           </p>
         </div>

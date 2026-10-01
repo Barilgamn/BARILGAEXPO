@@ -40,10 +40,9 @@ export const NewsArticlePage: React.FC = () => {
   const others = (data.news || []).filter(n => String(n.id) !== String(id)).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="relative overflow-hidden bg-blue-950 pt-28 sm:pt-32 pb-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-blue-900/60 to-gray-900" />
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/20 blur-3xl" />
+    <div className="min-h-screen surface">
+      <header className="relative overflow-hidden surface-dark border-b hairline-dark pt-28 sm:pt-32 pb-10">
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/10 blur-3xl" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
           <Link
             to="/news"
