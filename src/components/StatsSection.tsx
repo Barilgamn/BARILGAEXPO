@@ -68,7 +68,7 @@ const AnimatedCounter: React.FC<CounterProps> = ({ end, duration = 2000, suffix 
   };
 
   return (
-    <span ref={elementRef} className="font-heading font-black tracking-tight text-blue-950">
+    <span ref={elementRef} className="font-heading font-bold tracking-tight">
       {prefix}{formatNumber(count)}{suffix}
     </span>
   );
@@ -117,34 +117,36 @@ export const StatsSection: React.FC = () => {
   ];
 
   return (
-    <section id="stats" className="relative z-30 surface border-t hairline section-pad">
+    <section id="stats" className="relative z-30 scene-ink section-pad">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-      <div className="surface-card p-5 sm:p-8 md:p-12 relative overflow-hidden group">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-6 sm:gap-8 md:gap-12 relative z-10 lg:divide-x divide-gray-200">
+        <h2 className="display text-3xl sm:text-5xl lg:text-6xl fg text-center max-w-4xl mx-auto mb-12 md:mb-16">
+          {t('stats_title')}
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <div
                 key={stat.id}
                 id={stat.id}
-                className="flex flex-col items-center text-center px-2 py-2 sm:p-6 lg:px-8"
+                className="glass !rounded-3xl p-6 sm:p-7 flex flex-col"
               >
-                <div className="mb-2 sm:mb-4 p-2.5 sm:p-4 rounded-xl bg-gray-50 border border-gray-200 transition-colors duration-300">
-                  <Icon className="h-5 w-5 sm:h-8 sm:w-8 text-red-600" />
+                <div className="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center mb-8">
+                  <Icon className="h-6 w-6 text-red-300" strokeWidth={1.8} />
                 </div>
-                <div className="display text-3xl sm:text-5xl md:text-6xl mb-1 sm:mb-2 text-blue-950 tabular-nums">
+                <div className="display text-4xl sm:text-5xl text-white tabular-nums">
                   <AnimatedCounter end={stat.end} suffix={stat.suffix} />
                 </div>
-                <div className="text-red-600 font-bold text-[10px] sm:text-xs tracking-[0.18em] uppercase mb-1 sm:mb-2">
+                <div className="text-red-300 font-bold text-sm mt-3 mb-1.5">
                   {stat.label}
                 </div>
-                <p className="text-gray-500 text-xs sm:text-sm leading-snug sm:leading-relaxed max-w-[220px]">
+                <p className="text-white/60 text-sm leading-relaxed">
                   {stat.description}
                 </p>
               </div>
             );
           })}
-        </div>
         </div>
       </div>
     </section>

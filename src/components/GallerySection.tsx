@@ -50,17 +50,17 @@ export function GallerySection() {
   }, [lightboxOpen]);
 
   return (
-    <section id="gallery" className="section-pad surface border-t hairline">
+    <section id="gallery" className="section-pad scene-dark">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-        <div className="mb-12 md:mb-16">
-          <div className="eyebrow mb-4 flex items-center gap-2">
-            <Camera className="w-3 h-3" />
+        <div className="mb-12 md:mb-16 text-center max-w-3xl mx-auto">
+          <div className="eyebrow mb-4 inline-flex items-center gap-2">
+            <Camera className="w-3.5 h-3.5" />
             2026
           </div>
-          <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 mb-5">
+          <h2 className="display text-4xl sm:text-5xl lg:text-6xl fg mb-4">
             {t('gallery_title')}
           </h2>
-          <p className="text-gray-500 text-base max-w-2xl leading-relaxed">
+          <p className="fg-2 text-base md:text-lg leading-relaxed">
             {t('gallery_desc')}
           </p>
         </div>
@@ -69,7 +69,7 @@ export function GallerySection() {
           {IMAGES.map((src, idx) => (
             <div 
               key={idx} 
-              className="relative group cursor-pointer overflow-hidden rounded-2xl aspect-[4/3] border hairline transition-all"
+              className="relative group cursor-pointer overflow-hidden rounded-3xl aspect-[4/3] bg-white/5"
               onClick={() => openLightbox(idx)}
             >
               <img
@@ -83,7 +83,7 @@ export function GallerySection() {
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-blue-900/0 group-hover:bg-blue-900/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div className="bg-white/20 backdrop-blur-md p-3 rounded-full text-blue-950 transform scale-50 group-hover:scale-100 transition-transform duration-300">
+                <div className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white transform scale-50 group-hover:scale-100 transition-transform duration-300">
                   <Camera className="w-6 h-6" />
                 </div>
               </div>
@@ -100,7 +100,7 @@ export function GallerySection() {
           {/* Хаах товч — хамгийн дээд давхаргад, touch дэмжинэ */}
           <button
             type="button"
-            className="absolute top-4 right-4 z-[110] text-blue-950 bg-white/20 active:bg-white/40 p-3 rounded-full"
+            className="absolute top-4 right-4 z-[110] text-white bg-white/20 active:bg-white/40 p-3 rounded-full"
             onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
           >
             <X className="w-7 h-7" />
@@ -109,14 +109,14 @@ export function GallerySection() {
           {/* Зүүн/Баруун товч */}
           <button
             type="button"
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-[110] text-blue-950 bg-black/50 active:bg-black/80 p-3 rounded-full"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-[110] text-white bg-black/50 active:bg-black/80 p-3 rounded-full"
             onClick={(e) => { e.stopPropagation(); prevImage(e); }}
           >
             <ChevronLeft className="w-8 h-8" />
           </button>
           <button
             type="button"
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-[110] text-blue-950 bg-black/50 active:bg-black/80 p-3 rounded-full"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-[110] text-white bg-black/50 active:bg-black/80 p-3 rounded-full"
             onClick={(e) => { e.stopPropagation(); nextImage(e); }}
           >
             <ChevronRight className="w-8 h-8" />

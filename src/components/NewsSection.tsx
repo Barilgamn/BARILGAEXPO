@@ -36,11 +36,11 @@ export const NewsSection: React.FC<{ hideHeading?: boolean; limit?: number }> = 
   }, [selectedNews]);
 
   return (
-    <section id="news" className={`relative surface border-t hairline ${hideHeading ? 'py-16' : 'section-pad'}`}>
+    <section id="news" className={`relative scene-light ${hideHeading ? 'py-12 md:py-16' : 'section-pad'}`}>
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
         {!hideHeading && (
-          <div className="mb-12 md:mb-16">
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950">
+          <div className="mb-12 md:mb-16 text-center">
+            <h2 className="display text-4xl sm:text-5xl lg:text-6xl fg">
               {t('news_title')}
             </h2>
           </div>
@@ -60,9 +60,9 @@ export const NewsSection: React.FC<{ hideHeading?: boolean; limit?: number }> = 
                 e.preventDefault();
                 setSelectedNews(news);
               }}
-              className="surface-card overflow-hidden group hover:border-gray-300 transition-colors duration-300 flex flex-col h-full cursor-pointer"
+              className="group flex flex-col h-full cursor-pointer"
             >
-              <div className="relative h-36 sm:h-56 overflow-hidden">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-2xl sm:rounded-3xl bg-[var(--card)]">
                 {news.image && (
                   <img
                     src={news.image}
@@ -74,20 +74,14 @@ export const NewsSection: React.FC<{ hideHeading?: boolean; limit?: number }> = 
                   />
                 )}
               </div>
-              <div className="p-3 sm:p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-2 text-red-600 mb-3 text-sm font-medium">
-                  <Calendar className="w-4 h-4" />
-                  {news.date}
-                </div>
-                <h3 className="text-sm sm:text-xl font-bold font-heading text-blue-950 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors">
+              <div className="pt-3 sm:pt-5 flex flex-col flex-grow">
+                <div className="fg-3 text-xs sm:text-sm mb-1.5 sm:mb-2 tabular-nums">{news.date}</div>
+                <h3 className="font-heading font-medium text-base sm:text-xl leading-snug fg mb-2 group-hover:text-red-600 transition-colors">
                   {localized.title}
                 </h3>
-                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-6 flex-grow hidden sm:block">
+                <p className="fg-2 text-sm leading-relaxed hidden sm:block line-clamp-2">
                   {stripAndTruncate(localized.description)}
                 </p>
-                <div className="flex items-center text-red-600 font-semibold text-sm group-hover:text-red-600">
-                  {t('news_more')} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </div>
               </div>
             </Link>
             );
@@ -99,7 +93,7 @@ export const NewsSection: React.FC<{ hideHeading?: boolean; limit?: number }> = 
             <Link
               to="/news"
               onClick={() => window.scrollTo({ top: 0 })}
-              className="inline-flex items-center gap-2 border hairline text-blue-950 hover:bg-gray-50 px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
+              className="btn btn-ink btn-lg"
             >
               {t('news_all')} ({allNews.length})
               <ArrowRight className="w-4 h-4" />
@@ -119,7 +113,7 @@ export const NewsSection: React.FC<{ hideHeading?: boolean; limit?: number }> = 
           <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative z-10 flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
             <button
               onClick={() => setSelectedNews(null)}
-              className="absolute top-4 right-4 z-20 p-2 bg-black/20 hover:bg-black/40 text-blue-950 rounded-full transition-colors backdrop-blur-md"
+              className="absolute top-4 right-4 z-20 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors backdrop-blur-md"
             >
               <X className="w-6 h-6" />
             </button>

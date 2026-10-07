@@ -90,10 +90,10 @@ export const ReelsSection: React.FC = () => {
   const navBtn = 'w-9 h-9 rounded-full border flex items-center justify-center transition-colors';
 
   return (
-    <section className="surface border-t hairline">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 py-8">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="eyebrow text-white/80">{t('reels_title')}</h2>
+    <section className="scene-ink">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 py-10 md:py-14">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-heading font-bold text-xl sm:text-2xl text-white">{t('reels_title')}</h2>
           <div className="hidden md:flex items-center gap-2">
             <button
               onClick={() => scrollByCard(-1)} disabled={atStart} aria-label={t('reels_prev')}
@@ -116,7 +116,7 @@ export const ReelsSection: React.FC = () => {
               key={reel.id}
               onClick={() => setActiveIdx(i)}
               title={reel.title}
-              className="snap-start shrink-0 relative rounded-xl overflow-hidden bg-black
+              className="snap-start shrink-0 relative rounded-2xl overflow-hidden bg-black
                          ring-1 ring-white/10 hover:ring-white/40 transition-all group"
               style={{ width: CARD_W, aspectRatio: '9 / 16' }}
             >

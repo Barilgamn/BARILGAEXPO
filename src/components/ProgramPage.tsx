@@ -19,47 +19,47 @@ export const ProgramPage: React.FC = () => {
   const venue = data.contact?.venueAddress;
 
   return (
-    <div className="min-h-screen surface">
+    <div className="min-h-screen scene-dark">
       {/* Толгой хэсэг — nav-ын өндрөөс доош эхэлнэ */}
-      <header className="relative overflow-hidden surface border-b hairline pt-28 sm:pt-32 pb-14">
+      <header className="relative overflow-hidden scene-dark border-b card-line pt-28 sm:pt-32 pb-14">
         
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/10 blur-3xl" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-blue-950">
+        <div className="relative max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-blue-950/70 hover:text-blue-950 text-sm font-semibold mb-6 transition-colors"
+            className="inline-flex items-center gap-1.5 fg-2 hover:text-white text-sm font-medium mb-6 transition-colors"
           >
             <ChevronLeft size={16} /> {t('pgp_back')}
           </Link>
 
           <div className="flex items-start gap-5">
-            <div className="w-16 h-16 shrink-0 bg-gray-100 backdrop-blur-md rounded-2xl hidden sm:flex items-center justify-center border border-white/20">
-              <CalendarDays className="w-8 h-8 text-red-600" />
+            <div className="w-16 h-16 shrink-0 bg-red-500/15 rounded-2xl hidden sm:flex items-center justify-center">
+              <CalendarDays className="w-8 h-8 text-red-300" />
             </div>
             <div className="min-w-0">
               <h1 className="display text-4xl sm:text-5xl lg:text-6xl">
                 {t('link_program')}
               </h1>
-              <p className="text-blue-950/70 mt-2 text-sm sm:text-base">{t('prog_title')}</p>
+              <p className="fg-2 mt-2 text-sm sm:text-base">{t('prog_title')}</p>
             </div>
           </div>
 
           {/* Товч мэдээлэл */}
           <div className="flex flex-wrap gap-x-8 gap-y-3 mt-8 text-sm">
             {days.length > 0 && (
-              <span className="text-blue-950/80">
-                <b className="text-blue-950 text-lg font-heading">{days.length}</b> {t('pgp_days')}
-                <span className="text-gray-400 mx-2">·</span>
-                <b className="text-blue-950 text-lg font-heading">{eventCount}</b> {t('pgp_events')}
+              <span className="fg-2">
+                <b className="fg text-lg font-heading">{days.length}</b> {t('pgp_days')}
+                <span className="fg-3 mx-2">·</span>
+                <b className="fg text-lg font-heading">{eventCount}</b> {t('pgp_events')}
               </span>
             )}
-            <span className="flex items-center gap-2 text-blue-950/80">
-              <Clock size={16} className="text-red-600 shrink-0" /> {t('venue_hours')}
+            <span className="flex items-center gap-2 fg-2">
+              <Clock size={16} className="text-red-300 shrink-0" /> {t('venue_hours')}
             </span>
             {venue && (
-              <span className="flex items-center gap-2 text-blue-950/80">
-                <MapPin size={16} className="text-red-600 shrink-0" /> {venue}
+              <span className="flex items-center gap-2 fg-2">
+                <MapPin size={16} className="text-red-300 shrink-0" /> {venue}
               </span>
             )}
           </div>

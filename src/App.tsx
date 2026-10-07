@@ -133,23 +133,29 @@ export default function App() {
     }
   };
 
+  // Цэс: дээр нь тунгалаг, гүйлгэхэд шилэн болно, доош гүйлгэхэд нуугдаж
+  // дээш гүйлгэхэд буцаж гарна (toki.mn шиг).
+  const [isNavHidden, setIsNavHidden] = useState(false);
   useEffect(() => {
+    let lastY = window.scrollY;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const y = window.scrollY;
+      setIsScrolled(y > 20);
+      const goingDown = y > lastY + 4;
+      const goingUp = y < lastY - 4;
+      if (y < 120 || goingUp) setIsNavHidden(false);
+      else if (goingDown) setIsNavHidden(true);
+      lastY = y;
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Цэсний лого, бичиг нь ЦАГААН тул зөвхөн бараан дэвсгэр дээр уншигдана.
-  // Нүүр хуудсанд арын том зураг байдаг тул ил тод байж болно, харин дотоод
-  // хуудсууд цайвар дэвсгэртэй — тэнд заавал бүтэн бараан дэвсгэр өгнө.
-  const isHomePage = location.pathname === '/';
-  const navStyle = !isHomePage
-    ? 'bg-[#070707] border-b hairline py-2'
-    : isScrolled
-      ? 'bg-[#070707]/80 backdrop-blur-md border-b hairline py-2'
-      : 'bg-transparent py-4';
+  // Цэсний лого, бичиг нь ЦАГААН. Дээд талд (хуудас бүрийн толгой хар) бүрэн
+  // тунгалаг, гүйлгэсний дараа цайвар хэсгүүд дээр ч уншигдахын тулд хар шил.
+  const navStyle = isScrolled
+    ? 'bg-black/70 backdrop-blur-xl'
+    : 'bg-transparent';
 
   /** Хөтөлбөр, мэдээ хоёр одоо бие даасан хуудастай боллоо. Баазад хуучин
    *  "/#program", "/#news" гэж хадгалагдсан байж болзошгүй тул цэсний
@@ -274,54 +280,61 @@ export default function App() {
     <div className="min-h-screen surface font-sans text-gray-800">
       {/* Navbar segment */}
       {!isAdminRoute && (
-        <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle}`}>
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo */}
-            <div className="flex-shrink-0 flex items-center min-w-0">
-              <Link to="/" onClick={(e) => handleMenuClick('/', e)} className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle} ${isNavHidden && !isMenuOpen ? '-translate-y-full' : 'translate-y-0'}`}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
+            <div className="relative flex items-center justify-between h-[72px]">
+              {/* Лого */}
+              <Link to="/" onClick={(e) => handleMenuClick('/', e)} className="flex items-center min-w-0 shrink-0">
                 <img
                   src={data.logoUrl}
                   alt="Barilga Expo Logo"
                   referrerPolicy="no-referrer"
-                  className="h-12 sm:h-16 md:h-20 object-contain brightness-0 invert transition-all shrink-0"
+                  className="h-11 sm:h-12 md:h-14 object-contain brightness-0 invert shrink-0"
                 />
               </Link>
-            </div>
 
-            <div className="flex flex-1 items-center justify-end">
-              {/* Desktop Menu */}
-              <div className="hidden lg:flex items-center space-x-6 mr-6">
-                {menus.map(menu => (
-                  menu.path.startsWith('/') ? (
-                    <Link key={menu.id} to={menu.path} onClick={(e) => handleMenuClick(menu.path, e)} className="text-sm font-medium text-white/90 hover:text-white transition-colors uppercase">
-                      {lang === 'mn' ? menu.labelMn : menu.labelEn}
-                    </Link>
+              {/* Голд хөвж буй дугуй цэс */}
+              <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 p-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/10">
+                {menus.map(menu => {
+                  const active = menu.path === location.pathname;
+                  const cls = `px-4 h-10 inline-flex items-center rounded-full text-[15px] font-medium transition-colors lowercase first-letter:uppercase ${
+                    active ? 'bg-white/15 text-white' : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`;
+                  const label = lang === 'mn' ? menu.labelMn : menu.labelEn;
+                  return menu.path.startsWith('/') ? (
+                    <Link key={menu.id} to={menu.path} onClick={(e) => handleMenuClick(menu.path, e)} className={cls}>{label}</Link>
                   ) : (
-                    <a key={menu.id} href={menu.path} onClick={(e) => handleMenuClick(menu.path, e)} className="text-sm font-medium text-white/90 hover:text-white transition-colors uppercase">
-                      {lang === 'mn' ? menu.labelMn : menu.labelEn}
-                    </a>
-                  )
-                ))}
-                <button onClick={() => setIsRegModalOpen(true)} className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all hover:shadow-lg hover:shadow-red-500/20 active:scale-95">
-                  {t('nav_register')}
-                </button>
+                    <a key={menu.id} href={menu.path} onClick={(e) => handleMenuClick(menu.path, e)} className={cls}>{label}</a>
+                  );
+                })}
               </div>
 
-              <div className="flex items-center gap-2 relative">
-                <div className="relative">
-                  <button 
-                    onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
-                    className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-2 py-1.5 rounded-lg backdrop-blur-sm transition-all"
+              {/* Баруун тал: бүртгэл, хэл, гар утасны цэс */}
+              <div className="flex items-center gap-2">
+                {/* .btn нь display тохируулдаг тул нуух/харуулахыг тусад нь боож өгнө */}
+                <div className="hidden lg:block">
+                  <button
+                    onClick={() => setIsRegModalOpen(true)}
+                    className="btn btn-red !h-10 !px-5 text-[15px]"
                   >
-                    <span className="text-xl leading-none">
+                    {t('nav_register')}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <button
+                    onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                    aria-label="Language"
+                    className="flex items-center gap-1 h-10 px-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-xl transition-colors"
+                  >
+                    <span className="text-lg leading-none">
                       {lang === 'mn' ? '🇲🇳' : lang === 'en' ? '🇬🇧' : lang === 'zh' ? '🇨🇳' : lang === 'ru' ? '🇷🇺' : '🇰🇷'}
                     </span>
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isLangMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  
+
                   {isLangMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-36 bg-white rounded-xl shadow-xl overflow-hidden py-1 z-50 border border-gray-100">
+                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-2xl shadow-2xl overflow-hidden p-1.5 z-50 border border-gray-100">
                       {[
                         { code: 'mn', flag: '🇲🇳', name: 'Монгол' },
                         { code: 'en', flag: '🇬🇧', name: 'English' },
@@ -332,7 +345,7 @@ export default function App() {
                         <button
                           key={l.code}
                           onClick={() => { setLang(l.code as any); setIsLangMenuOpen(false); }}
-                          className={`w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors ${lang === l.code ? 'bg-red-50 text-red-700 font-semibold' : 'text-gray-700'}`}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${lang === l.code ? 'bg-red-50 text-red-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
                         >
                           <span className="text-xl">{l.flag}</span>
                           <span className="text-sm">{l.name}</span>
@@ -341,40 +354,39 @@ export default function App() {
                     </div>
                   )}
                 </div>
-                {/* Mobile menu button */}
-                <div className="lg:hidden flex items-center">
-                  <button
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="text-white hover:text-red-400 p-2"
-                  >
-                    {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                  </button>
-                </div>
+
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  aria-label="Menu"
+                  className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-xl transition-colors"
+                >
+                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden absolute inset-x-0 top-full max-h-[calc(100svh-4.5rem)] bg-[#070707] overflow-y-auto border-t hairline px-4 pt-2 pb-6 space-y-1 shadow-xl">
-            {menus.map(menu => (
-              menu.path.startsWith('/') ? (
-                <Link key={menu.id} to={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
-                  {lang === 'mn' ? menu.labelMn : menu.labelEn}
-                </Link>
-              ) : (
-                <a key={menu.id} href={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className="block px-3 py-3 text-base font-medium text-white hover:bg-white/10 rounded-md uppercase">
-                  {lang === 'mn' ? menu.labelMn : menu.labelEn}
-                </a>
-              )
-            ))}
-            <button onClick={() => {setIsRegModalOpen(true); setIsMenuOpen(false);}} className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-base font-semibold transition-colors">
-              {t('nav_register')}
-            </button>
-          </div>
-        )}
-      </nav>
+          {/* Гар утасны цэс */}
+          {isMenuOpen && (
+            <div className="lg:hidden mx-3 mb-3 max-h-[calc(100svh-6rem)] overflow-y-auto rounded-3xl bg-black/85 backdrop-blur-2xl border border-white/10 p-3 shadow-2xl">
+              {menus.map(menu => {
+                const cls = 'block px-4 py-3.5 text-lg font-medium text-white rounded-2xl hover:bg-white/10 lowercase first-letter:uppercase';
+                const label = lang === 'mn' ? menu.labelMn : menu.labelEn;
+                return menu.path.startsWith('/') ? (
+                  <Link key={menu.id} to={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className={cls}>{label}</Link>
+                ) : (
+                  <a key={menu.id} href={menu.path} onClick={(e) => { setIsMenuOpen(false); handleMenuClick(menu.path, e); }} className={cls}>{label}</a>
+                );
+              })}
+              <button
+                onClick={() => { setIsRegModalOpen(true); setIsMenuOpen(false); }}
+                className="btn btn-red btn-lg w-full mt-2"
+              >
+                {t('nav_register')}
+              </button>
+            </div>
+          )}
+        </nav>
       )}
 
       <Routes>
@@ -391,58 +403,58 @@ export default function App() {
         <Route path="/" element={
           <>
             {/* Hero Section */}
-            <section id="home" className="relative surface-dark text-white min-h-[100svh] flex flex-col justify-end overflow-hidden pt-28 pb-0">
-        {/* Дэвсгэр: хотын зураг гүн харанхуй давхаргын доор */}
+            <section id="home" className="relative scene-dark min-h-[100svh] flex flex-col overflow-hidden pt-24">
+        {/* Дэвсгэр: хотын зураг, текст уншигдахын тулд дээр, доор хар давхарга */}
         <div className="absolute inset-0 w-full h-full">
-          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-45" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#070707]/85 via-[#070707]/70 to-[#070707]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#070707] via-[#070707]/45 to-transparent" />
+          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/10 to-transparent" />
         </div>
 
-        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 flex-1 flex flex-col justify-center pt-10">
-          <div className="max-w-5xl">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+        {/* Гол карт — шилэн */}
+        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 flex-1 flex items-center py-10">
+          <div className="glass !rounded-[2rem] max-w-3xl p-6 sm:p-10 lg:p-12">
+            <div className="flex items-center gap-2.5 mb-5">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="eyebrow eyebrow-light">{t('expo_edition')}</span>
             </div>
 
-            <h1 className="display text-[2.6rem] sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6">
+            <h1 className="display text-4xl sm:text-6xl lg:text-[5rem] text-white">
               {t('hero_title')}
             </h1>
 
-            <p className="text-red-500 display text-lg sm:text-2xl md:text-3xl mb-7">
+            <p className="display text-xl sm:text-2xl md:text-3xl text-red-400 mt-3">
               {t('hero_subtitle')}
             </p>
 
-            <p className="text-white/55 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-10">
+            <p className="text-white/75 text-base sm:text-lg leading-relaxed mt-6 max-w-2xl">
               {t('hero_desc')}
             </p>
-
           </div>
         </div>
 
-        {/* Доод мөр: хэзээ / хаана / талбайн захиалга */}
-        <div className="relative z-20 w-full border-t hairline-dark bg-[#070707]/70 backdrop-blur-md">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
-            <div className="py-5 lg:py-7 lg:pr-8">
-              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><Calendar className="h-3 w-3" /> {t('when')}</div>
-              <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('when_date')}</div>
+        {/* Доод мөр: хэзээ / хаана / талбайн захиалга — жижиг шилэн картууд */}
+        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 pb-5 sm:pb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="glass !rounded-2xl p-5">
+              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {t('when')}</div>
+              <div className="text-white font-bold text-base sm:text-lg leading-snug">{t('when_date')}</div>
             </div>
 
-            <div className="py-5 lg:py-7 lg:px-8">
-              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {t('where')}</div>
-              <div className="text-white font-bold text-sm sm:text-lg leading-snug">{t('where_loc')}</div>
+            <div className="glass !rounded-2xl p-5">
+              <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> {t('where')}</div>
+              <div className="text-white font-bold text-base sm:text-lg leading-snug">{t('where_loc')}</div>
             </div>
 
             {/* Хуучин countdown байсан байрлалд — талбайн захиалгын дүүргэлт */}
             {(() => {
               const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 0)));
               return (
-                <div className="py-5 lg:py-7 lg:px-8 sm:border-t lg:border-t-0 hairline-dark">
+                <div className="glass !rounded-2xl p-5">
                   <div className="eyebrow eyebrow-light mb-2">{t('space_booked')}</div>
                   <div className="flex items-center gap-3">
-                    <div className="display text-2xl sm:text-3xl text-white">{pct}%</div>
-                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="display text-3xl text-white tabular-nums">{pct}%</div>
+                    <div className="flex-1 h-1.5 bg-white/15 rounded-full overflow-hidden">
                       <div className="h-full bg-red-500 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
@@ -451,15 +463,10 @@ export default function App() {
             })()}
 
             {/* Талбай захиалах товч */}
-            <div className="py-5 lg:py-7 lg:pl-8 sm:border-t lg:border-t-0 hairline-dark flex items-center">
-              <Link
-                to="/booking"
-                className="w-full inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-6 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-colors"
-              >
-                {t('book_booth')}
-                <CheckCircle2 className="h-4 w-4 opacity-80" />
-              </Link>
-            </div>
+            <Link to="/booking" className="btn btn-red btn-lg !h-auto min-h-[84px] !rounded-2xl text-base sm:text-lg">
+              {t('book_booth')}
+              <CheckCircle2 className="h-5 w-5 opacity-90" />
+            </Link>
           </div>
         </div>
       </section>
@@ -477,22 +484,21 @@ export default function App() {
       </Suspense>
 
       {/* Categories */}
-      <section id="categories" className="section-pad surface border-t hairline relative overflow-hidden">
+      <section id="categories" className="section-pad scene-dark relative overflow-hidden">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 relative z-10">
-          <div className="mb-12 md:mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
             <div className="eyebrow mb-4">{t('expo_edition')}</div>
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 max-w-3xl">
+            <h2 className="display text-4xl sm:text-5xl lg:text-6xl fg">
               {t('cat_title')}
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
             {([
               {
                 icon: Building2,
                 titleKey: 'cat1_title',
-                accent: 'from-blue-600 to-blue-900',
-                ring: 'group-hover:ring-blue-500/30',
+                chip: 'bg-indigo-500/15 text-indigo-300',
                 items: [
                   { key: 'cat1_1', icon: Building2 },
                   { key: 'cat1_2', icon: DraftingCompass },
@@ -504,8 +510,7 @@ export default function App() {
               {
                 icon: HardHat,
                 titleKey: 'cat2_title',
-                accent: 'from-red-500 to-rose-700',
-                ring: 'group-hover:ring-red-500/30',
+                chip: 'bg-red-500/15 text-red-300',
                 items: [
                   { key: 'cat2_1', icon: Blocks },
                   { key: 'cat2_2', icon: PaintRoller },
@@ -518,8 +523,7 @@ export default function App() {
               {
                 icon: Truck,
                 titleKey: 'cat3_title',
-                accent: 'from-emerald-500 to-teal-700',
-                ring: 'group-hover:ring-emerald-500/30',
+                chip: 'bg-emerald-500/15 text-emerald-300',
                 items: [
                   { key: 'cat3_1', icon: Tractor },
                   { key: 'cat3_2', icon: Drill },
@@ -533,36 +537,33 @@ export default function App() {
               return (
                 <div
                   key={cat.titleKey}
-                  className="group relative surface-card hover:border-gray-300 transition-colors duration-300 overflow-hidden flex flex-col"
+                  className="group card-surface p-6 lg:p-8 flex flex-col transition-colors duration-300 hover:bg-white/[0.09]"
                 >
-
-                  <div className="p-7 lg:p-8 flex flex-col flex-grow">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${cat.accent} text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300`}>
-                        <CatIcon className="h-7 w-7" strokeWidth={2} />
-                      </div>
-                      <h3 className="display-sm text-lg lg:text-xl text-blue-950">
-                        {t(cat.titleKey)}
-                      </h3>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className={`w-14 h-14 rounded-2xl ${cat.chip} flex items-center justify-center shrink-0`}>
+                      <CatIcon className="h-7 w-7" strokeWidth={1.8} />
                     </div>
-
-                    <ul className="space-y-1.5">
-                      {cat.items.map((item) => {
-                        const ItemIcon = item.icon;
-                        return (
-                          <li
-                            key={item.key}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50 transition-colors"
-                          >
-                            <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${cat.accent} bg-opacity-10 flex items-center justify-center shrink-0`}>
-                              <ItemIcon className="h-4 w-4 text-white" strokeWidth={2.2} />
-                            </span>
-                            <span className="text-gray-600 font-medium text-sm sm:text-[15px]">{t(item.key)}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    <h3 className="display-sm text-lg lg:text-xl fg">
+                      {t(cat.titleKey)}
+                    </h3>
                   </div>
+
+                  <ul className="space-y-1">
+                    {cat.items.map((item) => {
+                      const ItemIcon = item.icon;
+                      return (
+                        <li
+                          key={item.key}
+                          className="flex items-center gap-3 rounded-2xl px-2 py-2 hover:bg-white/5 transition-colors"
+                        >
+                          <span className={`w-9 h-9 rounded-xl ${cat.chip} flex items-center justify-center shrink-0`}>
+                            <ItemIcon className="h-[18px] w-[18px]" strokeWidth={2} />
+                          </span>
+                          <span className="fg-2 text-sm sm:text-[15px]">{t(item.key)}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               );
             })}
@@ -583,20 +584,20 @@ export default function App() {
       </Suspense>
 
       {/* Organizers Section */}
-      <section className="surface pt-16 pb-8 border-t hairline">
+      <section className="scene-light pt-16 md:pt-24 pb-8">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="surface-card p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
+          <div className="card-surface p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
-              <div className="eyebrow mb-6 ">{t('org_main')}</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-inline-flex items-center justify-center hover:opacity-80 transition-opacity" title="BARILGA.MN">
+              <div className="eyebrow mb-6">{t('org_main')}</div>
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-white rounded-2xl px-6 py-4 hover:opacity-80 transition-opacity" title="BARILGA.MN">
                 <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain" />
               </a>
             </div>
 
-            <div className="w-full h-px lg:w-px lg:h-24 bg-gray-100 my-8 lg:my-0"></div>
+            <div className="w-full h-px lg:w-px lg:h-24 bg-[var(--card-line)] my-8 lg:my-0"></div>
 
             <div className="lg:w-2/3 flex flex-col items-center">
-              <div className="eyebrow mb-6 ">{t('org_co')}</div>
+              <div className="eyebrow mb-6">{t('org_co')}</div>
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 items-start">
                 {data.organizers.map(org => {
                   const resolveOrgUrl = (o: typeof org): string | undefined => {
@@ -616,10 +617,10 @@ export default function App() {
                       className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group"
                       title={org.name}
                     >
-                      <div className="h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center">
+                      <div className="h-20 w-20 lg:h-24 lg:w-24 flex items-center justify-center bg-white rounded-2xl p-3">
                         <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                       </div>
-                      <span className="text-[11px] text-gray-500 uppercase leading-snug font-semibold">{org.name}</span>
+                      <span className="text-xs fg-2 leading-snug font-medium">{org.name}</span>
                     </a>
                   );
                 })}
@@ -631,7 +632,7 @@ export default function App() {
 
       {/* Sponsors Section */}
       {data.sponsors && data.sponsors.length > 0 && (
-        <section className="surface pb-16 pt-4">
+        <section className="scene-light pb-16 md:pb-24 pt-4">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 space-y-10">
             {(() => {
               const groups = [
@@ -647,17 +648,17 @@ export default function App() {
                 if (items.length === 0) return null;
                 return (
                   <div key={group.type} className="flex flex-col items-center">
-                    <div className="eyebrow mb-6 text-center ">{group.label}</div>
+                    <div className="eyebrow mb-6 text-center">{group.label}</div>
                     <div className={`flex flex-wrap justify-center gap-8 sm:gap-12 items-center ${group.offset}`}>
                       {items.map(s => {
                         const Tag: any = s.url ? 'a' : 'div';
                         const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
                         return (
                           <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
-                            <div className={`${group.size} w-full flex items-center justify-center`}>
+                            <div className={`${group.size} w-full flex items-center justify-center bg-white rounded-2xl p-3 sm:p-4 border border-[var(--card-line)]`}>
                               <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                             </div>
-                            <span className="text-[11px] text-gray-500 leading-snug font-semibold">{s.name}</span>
+                            <span className="text-xs fg-2 leading-snug font-medium">{s.name}</span>
                           </Tag>
                         );
                       })}
@@ -691,14 +692,14 @@ export default function App() {
 
       {/* Талбайн сонголт — изометрик зураглал */}
       {data.showFloorPlan && (
-      <section id="floorplan" className="section-pad surface border-t hairline">
+      <section id="floorplan" className="section-pad scene-light">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="mb-12">
+          <div className="mb-12 text-center max-w-3xl mx-auto">
             <div className="eyebrow mb-4">{t('expo_edition')}</div>
-            <h2 className="display text-3xl sm:text-5xl md:text-6xl text-blue-950 mb-4 max-w-3xl">
+            <h2 className="display text-4xl sm:text-5xl lg:text-6xl fg mb-4">
               {t('plan_title')}
             </h2>
-            <p className="text-gray-500 text-sm md:text-base max-w-2xl">
+            <p className="fg-2 text-base md:text-lg">
               {t('plan_desc')}
             </p>
           </div>
@@ -713,7 +714,7 @@ export default function App() {
           <div className="text-center mt-8">
             <Link
               to="/booking"
-              className="inline-block bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-900/20"
+              className="btn btn-ink btn-lg"
             >
               {t('plan_cta')} →
             </Link>
@@ -791,11 +792,11 @@ export default function App() {
 
       {/* Footer & Contact */}
       {!isAdminRoute && (
-        <footer id="contact" className="surface-dark text-white pt-16 pb-10 border-t hairline">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <footer id="contact" className="scene-ink pt-16 md:pt-24 pb-10">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
           {/* Venue Highlight */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 items-stretch">
-            <div className="rounded-2xl overflow-hidden shadow-lg border border-white/10">
+            <div className="rounded-[2rem] overflow-hidden border border-white/10">
               <img
                 src="/venue-hall.jpeg"
                 alt={t('venue_title')}
@@ -803,7 +804,7 @@ export default function App() {
                 className="w-full h-full object-cover min-h-[220px]"
               />
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col justify-center gap-5">
+            <div className="card-surface !rounded-[2rem] p-6 sm:p-10 flex flex-col justify-center gap-6">
               <div>
                 <div className="eyebrow eyebrow-light mb-2">{t('venue_title')}</div>
                 <p className="display-sm text-xl sm:text-3xl text-white">
@@ -812,7 +813,7 @@ export default function App() {
               </div>
               <div className="space-y-3.5 pt-1">
                 <div className="flex items-center gap-3">
-                  <span className="shrink-0 w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center">
+                  <span className="shrink-0 w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
                     <Calendar className="h-4.5 w-4.5 text-red-400" />
                   </span>
                   <div className="text-sm">
@@ -821,13 +822,13 @@ export default function App() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="shrink-0 w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center">
+                  <span className="shrink-0 w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
                     <MapPin className="h-4.5 w-4.5 text-red-400" />
                   </span>
                   <p className="text-sm text-white font-semibold">{t('venue_location')}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="shrink-0 w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center">
+                  <span className="shrink-0 w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
                     <Car className="h-4.5 w-4.5 text-red-400" />
                   </span>
                   <p className="text-sm text-white font-semibold">{t('venue_parking')}</p>
@@ -855,7 +856,7 @@ export default function App() {
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-red-400 mt-1 shrink-0" />
                   <div className="text-white/60 text-sm">
-                    <p className="text-white/60 text-xs uppercase tracking-wider mb-0.5">{t('contact_office_addr')}</p>
+                    <p className="text-white/45 text-xs mb-0.5">{t('contact_office_addr')}</p>
                     <p>{data.contact.address}</p>
                   </div>
                 </div>
@@ -864,7 +865,7 @@ export default function App() {
                   <div className="flex items-start gap-3">
                     <Building2 className="h-5 w-5 text-red-400 mt-1 shrink-0" />
                     <div className="text-white/60 text-sm">
-                      <p className="text-white/60 text-xs uppercase tracking-wider mb-0.5">{t('contact_venue_addr')}</p>
+                      <p className="text-white/45 text-xs mb-0.5">{t('contact_venue_addr')}</p>
                       <p>{data.contact.venueAddress}</p>
                     </div>
                   </div>
@@ -898,17 +899,17 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-4 pt-4">
-                <a href={data.contact.facebookUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-blue-600 transition-colors">
+                <a href={data.contact.facebookUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2.5 rounded-full hover:bg-white/20 transition-colors">
                   <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
                   </svg>
                 </a>
-                <a href={data.contact.youtubeUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-red-500 transition-colors">
+                <a href={data.contact.youtubeUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2.5 rounded-full hover:bg-white/20 transition-colors">
                   <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                   </svg>
                 </a>
-                <a href={data.contact.instagramUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-red-500 transition-colors">
+                <a href={data.contact.instagramUrl} target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2.5 rounded-full hover:bg-white/20 transition-colors">
                   <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
                   </svg>
@@ -917,7 +918,7 @@ export default function App() {
             </div>
 
             {/* Google Maps Location */}
-            <div className="lg:col-span-2 h-64 md:h-full min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-white/10">
+            <div className="lg:col-span-2 h-64 md:h-full min-h-[300px] rounded-[2rem] overflow-hidden border border-white/10">
               <iframe
                 src="https://maps.google.com/maps?q=47.8543437,106.784328&t=&z=17&ie=UTF8&iwloc=&output=embed"
                 width="100%"
@@ -947,10 +948,10 @@ export default function App() {
                     key={l.to}
                     to={l.to}
                     onClick={() => window.scrollTo({ top: 0 })}
-                    className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10
-                               hover:border-red-400/40 rounded-xl px-4 py-3.5 transition-colors group"
+                    className="flex items-center gap-3 card-surface !rounded-2xl hover:bg-white/10
+                               px-4 py-3.5 transition-colors group"
                   >
-                    <span className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
+                    <span className="w-9 h-9 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4 text-red-400" />
                     </span>
                     <span className="text-sm text-white/60 group-hover:text-white font-medium">{l.label}</span>
@@ -960,7 +961,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="text-center text-sm text-gray-400 pt-6 border-t border-white/10">
+          <div className="text-center text-sm text-white/45 pt-6 border-t border-white/10">
             <div>&copy; {new Date().getFullYear()} {t('copyright')}</div>
           </div>
         </div>
