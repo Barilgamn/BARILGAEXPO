@@ -403,14 +403,17 @@ export default function App() {
             <section id="home" className="relative scene-dark min-h-[100svh] flex flex-col overflow-hidden pt-24">
         {/* Дэвсгэр: хотын зураг, текст уншигдахын тулд дээр, доор хар давхарга */}
         <div className="absolute inset-0 w-full h-full">
-          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-80" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/85" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/10 to-transparent" />
+          {/* Үзэсгэлэнгийн танхимын зураг. Машины гэрлийн цацраг нь шөнийн хотын
+              зурагт тааруулж зурсан тул энд унтраасан, зураг 1600px тул зумыг
+              бага (1.24) байлгана. */}
+          <CityTimelapse src="/hero-hall.webp" trails={false} zoom={1.24} rise={4} focus="44% 30%" className="w-full h-full opacity-95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/25 to-transparent" />
         </div>
 
         {/* Гол карт — шилэн */}
         <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 flex-1 flex items-center py-10">
-          <div className="glass !rounded-[2rem] max-w-3xl p-6 sm:p-10 lg:p-12">
+          <div className="glass !rounded-[2rem] !bg-black/40 max-w-3xl p-6 sm:p-10 lg:p-12">
             <div className="flex items-center gap-2.5 mb-5">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="eyebrow eyebrow-light">{t('expo_edition')}</span>
@@ -433,12 +436,12 @@ export default function App() {
         {/* Доод мөр: хэзээ / хаана / талбайн захиалга — жижиг шилэн картууд */}
         <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 pb-5 sm:pb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="glass !rounded-2xl p-5">
+            <div className="glass !rounded-2xl !bg-black/40 p-5">
               <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {t('when')}</div>
               <div className="text-white font-bold text-base sm:text-lg leading-snug">{t('when_date')}</div>
             </div>
 
-            <div className="glass !rounded-2xl p-5">
+            <div className="glass !rounded-2xl !bg-black/40 p-5">
               <div className="eyebrow eyebrow-light mb-2 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> {t('where')}</div>
               <div className="text-white font-bold text-base sm:text-lg leading-snug">{t('where_loc')}</div>
             </div>
@@ -447,7 +450,7 @@ export default function App() {
             {(() => {
               const pct = Math.max(0, Math.min(100, Number(data.boothBookedPercent ?? 0)));
               return (
-                <div className="glass !rounded-2xl p-5">
+                <div className="glass !rounded-2xl !bg-black/40 p-5">
                   <div className="eyebrow eyebrow-light mb-2">{t('space_booked')}</div>
                   <div className="flex items-center gap-3">
                     <div className="display text-3xl text-white tabular-nums">{pct}%</div>

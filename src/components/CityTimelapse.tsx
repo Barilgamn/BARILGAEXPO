@@ -7,6 +7,12 @@ interface Props {
    *  Замын замнал нь шөнийн зурагт тааруулж гараар зурсан тул өдрийн
    *  зураг тавихад унтраана (эс бөгөөс байшин дээгүүр гэрэл гүйнэ). */
   trails?: boolean;
+  /** Төгсгөлд хүрэх зумын хэмжээ (анхдагч 1.38). Нягтрал багатай зурагт жижиг утга өгнө. */
+  zoom?: number;
+  /** Доошилж буй мэт дээш гулсах хэмжээ, % (анхдагч 7). */
+  rise?: number;
+  /** Нарийн/босоо дэлгэцэнд зургийн аль хэсгийг үлдээх (CSS object-position). */
+  focus?: string;
 }
 
 /** Зургийн координат (1600x1351) дахь гол замууд — гэрлийн цацраг эдгээрийг дагаж хөдөлнө. */
@@ -39,10 +45,10 @@ const ROADS: { d: string; color: string; r: number; count: number; dur: number; 
  * бүдгэрч байх үед нөгөө нь бүрэн харагдаж байдаг тул хар цоорхой гарахгүй.
  * Давхарга бүрд өөрийн цацраг, гэрэл багтсан тул зурагтайгаа цуг хөдөлнө.
  */
-const Layer: React.FC<{ src: string; trails: boolean; uid: string; className: string }> = ({ src, trails, uid, className }) => (
+const Layer: React.FC<{ src: string; trails: boolean; uid: string; className: string; focus: string }> = ({ src, trails, uid, className, focus }) => (
   <div className={`ct-pan absolute inset-0 ${className}`}>
     {/* Үндсэн зураг */}
-    <img src={src} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+    <img src={src} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: focus }} />
     {/* Машины гэрлийн урсгал */}
     {trails && (
       <svg
@@ -86,17 +92,20 @@ const Layer: React.FC<{ src: string; trails: boolean; uid: string; className: st
         alt=""
         aria-hidden
         className="ct-glow absolute inset-0 w-full h-full object-cover"
-        style={{ mixBlendMode: 'screen' }}
+        style={{ mixBlendMode: 'screen', objectPosition: focus }}
       />
     )}
   </div>
 );
 
-export const CityTimelapse: React.FC<Props> = ({ src, className = '', trails = true }) => {
+export const CityTimelapse: React.FC<Props> = ({ src, className = '', trails = true, zoom = 1.38, rise = 7, focus = '50% 50%' }) => {
   return (
-    <div className={`absolute inset-0 overflow-hidden ${className}`}>
-      <Layer src={src} trails={trails} uid="a" className="ct-a" />
-      <Layer src={src} trails={trails} uid="b" className="ct-b" />
+    <div
+      className={`absolute inset-0 overflow-hidden ${className}`}
+      style={{ ['--ct-zoom' as string]: zoom, ['--ct-rise' as string]: `-${rise}%` }}
+    >
+      <Layer src={src} trails={trails} uid="a" className="ct-a" focus={focus} />
+      <Layer src={src} trails={trails} uid="b" className="ct-b" focus={focus} />
       <style>{`
         .ct-pan {
           /* Дээд тал руу ойртсон цэг — камер хотын төв рүү доошилж байгаа мэт */
@@ -120,7 +129,7 @@ export const CityTimelapse: React.FC<Props> = ({ src, className = '', trails = t
           0%   { opacity: 0; transform: scale(1.06) translate3d(0, 0, 0); }
           12%  { opacity: 1; }
           88%  { opacity: 1; }
-          100% { opacity: 0; transform: scale(1.38) translate3d(0, -7%, 0); }
+          100% { opacity: 0; transform: scale(var(--ct-zoom, 1.38)) translate3d(0, var(--ct-rise, -7%), 0); }
         }
         @keyframes ctGlow {
           0%, 100% { opacity: 0.06; }
