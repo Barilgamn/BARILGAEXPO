@@ -133,20 +133,11 @@ export default function App() {
     }
   };
 
-  // Цэс: дээр нь тунгалаг, гүйлгэхэд шилэн болно, доош гүйлгэхэд нуугдаж
-  // дээш гүйлгэхэд буцаж гарна (toki.mn шиг).
-  const [isNavHidden, setIsNavHidden] = useState(false);
+  // Цэс: дээр нь өндөр, тунгалаг. Гүйлгэсний дараа нарийсч, хар шил болоод
+  // хуудас дээр үргэлж үлдэнэ.
   useEffect(() => {
-    let lastY = window.scrollY;
-    const handleScroll = () => {
-      const y = window.scrollY;
-      setIsScrolled(y > 20);
-      const goingDown = y > lastY + 4;
-      const goingUp = y < lastY - 4;
-      if (y < 120 || goingUp) setIsNavHidden(false);
-      else if (goingDown) setIsNavHidden(true);
-      lastY = y;
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -280,24 +271,24 @@ export default function App() {
     <div className="min-h-screen surface font-sans text-gray-800">
       {/* Navbar segment */}
       {!isAdminRoute && (
-        <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle} ${isNavHidden && !isMenuOpen ? '-translate-y-full' : 'translate-y-0'}`}>
+        <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle}`}>
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16">
-            <div className="relative flex items-center justify-between h-20 sm:h-24">
+            <div className={`relative flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-14' : 'h-20 sm:h-24'}`}>
               {/* Лого */}
               <Link to="/" onClick={(e) => handleMenuClick('/', e)} className="flex items-center min-w-0 shrink-0">
                 <img
                   src={data.logoUrl}
                   alt="Barilga Expo Logo"
                   referrerPolicy="no-referrer"
-                  className="h-12 sm:h-16 md:h-[4.5rem] object-contain brightness-0 invert shrink-0"
+                  className={`object-contain brightness-0 invert shrink-0 transition-all duration-300 ${isScrolled ? 'h-8 sm:h-9' : 'h-12 sm:h-16 md:h-[4.5rem]'}`}
                 />
               </Link>
 
               {/* Голд хөвж буй дугуй цэс */}
-              <div className="hidden xl:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 p-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/10">
+              <div className={`hidden xl:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 rounded-full bg-white/10 backdrop-blur-xl border border-white/10 transition-all duration-300 ${isScrolled ? 'p-1' : 'p-2'}`}>
                 {menus.map(menu => {
                   const active = menu.path === location.pathname;
-                  const cls = `px-5 h-12 inline-flex items-center rounded-full text-[17px] font-medium transition-colors ${
+                  const cls = `inline-flex items-center rounded-full font-medium transition-all duration-300 ${isScrolled ? 'px-4 h-9 text-[15px]' : 'px-5 h-12 text-[17px]'} ${
                     active ? 'bg-white/15 text-white' : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`;
                   // Админы өгөгдөлд цэсний нэр бүгд том үсгээр хадгалагдсан. Эхний үсгийг
@@ -318,7 +309,7 @@ export default function App() {
                 <div className="hidden xl:block">
                   <button
                     onClick={() => setIsRegModalOpen(true)}
-                    className="btn btn-red !h-12 !px-6 text-base"
+                    className={`btn btn-red text-base transition-all duration-300 ${isScrolled ? '!h-9 !px-5 !text-[15px]' : '!h-12 !px-6'}`}
                   >
                     {t('nav_register')}
                   </button>
@@ -328,9 +319,9 @@ export default function App() {
                   <button
                     onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
                     aria-label="Language"
-                    className="flex items-center gap-1 h-12 px-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-xl transition-colors"
+                    className={`flex items-center gap-1 rounded-full transition-all duration-300 ${isScrolled ? 'h-9 px-3' : 'h-12 px-3.5'} bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-xl`}
                   >
-                    <span className="text-xl leading-none">
+                    <span className={`leading-none ${isScrolled ? 'text-base' : 'text-xl'}`}>
                       {lang === 'mn' ? '🇲🇳' : lang === 'en' ? '🇬🇧' : lang === 'zh' ? '🇨🇳' : lang === 'ru' ? '🇷🇺' : '🇰🇷'}
                     </span>
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isLangMenuOpen ? 'rotate-180' : ''}`} />
@@ -361,7 +352,7 @@ export default function App() {
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   aria-label="Menu"
-                  className="xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-xl transition-colors"
+                  className={`xl:hidden flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-xl transition-all duration-300 ${isScrolled ? 'w-9 h-9' : 'w-12 h-12'}`}
                 >
                   {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 </button>
