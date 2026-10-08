@@ -14,6 +14,7 @@ import { supabase } from './supabase';
 import { ChatWidget } from './components/ChatWidget';
 import { NewsPopup } from './components/NewsPopup';
 import { CityTimelapse } from './components/CityTimelapse';
+import { AutumnLeaves } from './components/AutumnLeaves';
 import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
@@ -271,7 +272,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen surface font-sans text-gray-800">
+    <div className="min-h-screen surface font-sans text-gray-800" data-season={data.autumnTheme !== false ? 'autumn' : undefined}>
       {/* Navbar segment */}
       {!isAdminRoute && (
         <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${navStyle}`}>
@@ -406,7 +407,10 @@ export default function App() {
           <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/85" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/10 to-transparent" />
+          {/* Намрын дулаан өнгө + унаж буй навч (data-season="autumn" үед л харагдана) */}
+          <div className="autumn-warm absolute inset-0" />
         </div>
+        {data.autumnTheme !== false && <AutumnLeaves />}
 
         {/* Гол карт — шилэн */}
         <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 flex-1 flex items-center py-10">
@@ -1124,7 +1128,7 @@ export default function App() {
       {!isAdminRoute && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className={`fixed right-4 sm:right-6 bottom-20 sm:bottom-24 z-50 p-2.5 sm:p-3 rounded-full bg-blue-900/40 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-blue-900/60 transition-all duration-300 shadow-lg ${
+          className={`fixed right-4 sm:right-6 bottom-20 sm:bottom-24 z-50 p-2.5 sm:p-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 text-white/80 hover:text-white hover:bg-black/70 transition-all duration-300 shadow-lg ${
             isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
           }`}
           aria-label="Дээш гүйлгэх"

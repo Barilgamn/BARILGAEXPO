@@ -95,6 +95,9 @@ export interface SiteData {
    *  нуугдаж, админаас асаахад гарч ирнэ. */
   showProgram?: boolean;
   showWinners?: boolean;
+  /** Намрын өнгө аяс (дулаан өнгө, унаж буй навч). Утга байхгүй бол асаалттай;
+   *  зөвхөн false үед унтарна. */
+  autumnTheme?: boolean;
   showVideo?: boolean;
   showParticipants?: boolean;
   reels?: Reel[];              // Нүүрэнд story маягаар харагдах Facebook reel-үүд

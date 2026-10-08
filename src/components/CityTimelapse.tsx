@@ -48,7 +48,7 @@ const ROADS: { d: string; color: string; r: number; count: number; dur: number; 
 const Layer: React.FC<{ src: string; trails: boolean; uid: string; className: string; focus: string }> = ({ src, trails, uid, className, focus }) => (
   <div className={`ct-pan absolute inset-0 ${className}`}>
     {/* Үндсэн зураг */}
-    <img src={src} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: focus }} />
+    <img src={src} alt="" aria-hidden className="ct-base absolute inset-0 w-full h-full object-cover" style={{ objectPosition: focus }} />
     {/* Машины гэрлийн урсгал */}
     {trails && (
       <svg

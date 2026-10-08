@@ -184,3 +184,72 @@ body {
 .goog-logo-link {
   display:none !important;
 } 
+
+
+/* ── Намрын өнгө аяс ─────────────────────────────────────────────────────
+   Үндсэн элемент дээр data-season="autumn" тавигдсан үед л үйлчилнэ
+   (админаас асаах/унтраана). Бүх зүйл CSS хувьсагч, нэмэлт давхарга болохоор
+   унтраахад өмнөх загвар яг хэвээр нь буцна.
+   Брэндийн улаан (товч, лого) хэвээр, чимэглэлийн өнгөнүүд л дулаарна. */
+[data-season="autumn"] .scene-light {
+  --fg: #2a1d12; --fg-2: rgba(42, 29, 18, 0.66); --fg-3: rgba(42, 29, 18, 0.48);
+  --bg: #fcf7ee; --card: #f5ecde; --card-line: rgba(90, 55, 20, 0.13); --chip: rgba(90, 55, 20, 0.08);
+}
+[data-season="autumn"] .scene-dark {
+  --fg: #fff7ec; --fg-2: rgba(255, 238, 218, 0.72); --fg-3: rgba(255, 238, 218, 0.48);
+  --bg: #0d0805; --card: rgba(255, 210, 160, 0.06); --card-line: rgba(255, 210, 160, 0.13); --chip: rgba(255, 210, 160, 0.10);
+}
+[data-season="autumn"] .scene-ink {
+  --fg: #fff7ec; --fg-2: rgba(255, 238, 218, 0.72); --fg-3: rgba(255, 238, 218, 0.48);
+  --bg: #1c130c; --card: rgba(255, 210, 160, 0.06); --card-line: rgba(255, 210, 160, 0.13); --chip: rgba(255, 210, 160, 0.10);
+}
+[data-season="autumn"] .surface { background: #fcf7ee; }
+[data-season="autumn"] .surface-dark { background: #0d0805; }
+[data-season="autumn"] .btn-ink { background: #2a1d12; }
+[data-season="autumn"] .btn-ink:hover { background: #120b06; }
+
+/* Чимэглэлийн өнгө: улаан → алтлаг/улбар шар, цэнхэр → алт, ногоон → хүрэн ногоон */
+[data-season="autumn"] .scene-dark .text-red-300,
+[data-season="autumn"] .scene-ink .text-red-300 { color: #ffb86b; }
+[data-season="autumn"] .scene-dark .text-red-400,
+[data-season="autumn"] .scene-ink .text-red-400 { color: #ffa24d; }
+[data-season="autumn"] .scene-dark .bg-red-500\/15,
+[data-season="autumn"] .scene-ink .bg-red-500\/15 { background-color: rgba(251, 146, 60, 0.17); }
+[data-season="autumn"] .scene-dark .bg-indigo-500\/15 { background-color: rgba(245, 158, 11, 0.17); }
+[data-season="autumn"] .scene-dark .text-indigo-300 { color: #fcd34d; }
+[data-season="autumn"] .scene-dark .bg-emerald-500\/15 { background-color: rgba(163, 184, 76, 0.17); }
+[data-season="autumn"] .scene-dark .text-emerald-300 { color: #c9d680; }
+[data-season="autumn"] .scene-light .text-red-600 { color: #c2410c; }
+
+/* Нүүрний зураг: дулаан, алтлаг өнгө. Гэрлийн давхарга (.ct-glow) хөндөгдөхгүй. */
+[data-season="autumn"] .ct-base { filter: sepia(0.42) saturate(1.35) hue-rotate(-12deg) contrast(1.05); }
+.autumn-warm { display: none; }
+[data-season="autumn"] .autumn-warm {
+  display: block;
+  background:
+    radial-gradient(120% 85% at 78% 105%, rgba(255, 138, 42, 0.38), transparent 62%),
+    linear-gradient(to top, rgba(120, 52, 10, 0.34), transparent 58%);
+  mix-blend-mode: soft-light;
+}
+
+/* Унаж буй навч */
+.autumn-leaf {
+  will-change: transform, opacity;
+  animation-name: leafFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0;
+}
+@keyframes leafFall {
+  0%   { transform: translate3d(0, -12vh, 0) rotate(var(--r0)); opacity: 0; }
+  8%   { opacity: var(--o); }
+  50%  { transform: translate3d(var(--sway), 50vh, 0) rotate(calc(var(--r0) + 150deg)); }
+  92%  { opacity: var(--o); }
+  100% { transform: translate3d(calc(var(--sway) * -0.4), 108vh, 0) rotate(calc(var(--r0) + 320deg)); opacity: 0; }
+}
+@media (max-width: 640px) {
+  .autumn-leaf:nth-child(n + 11) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .autumn-leaves { display: none; }
+}

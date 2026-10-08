@@ -1082,8 +1082,10 @@ export const AdminPanel: React.FC = () => {
                     { key: 'showParticipants', label: 'Оролцогч байгууллагуудын лого' },
                     { key: 'showWinners',      label: 'Шилдэг байгууллагууд' },
                     { key: 'showProgram',      label: 'Хөтөлбөр' },
+                    { key: 'autumnTheme',      label: 'Намрын өнгө аяс (дулаан өнгө, унаж буй навч)' },
                   ] as const).map(row => {
-                    const on = data[row.key] === true;
+                    // Намрын өнгө аяс анхдагчаар асаалттай (утга байхгүй бол); бусад нь нуугдмал.
+                    const on = row.key === 'autumnTheme' ? data.autumnTheme !== false : data[row.key] === true;
                     return (
                       <button
                         key={row.key}
