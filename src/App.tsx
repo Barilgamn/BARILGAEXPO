@@ -144,8 +144,11 @@ export default function App() {
 
   // Цэсний лого, бичиг нь ЦАГААН. Дээд талд (хуудас бүрийн толгой хар) бүрэн
   // тунгалаг, гүйлгэсний дараа цайвар хэсгүүд дээр ч уншигдахын тулд хар шил.
-  const navStyle = isScrolled
-    ? 'bg-black/70 backdrop-blur-xl'
+  // Дээд тал нь цайвар дэвсгэртэй хуудсууд (цагаан лого, цэс тэнд харагдахгүй)
+  // дээр цэс эхнээсээ хар байна.
+  const lightTopPage = ['/b2b', '/poster'].some(p => location.pathname.startsWith(p));
+  const navStyle = isScrolled || lightTopPage
+    ? 'bg-black/80 backdrop-blur-xl'
     : 'bg-transparent';
 
   /** Хөтөлбөр, мэдээ хоёр одоо бие даасан хуудастай боллоо. Баазад хуучин
