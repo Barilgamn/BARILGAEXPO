@@ -558,8 +558,8 @@ export default function App() {
           <div className="card-surface p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
               <div className="eyebrow mb-6">{t('org_main')}</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-white rounded-2xl px-6 py-4 hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-12 w-auto object-contain" />
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-white rounded-3xl px-8 py-7 lg:px-10 lg:py-9 hover:opacity-80 transition-opacity" title="BARILGA.MN">
+                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-14 lg:h-16 w-auto object-contain" />
               </a>
             </div>
 
@@ -583,13 +583,13 @@ export default function App() {
                       key={org.id}
                       href={url || '#'}
                       {...(url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-36 text-center group"
+                      className="flex flex-col items-center gap-4 hover:opacity-80 transition-opacity w-40 lg:w-52 text-center group"
                       title={org.name}
                     >
-                      <div className="h-20 w-20 lg:h-24 lg:w-24 flex items-center justify-center bg-white rounded-2xl p-3">
+                      <div className="h-28 w-28 lg:h-40 lg:w-40 flex items-center justify-center bg-white rounded-3xl p-4 lg:p-5">
                         <img src={org.logo} alt={org.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                       </div>
-                      <span className="text-xs fg-2 leading-snug font-medium">{org.name}</span>
+                      <span className="text-sm lg:text-base fg-2 leading-snug font-medium">{org.name}</span>
                     </a>
                   );
                 })}
@@ -605,11 +605,11 @@ export default function App() {
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 space-y-10">
             {(() => {
               const groups = [
-                { type: 'main' as const,      label: t('spon_main'),      size: 'h-28 lg:h-36', imgClass: 'w-44 lg:w-56', offset: '' },
+                { type: 'main' as const,      label: t('spon_main'),      size: 'h-36 lg:h-48', imgClass: 'w-56 lg:w-72', offset: '' },
                 // Ерөнхий ивээн тэтгэгчийн хайрцаг өндөр тул зэрэгцүүлэхэд энэ нь
                 // дээшээ суудаг. Зөрүүний хагасаар (24/32px) доошлуулж төвийг нь тааруулна.
-                { type: 'sponsor' as const,   label: t('spon_sponsor'),   size: 'h-16 lg:h-20', imgClass: 'w-32 lg:w-40', offset: 'sm:mt-6 lg:mt-8' },
-                { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-14 lg:h-18', imgClass: 'w-28 lg:w-36', offset: '' },
+                { type: 'sponsor' as const,   label: t('spon_sponsor'),   size: 'h-24 lg:h-32', imgClass: 'w-44 lg:w-56', offset: 'sm:mt-6 lg:mt-8' },
+                { type: 'supporter' as const, label: t('spon_supporter'), size: 'h-20 lg:h-28', imgClass: 'w-40 lg:w-52', offset: '' },
               ];
 
               const renderGroup = (group: typeof groups[number]) => {
@@ -624,10 +624,10 @@ export default function App() {
                         const linkProps = s.url ? { href: s.url, target: '_blank', rel: 'noopener noreferrer' } : {};
                         return (
                           <Tag key={s.id} {...linkProps} className={`flex flex-col items-center gap-3 ${group.imgClass} text-center group ${s.url ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`} title={s.name}>
-                            <div className={`${group.size} w-full flex items-center justify-center bg-white rounded-2xl p-3 sm:p-4 border border-[var(--card-line)]`}>
+                            <div className={`${group.size} w-full flex items-center justify-center bg-white rounded-3xl p-4 sm:p-5 border border-[var(--card-line)]`}>
                               <img src={s.logo} alt={s.name} loading="lazy" referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                             </div>
-                            <span className="text-xs fg-2 leading-snug font-medium">{s.name}</span>
+                            <span className="text-sm lg:text-base fg-2 leading-snug font-medium">{s.name}</span>
                           </Tag>
                         );
                       })}
