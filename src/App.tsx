@@ -558,8 +558,8 @@ export default function App() {
           <div className="card-surface p-8 lg:p-12 lg:flex lg:justify-between lg:items-center gap-8">
             <div className="mb-8 lg:mb-0 lg:w-1/3 flex flex-col items-center text-center">
               <div className="eyebrow mb-6">{t('org_main')}</div>
-              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-white rounded-3xl px-8 py-7 lg:px-10 lg:py-9 hover:opacity-80 transition-opacity" title="BARILGA.MN">
-                <img src="/barilga-mn-logo.png" alt="BARILGA.MN" loading="lazy" className="h-14 lg:h-16 w-auto object-contain" />
+              <a href="https://barilga.mn" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-white rounded-3xl px-8 py-8 lg:px-6 lg:py-7 xl:px-10 xl:py-9 hover:opacity-80 transition-opacity" title="BARILGA.MN">
+                <img src="/barilga-mn.webp" alt="BARILGA.MN" width={1000} height={240} loading="lazy" className="w-52 lg:w-44 xl:w-60 min-[1400px]:w-72 h-auto" />
               </a>
             </div>
 
