@@ -404,7 +404,7 @@ export default function App() {
             <section id="home" className="relative scene-dark min-h-[100svh] flex flex-col overflow-hidden pt-24">
         {/* Дэвсгэр: хотын зураг, текст уншигдахын тулд дээр, доор хар давхарга */}
         <div className="absolute inset-0 w-full h-full">
-          <CityTimelapse src="/hero-city.jpg" className="w-full h-full opacity-80" />
+          <CityTimelapse src="/hero-city.jpg" trails={false} className="w-full h-full opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/85" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/10 to-transparent" />
           {/* Намрын дулаан өнгө + унаж буй навч (data-season="autumn" үед л харагдана) */}
