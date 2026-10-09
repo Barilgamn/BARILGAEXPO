@@ -15,6 +15,7 @@ import { ChatWidget } from './components/ChatWidget';
 import { NewsPopup } from './components/NewsPopup';
 import { CityTimelapse } from './components/CityTimelapse';
 import { AutumnLeaves } from './components/AutumnLeaves';
+import { ISO_ICONS } from './components/iso/icons';
 import { trackVisit } from './utils/analytics';
 
 // Optimize bundle size & performance via dynamic code-splitting
@@ -496,53 +497,20 @@ export default function App() {
 
           <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
             {([
-              {
-                icon: Building2,
-                titleKey: 'cat1_title',
-                chip: 'bg-indigo-500/15 text-indigo-300',
-                items: [
-                  { key: 'cat1_1', icon: Building2 },
-                  { key: 'cat1_2', icon: DraftingCompass },
-                  { key: 'cat1_3', icon: House },
-                  { key: 'cat1_4', icon: KeyRound },
-                  { key: 'cat1_5', icon: Building },
-                ],
-              },
-              {
-                icon: HardHat,
-                titleKey: 'cat2_title',
-                chip: 'bg-red-500/15 text-red-300',
-                items: [
-                  { key: 'cat2_1', icon: Blocks },
-                  { key: 'cat2_2', icon: PaintRoller },
-                  { key: 'cat2_3', icon: PlugZap },
-                  { key: 'cat2_4', icon: ShowerHead },
-                  { key: 'cat2_5', icon: Sofa },
-                  { key: 'cat2_6', icon: Trees },
-                ],
-              },
-              {
-                icon: Truck,
-                titleKey: 'cat3_title',
-                chip: 'bg-emerald-500/15 text-emerald-300',
-                items: [
-                  { key: 'cat3_1', icon: Tractor },
-                  { key: 'cat3_2', icon: Drill },
-                  { key: 'cat3_3', icon: Layers },
-                  { key: 'cat3_4', icon: Caravan },
-                  { key: 'cat3_5', icon: HousePlus },
-                ],
-              },
+              { titleKey: 'cat1_title', items: ['cat1_1', 'cat1_2', 'cat1_3', 'cat1_4', 'cat1_5'] },
+              { titleKey: 'cat2_title', items: ['cat2_1', 'cat2_2', 'cat2_3', 'cat2_4', 'cat2_5', 'cat2_6'] },
+              { titleKey: 'cat3_title', items: ['cat3_1', 'cat3_2', 'cat3_3', 'cat3_4', 'cat3_5'] },
             ] as const).map((cat) => {
-              const CatIcon = cat.icon;
+              // Дүрс бүр нь изометр SVG (components/iso). Түлхүүр нь i18n-ийн түлхүүртэй ижил.
+              const CatIcon = ISO_ICONS[cat.titleKey];
               return (
                 <div
                   key={cat.titleKey}
                   className="group card-surface p-6 lg:p-8 flex flex-col transition-colors duration-300 hover:bg-white/[0.09]"
                 >
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className={`w-14 h-14 rounded-2xl ${cat.chip} flex items-center justify-center shrink-0`}>
-                      <CatIcon className="h-7 w-7" strokeWidth={1.8} />
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="shrink-0 -my-4 -ml-4 transition-transform duration-500 group-hover:scale-105">
+                      <CatIcon size={104} />
                     </div>
                     <h3 className="display-sm text-lg lg:text-xl fg">
                       {t(cat.titleKey)}
@@ -550,17 +518,17 @@ export default function App() {
                   </div>
 
                   <ul className="space-y-1">
-                    {cat.items.map((item) => {
-                      const ItemIcon = item.icon;
+                    {cat.items.map((key) => {
+                      const ItemIcon = ISO_ICONS[key];
                       return (
                         <li
-                          key={item.key}
-                          className="flex items-center gap-3 rounded-2xl px-2 py-2 hover:bg-white/5 transition-colors"
+                          key={key}
+                          className="group/row flex items-center gap-1 rounded-2xl pr-3 hover:bg-white/5 transition-colors"
                         >
-                          <span className={`w-9 h-9 rounded-xl ${cat.chip} flex items-center justify-center shrink-0`}>
-                            <ItemIcon className="h-[18px] w-[18px]" strokeWidth={2} />
+                          <span className="shrink-0 -my-2 -ml-2 transition-transform duration-300 group-hover/row:-translate-y-0.5 group-hover/row:scale-110">
+                            <ItemIcon size={72} />
                           </span>
-                          <span className="fg-2 text-sm sm:text-[15px]">{t(item.key)}</span>
+                          <span className="fg-2 text-sm sm:text-[15px] leading-snug">{t(key)}</span>
                         </li>
                       );
                     })}
