@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Users, Eye, TrendingUp, Award } from "lucide-react";
+import { ISO_ICONS } from "./iso/icons";
 import { useTranslation } from "../i18n";
 
 interface CounterProps {
@@ -84,7 +84,6 @@ export const StatsSection: React.FC = () => {
       suffix: "+",
       label: t('stat1_lab'),
       description: t('stat1_desc'),
-      icon: Users,
       color: "from-red-400 to-teal-500",
     },
     {
@@ -93,7 +92,6 @@ export const StatsSection: React.FC = () => {
       suffix: "+",
       label: t('stat2_lab'),
       description: t('stat2_desc'),
-      icon: Eye,
       color: "from-blue-400 to-indigo-500",
     },
     {
@@ -102,7 +100,6 @@ export const StatsSection: React.FC = () => {
       suffix: <span className="block text-base sm:text-2xl md:text-3xl mt-0.5 sm:mt-1 tracking-normal font-bold">{t('stat3_suf')}</span>,
       label: t('stat3_lab'),
       description: t('stat3_desc'),
-      icon: TrendingUp,
       color: "from-red-400 to-red-500",
     },
     {
@@ -111,7 +108,6 @@ export const StatsSection: React.FC = () => {
       suffix: <span className="block text-base sm:text-2xl md:text-3xl mt-0.5 sm:mt-1 tracking-normal font-bold">{t('stat4_suf')}</span>,
       label: t('stat4_lab'),
       description: t('stat4_desc'),
-      icon: Award,
       color: "from-red-400 to-rose-500",
     },
   ];
@@ -125,15 +121,15 @@ export const StatsSection: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => {
-            const Icon = stat.icon;
+            const Icon = ISO_ICONS[stat.id];
             return (
               <div
                 key={stat.id}
                 id={stat.id}
-                className="glass !rounded-3xl p-6 sm:p-7 flex flex-col"
+                className="group/stat glass !rounded-3xl p-6 sm:p-7 flex flex-col"
               >
-                <div className="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center mb-8">
-                  <Icon className="h-6 w-6 text-red-300" strokeWidth={1.8} />
+                <div className="-mt-4 -ml-3 mb-1 w-fit transition-transform duration-500 group-hover/stat:scale-105">
+                  <Icon size={104} />
                 </div>
                 <div className="display text-4xl sm:text-5xl text-white tabular-nums">
                   <AnimatedCounter end={stat.end} suffix={stat.suffix} />

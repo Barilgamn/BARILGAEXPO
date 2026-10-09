@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  IsoSvg, Box, Cyl, Cone, Ball, Tree, Pine, RoofX, RoofY, Pyramid, ExtrudeX, WinsL, WinsR, Quad, Line, Poly, C, P, pts,
+  IsoSvg, TextL, Box, Cyl, Cone, Ball, Tree, Pine, RoofX, RoofY, Pyramid, ExtrudeX, WinsL, WinsR, Quad, Line, Poly, C, P, pts,
   LEAF, WOOD_DARK, type Shade,
 } from './iso';
 
@@ -455,10 +455,89 @@ export const Pavilion: React.FC<IconProps> = ({ size }) => (
   </IsoSvg>
 );
 
+
+/* ═════════ Статистикийн дүрсүүд ═════════ */
+
+const SKIN: Shade = { t: '#ffe6cb', l: '#f3c6a0', r: '#d8a47c' };
+const Person: React.FC<{ x: number; y: number; z?: number; shirt: Shade; h?: number }> = ({ x, y, z = 0, shirt, h = 1.3 }) => (
+  <g>
+    <Cyl x={x} y={y} z={z} r={0.5} h={h} c={shirt} />
+    <Ball x={x} y={y} z={z + h + 0.42} r={0.5} c={SKIN} />
+  </g>
+);
+
+export const StatExhibitors: React.FC<IconProps> = ({ size }) => (
+  <IsoSvg size={size}>
+    <Tree x={6.6} y={1.8} s={0.75} />
+    <Box x={1.2} y={1.4} w={5.0} d={0.4} h={4.0} c={C.blue} />
+    <Quad p={[[1.8, 1.8, 3.0], [5.6, 1.8, 3.0], [5.6, 1.8, 3.6], [1.8, 1.8, 3.6]]} fill="#ffffff" />
+    <Quad p={[[1.8, 1.8, 1.6], [3.1, 1.8, 1.6], [3.1, 1.8, 2.7], [1.8, 1.8, 2.7]]} fill="#ff9a3c" />
+    <Quad p={[[3.4, 1.8, 2.1], [5.6, 1.8, 2.1], [5.6, 1.8, 2.7], [3.4, 1.8, 2.7]]} fill="#ffffff" />
+    <Quad p={[[3.4, 1.8, 1.6], [4.9, 1.8, 1.6], [4.9, 1.8, 1.95], [3.4, 1.8, 1.95]]} fill="#bcd0fb" />
+    <Box x={1.6} y={4.0} w={3.8} d={1.5} h={1.3} c={C.wood} />
+    <Box x={1.5} y={3.9} z={1.3} w={4.0} d={1.7} h={0.2} c={C.white} />
+    <Box x={2.3} y={4.4} z={1.5} w={1.0} d={0.7} h={0.55} c={C.dark} />
+    <Quad p={[[2.4, 5.1, 1.55], [3.2, 5.1, 1.55], [3.2, 5.1, 2.0], [2.4, 5.1, 2.0]]} fill="#7ee0a0" />
+    <Person x={6.0} y={4.6} shirt={C.orange} />
+  </IsoSvg>
+);
+
+export const StatVisitors: React.FC<IconProps> = ({ size }) => {
+  // Хойноос урд руу (x+y өсөхөөр) зурна — эс бөгөөс ойр хүн холын хүнийг буруу дарна.
+  const spots: [number, number, Shade, number][] = [
+    [1.9, 2.3, C.blue, 1.3], [4.1, 1.7, C.red, 1.1], [6.1, 2.5, C.yellow, 1.3],
+    [2.7, 4.3, C.moss, 1.1], [4.9, 3.9, C.orange, 1.3], [6.5, 5.1, C.solar, 1.1],
+    [3.3, 6.3, C.red, 1.3], [5.2, 6.3, C.moss, 1.1],
+  ];
+  const sorted = [...spots].sort((a, b) => a[0] + a[1] - (b[0] + b[1]));
+  return (
+    <IsoSvg size={size}>
+      {sorted.map(([x, y, c, h], i) => <Person key={i} x={x} y={y} shirt={c} h={h} />)}
+    </IsoSvg>
+  );
+};
+
+export const StatGrowth: React.FC<IconProps> = ({ size }) => {
+  const [ax, ay] = P(1.5, 3.2, 3.3);
+  const [bx, by] = P(5.6, 3.2, 6.4);
+  const ang = Math.atan2(by - ay, bx - ax);
+  const head = [[0, 0], [-3.2, -1.9], [-3.2, 1.9]].map(([u, v]) => [bx + u * Math.cos(ang) - v * Math.sin(ang), by + u * Math.sin(ang) + v * Math.cos(ang)]);
+  return (
+    <IsoSvg size={size}>
+      <Box x={0.9} y={2.2} w={1.0} d={1.9} h={1.6} c={C.orange} />
+      <Box x={2.1} y={2.2} w={1.0} d={1.9} h={2.6} c={C.orange} />
+      <Box x={3.3} y={2.2} w={1.0} d={1.9} h={3.8} c={C.orange} />
+      <Box x={4.5} y={2.2} w={1.0} d={1.9} h={5.2} c={C.yellow} />
+      <line x1={ax} y1={ay} x2={bx} y2={by} stroke="#7fd36b" strokeWidth={1.7} strokeLinecap="round" />
+      <polygon points={head.map(p => p.map(n => Math.round(n * 100) / 100).join(',')).join(' ')} fill="#7fd36b" stroke="rgba(28,16,8,.3)" strokeWidth={0.4} strokeLinejoin="round" />
+      {[0, 1, 2].map(i => <Cyl key={i} x={6.2} y={5.9} z={i * 0.45} r={0.95} h={0.45} c={C.yellow} core="#e0a528" />)}
+      {[0, 1].map(i => <Cyl key={`s${i}`} x={3.6} y={6.3} z={i * 0.45} r={0.8} h={0.45} c={C.yellow} core="#e0a528" />)}
+    </IsoSvg>
+  );
+};
+
+export const StatEdition: React.FC<IconProps> = ({ size }) => (
+  <IsoSvg size={size}>
+    {/* Гурван тавцан x+y нь тэнцүү (дэлгэцийн хэвтээ чиглэлд) тул нэгийг нь нөгөө нь халхлахгүй */}
+    <Box x={4.9} y={1.3} w={1.8} d={1.8} h={1.1} c={{ t: '#f3d0a8', l: '#dca978', r: '#bc8a54' }} />
+    <TextL x={5.8} y={3.1} z={0.3} size={0.85} fill="#8a5a2a">3</TextL>
+    <Box x={3.1} y={3.1} w={1.8} d={1.8} h={2.4} c={C.yellow} />
+    <TextL x={4.0} y={4.9} z={0.65} size={1.45} fill="#ffffff">1</TextL>
+    <Box x={3.52} y={3.52} z={2.4} w={0.96} d={0.96} h={0.3} c={C.orange} />
+    <Cyl x={4.0} y={4.0} z={2.7} r={0.22} h={0.7} c={C.yellow} />
+    <Cyl x={4.0} y={4.0} z={3.4} r={0.85} h={1.15} c={C.yellow} core="#a8700e" />
+    <Box x={2.9} y={3.86} z={3.7} w={0.28} d={0.28} h={0.5} c={C.yellow} hi={false} />
+    <Box x={4.82} y={3.86} z={3.7} w={0.28} d={0.28} h={0.5} c={C.yellow} hi={false} />
+    <Box x={1.3} y={4.9} w={1.8} d={1.8} h={1.6} c={{ t: '#eef1f6', l: '#cdd5e0', r: '#aeb8c8' }} />
+    <TextL x={2.2} y={6.7} z={0.45} size={1.0} fill="#6b7686">2</TextL>
+  </IsoSvg>
+);
+
 /** Түлхүүр → дүрс. Түлхүүр нь i18n-ийн ангилал/зүйлийн түлхүүртэй ижил. */
 export const ISO_ICONS: Record<string, React.FC<IconProps>> = {
   cat1_title: Skyline, cat2_title: MaterialsCat, cat3_title: Pavilion,
   cat1_1: Tower, cat1_2: Cabin, cat1_3: Interior, cat1_4: Blueprint, cat1_5: HouseKey,
   cat2_1: Bricks, cat2_2: GreenBuilding, cat2_3: Solar, cat2_4: Heating, cat2_5: Crane, cat2_6: Engineering,
+  'stat-exhibitors': StatExhibitors, 'stat-visitors': StatVisitors, 'stat-sales': StatGrowth, 'stat-editions': StatEdition,
   cat3_1: Excavator, cat3_2: Tools, cat3_3: Panels, cat3_4: Container, cat3_5: ModelHouse,
 };

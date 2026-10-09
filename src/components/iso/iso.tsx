@@ -225,6 +225,25 @@ export const WinsR: React.FC<{ x: number; y0: number; y1: number; z0: number; z1
 /** Ерөнхий хавтгай дөрвөлжин (дурын 3D цэгүүд) */
 export const Quad: React.FC<{ p: number[][]; fill: string; stroke?: string }> = ({ p, fill, stroke }) => <Poly p={p} fill={fill} stroke={stroke} />;
 
+/** Зүүн нүүр (y = const) дээр изометрээр хэлбэржсэн бичвэр. size нь нэгжээр. */
+export const TextL: React.FC<{ x: number; y: number; z: number; size: number; fill?: string; children: React.ReactNode }> = ({ x, y, z, size, fill = '#fff', children }) => {
+  const [sx, sy] = P(x, y, z);
+  return (
+    <text
+      transform={`matrix(${f(K * S)} ${f(0.5 * S)} 0 ${f(S)} ${f(sx)} ${f(sy)})`}
+      fontSize={size}
+      fontWeight={800}
+      fontFamily="'Google Sans', system-ui, sans-serif"
+      textAnchor="middle"
+      fill={fill}
+      stroke="rgba(28,16,8,0.25)"
+      strokeWidth={0.04}
+    >
+      {children}
+    </text>
+  );
+};
+
 /** Шугам */
 export const Line: React.FC<{ a: number[]; b: number[]; stroke?: string; w?: number }> = ({ a, b, stroke = 'rgba(28,16,8,0.45)', w = 0.6 }) => {
   const [x1, y1] = P(a[0], a[1], a[2]);
